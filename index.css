@@ -375,3 +375,270 @@ body {
 :root[data-theme='light'] svg {
   color: inherit;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   MOTION & DEPTH SYSTEM — Keyframes, Scroll Reveals, Parallax
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Scroll-Reveal Animations ──────────────────────────────── */
+@keyframes revealUp {
+  from { opacity: 0; transform: translateY(40px) scale(0.97); filter: blur(6px); }
+  to   { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+@keyframes revealDown {
+  from { opacity: 0; transform: translateY(-30px) scale(0.97); filter: blur(4px); }
+  to   { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+@keyframes revealLeft {
+  from { opacity: 0; transform: translateX(-50px) scale(0.97); filter: blur(6px); }
+  to   { opacity: 1; transform: translateX(0) scale(1); filter: blur(0); }
+}
+@keyframes revealRight {
+  from { opacity: 0; transform: translateX(50px) scale(0.97); filter: blur(6px); }
+  to   { opacity: 1; transform: translateX(0) scale(1); filter: blur(0); }
+}
+@keyframes revealScale {
+  from { opacity: 0; transform: scale(0.85); filter: blur(8px); }
+  to   { opacity: 1; transform: scale(1); filter: blur(0); }
+}
+
+/* ── Floating / Levitation ─────────────────────────────────── */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%      { transform: translateY(-12px); }
+}
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33%      { transform: translateY(-8px) rotate(0.5deg); }
+  66%      { transform: translateY(-4px) rotate(-0.5deg); }
+}
+@keyframes floatX {
+  0%, 100% { transform: translateX(0px); }
+  50%      { transform: translateX(8px); }
+}
+
+/* ── Glow Pulses ───────────────────────────────────────────── */
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(59,130,246,0.15), 0 0 60px rgba(59,130,246,0.05); }
+  50%      { box-shadow: 0 0 30px rgba(59,130,246,0.3), 0 0 80px rgba(59,130,246,0.1); }
+}
+@keyframes glowPulseAccent {
+  0%, 100% { box-shadow: 0 0 20px rgba(245,158,11,0.1), 0 0 60px rgba(245,158,11,0.03); }
+  50%      { box-shadow: 0 0 30px rgba(245,158,11,0.25), 0 0 80px rgba(245,158,11,0.08); }
+}
+@keyframes textGlow {
+  0%, 100% { text-shadow: 0 0 20px rgba(59,130,246,0.3); }
+  50%      { text-shadow: 0 0 40px rgba(59,130,246,0.5), 0 0 80px rgba(59,130,246,0.2); }
+}
+
+/* ── Shimmer / Shine ───────────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* ── Gradient Rotation ─────────────────────────────────────── */
+@keyframes gradientShift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ── Orbit / Decorative Ring ───────────────────────────────── */
+@keyframes orbit {
+  from { transform: rotate(0deg) translateX(120px) rotate(0deg); }
+  to   { transform: rotate(360deg) translateX(120px) rotate(-360deg); }
+}
+@keyframes orbitReverse {
+  from { transform: rotate(360deg) translateX(90px) rotate(-360deg); }
+  to   { transform: rotate(0deg) translateX(90px) rotate(0deg); }
+}
+@keyframes spinSlow {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ── Depth Tilt on Hover (3D) ──────────────────────────────── */
+@keyframes tiltIn {
+  from { transform: perspective(800px) rotateX(4deg) rotateY(-2deg) scale(0.95); opacity: 0; }
+  to   { transform: perspective(800px) rotateX(0) rotateY(0) scale(1); opacity: 1; }
+}
+
+/* ── Ripple ─────────────────────────────────────────────────── */
+@keyframes ripple {
+  0%   { transform: scale(0); opacity: 0.5; }
+  100% { transform: scale(4); opacity: 0; }
+}
+
+/* ── Morph blob ─────────────────────────────────────────────── */
+@keyframes morphBlob {
+  0%, 100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+  25%      { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
+  50%      { border-radius: 50% 60% 30% 60% / 30% 60% 70% 40%; }
+  75%      { border-radius: 60% 30% 60% 40% / 60% 40% 30% 70%; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   UTILITY CLASSES — apply via className
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Scroll reveal — hidden state (JS toggles .is-visible) */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px) scale(0.97);
+  filter: blur(6px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              filter 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform, filter;
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  filter: blur(0);
+}
+
+.reveal-left {
+  opacity: 0;
+  transform: translateX(-50px) scale(0.97);
+  filter: blur(6px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              filter 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform, filter;
+}
+.reveal-left.is-visible {
+  opacity: 1;
+  transform: translateX(0) scale(1);
+  filter: blur(0);
+}
+
+.reveal-right {
+  opacity: 0;
+  transform: translateX(50px) scale(0.97);
+  filter: blur(6px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              filter 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform, filter;
+}
+.reveal-right.is-visible {
+  opacity: 1;
+  transform: translateX(0) scale(1);
+  filter: blur(0);
+}
+
+.reveal-scale {
+  opacity: 0;
+  transform: scale(0.85);
+  filter: blur(8px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              filter 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform, filter;
+}
+.reveal-scale.is-visible {
+  opacity: 1;
+  transform: scale(1);
+  filter: blur(0);
+}
+
+/* Stagger children — add on parent, each child gets delayed */
+.stagger-children > .reveal:nth-child(1) { transition-delay: 0ms; }
+.stagger-children > .reveal:nth-child(2) { transition-delay: 80ms; }
+.stagger-children > .reveal:nth-child(3) { transition-delay: 160ms; }
+.stagger-children > .reveal:nth-child(4) { transition-delay: 240ms; }
+.stagger-children > .reveal:nth-child(5) { transition-delay: 320ms; }
+.stagger-children > .reveal:nth-child(6) { transition-delay: 400ms; }
+.stagger-children > .reveal:nth-child(7) { transition-delay: 480ms; }
+.stagger-children > .reveal:nth-child(8) { transition-delay: 560ms; }
+.stagger-children > .reveal:nth-child(9) { transition-delay: 640ms; }
+.stagger-children > .reveal:nth-child(10) { transition-delay: 720ms; }
+.stagger-children > .reveal:nth-child(11) { transition-delay: 800ms; }
+.stagger-children > .reveal:nth-child(12) { transition-delay: 880ms; }
+
+/* Animation utilities */
+.animate-float      { animation: float 5s ease-in-out infinite; }
+.animate-float-slow { animation: floatSlow 8s ease-in-out infinite; }
+.animate-float-x    { animation: floatX 6s ease-in-out infinite; }
+.animate-glow       { animation: glowPulse 3s ease-in-out infinite; }
+.animate-glow-accent{ animation: glowPulseAccent 4s ease-in-out infinite; }
+.animate-text-glow  { animation: textGlow 3s ease-in-out infinite; }
+.animate-orbit      { animation: orbit 20s linear infinite; }
+.animate-orbit-rev  { animation: orbitReverse 25s linear infinite; }
+.animate-spin-slow  { animation: spinSlow 30s linear infinite; }
+.animate-morph      { animation: morphBlob 12s ease-in-out infinite; }
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.04) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmer 3s ease-in-out infinite;
+}
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradientShift 6s ease infinite;
+}
+
+/* 3D Depth Card */
+.depth-card {
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.depth-card:hover {
+  transform: perspective(800px) rotateX(-2deg) rotateY(2deg) translateY(-6px) scale(1.02);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4),
+              0 0 40px rgba(59, 130, 246, 0.08);
+}
+
+/* Magnetic hover effect — subtle pull toward cursor */
+.magnetic-hover {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Glass morphism with depth */
+.glass-depth {
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* Parallax layer hints */
+.parallax-slow { will-change: transform; }
+.parallax-fast { will-change: transform; }
+
+/* Page transition wrapper */
+.page-enter {
+  animation: revealUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Decorative orb (blurred gradient circle) */
+.depth-orb {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(80px);
+  opacity: 0.15;
+  animation: floatSlow 10s ease-in-out infinite;
+}
+
+/* Responsive: reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  .reveal, .reveal-left, .reveal-right, .reveal-scale { 
+    transition: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+  .animate-float, .animate-float-slow, .animate-float-x,
+  .animate-glow, .animate-glow-accent, .animate-text-glow,
+  .animate-orbit, .animate-orbit-rev, .animate-spin-slow,
+  .animate-morph, .animate-shimmer, .animate-gradient {
+    animation: none !important;
+  }
+  .depth-card:hover { transform: none !important; }
+  .page-enter { animation: none !important; }
+}

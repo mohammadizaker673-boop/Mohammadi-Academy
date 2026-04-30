@@ -8,6 +8,7 @@ import LanguageSelector from '../components/LanguageSelector';
 import BackButton from '../components/BackButton';
 import { useLanguage } from '../contexts/LanguageContext';
 import { TRANSLATIONS } from '../constants';
+import { DepthOrbs } from '../components/motion/MotionElements';
 
 type ChatMessage = {
   id: string;
@@ -293,7 +294,8 @@ const AITutorPage: React.FC = () => {
   // Teacher selection grid
   if (!selectedTeacher) {
     return (
-      <div className="min-h-screen bg-[#050a12]">
+      <div className="min-h-screen bg-[#050a12] relative overflow-hidden">
+        <DepthOrbs count={4} colors={['rgba(59,130,246,0.10)', 'rgba(245,158,11,0.06)', 'rgba(139,92,246,0.10)', 'rgba(16,185,129,0.06)']} />
         {/* Nav */}
         <nav className="fixed top-0 w-full z-50 bg-[#050a12]/80 backdrop-blur-2xl border-b border-white/10">
           <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
@@ -307,14 +309,19 @@ const AITutorPage: React.FC = () => {
         </nav>
 
         <div className="pt-32 pb-20 px-6">
-          <div className="max-w-6xl mx-auto">
+          <div className="max-w-6xl mx-auto page-enter">
             <BackButton to="/" label="← Back to Home" variant="light" />
-            <div className="text-center mt-6 mb-16">
-              <div className="inline-flex items-center gap-3 px-5 py-2.5 bg-primary-400/10 border border-primary-400/20 rounded-full mb-6">
+            <div className="text-center mt-6 mb-16 relative">
+              {/* Decorative orbit */}
+              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] pointer-events-none opacity-20" aria-hidden="true">
+                <div className="absolute inset-0 rounded-full border border-white/[0.04] animate-spin-slow" />
+                <div className="absolute inset-12 rounded-full border border-primary-400/[0.06]" style={{ animationDirection: 'reverse' }} />
+              </div>
+              <div className="inline-flex items-center gap-3 px-5 py-2.5 bg-primary-400/10 border border-primary-400/20 rounded-full mb-6 animate-glow">
                 <Sparkles size={16} className="text-primary-400" />
                 <span className="text-primary-300 text-[10px] font-black tracking-[0.3em] uppercase">AI-Powered Learning</span>
               </div>
-              <h1 className="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-accent-400 mb-6">
+              <h1 className="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-accent-400 mb-6 animate-text-glow">
                 AI Teachers
               </h1>
               <p className="text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
@@ -330,17 +337,17 @@ const AITutorPage: React.FC = () => {
               </div>
             )}
 
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 stagger-children">
               {SUBJECT_TEACHERS.map(teacher => (
                 <button
                   key={teacher.id}
                   onClick={() => hasApiKey && selectTeacher(teacher)}
                   disabled={!hasApiKey}
-                  className={`group text-left bg-white/5 border border-white/10 rounded-2xl p-6 transition-all ${
+                  className={`group text-left bg-white/5 border border-white/10 rounded-2xl p-6 transition-all depth-card reveal ${
                     hasApiKey ? 'hover:border-primary-400/40 hover:bg-white/[0.08] cursor-pointer' : 'opacity-50 cursor-not-allowed'
                   }`}
                 >
-                  <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${teacher.color} flex items-center justify-center text-2xl mb-4`}>
+                  <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${teacher.color} flex items-center justify-center text-2xl mb-4 animate-float-slow`}>
                     {teacher.emoji}
                   </div>
                   <h3 className="text-lg font-black text-white mb-1">{teacher.name}</h3>

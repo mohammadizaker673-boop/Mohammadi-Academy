@@ -2,9 +2,9 @@
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { BookOpen, Clock, Users, GraduationCap, CheckCircle, Calendar, Video, Globe, ArrowLeft, Play, Sparkles } from 'lucide-react';
 import { courses } from '../data/courses';
-import { useLanguage } from '../contexts/LanguageContext';
 import LanguageSelector from '../components/LanguageSelector';
 import LogoLink from '../components/LogoLink';
+import { DepthOrbs } from '../components/motion/MotionElements';
 
 const CATEGORY_AI_MAP: Record<string, { name: string; emoji: string }> = {
   'quran': { name: 'Sheikh Noor', emoji: '📖' },
@@ -19,7 +19,6 @@ const CATEGORY_AI_MAP: Record<string, { name: string; emoji: string }> = {
 };
 
 const CourseDetailPage: React.FC = () => {
-  const { language } = useLanguage();
   const { courseId } = useParams<{ courseId: string }>();
   const navigate = useNavigate();
   const course = courses.find(c => c.id === courseId);
@@ -36,8 +35,8 @@ const CourseDetailPage: React.FC = () => {
     } else if (isArabicCourse) {
       navigate('/learn-arabic');
     } else {
-      // For other courses
-      navigate(`/student/courses/${courseId}`);
+      // Navigate to the AI-powered learning page
+      navigate(`/learn/${courseId}`);
     }
   };
 
@@ -53,13 +52,14 @@ const CourseDetailPage: React.FC = () => {
   }
 
   const scrollToEnroll = () => {
-    document.getElementById('enroll-section')?.scrollIntoView({ behavior: 'smooth' });
+    handleLaunchCourse();
   };
 
   const isFree = course.priceType === 'free' || course.pricing[0].pricePerMonth === 0;
 
   return (
-    <div className="min-h-screen bg-[#050a12]">
+    <div className="min-h-screen bg-[#050a12] relative overflow-hidden">
+      <DepthOrbs count={3} colors={['rgba(59,130,246,0.10)', 'rgba(245,158,11,0.07)', 'rgba(139,92,246,0.08)']} />
       <header className="bg-[#050a12]/80 backdrop-blur-2xl border-b border-white/10 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <LogoLink showText={false} compact />
@@ -89,18 +89,32 @@ const CourseDetailPage: React.FC = () => {
                 Start Learning Arabic
               </button>
             )}
+            {!isHifzCourse && !isArabicCourse && (
+              <button
+                onClick={handleLaunchCourse}
+                className="px-6 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full hover:from-emerald-400 hover:to-teal-400 transition-all shadow-lg shadow-emerald-400/30 flex items-center gap-2 font-semibold"
+              >
+                <Play className="w-4 h-4" />
+                Start Learning
+              </button>
+            )}
             <button 
               onClick={scrollToEnroll} 
               className="px-6 py-2 bg-gradient-to-r from-primary-500 to-accent-500 rounded-full hover:from-primary-400 hover:to-accent-400 transition-all shadow-lg shadow-primary-400/30"
             >
-              {isHifzCourse || isArabicCourse ? 'Enroll / Learn More' : 'Enroll Now'}
+              {isHifzCourse || isArabicCourse ? 'Enroll / Learn More' : 'Course Details'}
             </button>
           </div>
         </div>
       </header>
 
-      <section className="bg-gradient-to-br from-primary-600 to-accent-600 py-16 px-4">
-        <div className="max-w-7xl mx-auto">
+      <section className="bg-gradient-to-br from-primary-600 to-accent-600 py-16 px-4 relative overflow-hidden">
+        {/* Decorative orbit ring */}
+        <div className="absolute -right-40 -top-40 w-[500px] h-[500px] pointer-events-none opacity-20" aria-hidden="true">
+          <div className="absolute inset-0 rounded-full border border-white/10 animate-spin-slow" />
+          <div className="absolute inset-16 rounded-full border border-white/[0.06]" style={{ animationDirection: 'reverse' }} />
+        </div>
+        <div className="max-w-7xl mx-auto page-enter relative z-10">
           <div className="flex items-center gap-3 mb-6">
             <Link to="/" className="text-white/80 hover:text-white transition-colors flex items-center gap-2">
               <ArrowLeft className="w-5 h-5" /> Back to Home
@@ -128,7 +142,7 @@ const CourseDetailPage: React.FC = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="space-y-8">
-          <section className="bg-white/5 border border-white/10 rounded-xl p-6">
+          <section className="bg-white/5 border border-white/10 rounded-xl p-6 reveal depth-card">
             <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2"><GraduationCap className="w-6 h-6 text-primary-400" />Course Overview</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex items-center gap-3 text-slate-300">
@@ -155,18 +169,19 @@ const CourseDetailPage: React.FC = () => {
               )}
             </div>
             <div className="mt-6">
-              <button onClick={scrollToEnroll} className="px-6 py-3 bg-gradient-to-r from-primary-500 to-accent-500 rounded-full hover:from-primary-400 hover:to-accent-400 transition-all shadow-lg shadow-primary-400/30">
+              <button onClick={handleLaunchCourse} className="px-6 py-3 bg-gradient-to-r from-primary-500 to-accent-500 rounded-full hover:from-primary-400 hover:to-accent-400 transition-all shadow-lg shadow-primary-400/30 flex items-center gap-2 font-semibold">
+                <Play className="w-5 h-5" />
                 Start Course
               </button>
             </div>
           </section>
 
-          <section className="bg-white/5 border border-white/10 rounded-xl p-6">
+          <section className="bg-white/5 border border-white/10 rounded-xl p-6 reveal" style={{ transitionDelay: '100ms' }}>
               <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2"><Users className="w-6 h-6 text-primary-400" />Who Is This Course For?</h2>
               <p className="text-slate-300 text-lg">{course.targetAudience}</p>
             </section>
 
-            <section className="bg-white/5 border border-white/10 rounded-xl p-6">
+            <section className="bg-white/5 border border-white/10 rounded-xl p-6 reveal" style={{ transitionDelay: '150ms' }}>
               <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2"><CheckCircle className="w-6 h-6 text-primary-400" />What You'll Learn</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {course.learningOutcomes.map(outcome => (
@@ -179,7 +194,7 @@ const CourseDetailPage: React.FC = () => {
             </section>
 
             {course.syllabus && course.syllabus.length > 0 && (
-              <section className="bg-white/5 border border-white/10 rounded-xl p-6">
+              <section className="bg-white/5 border border-white/10 rounded-xl p-6 reveal" style={{ transitionDelay: '200ms' }}>
                 <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2"><Calendar className="w-6 h-6 text-primary-400" />Course Syllabus ({course.syllabus.length} Weeks)</h2>
                 <div className="space-y-4">
                   {course.syllabus.map(week => (
@@ -200,7 +215,7 @@ const CourseDetailPage: React.FC = () => {
 
             {/* Class Format Section - Conditional */}
             {course.classFormat && (course.classFormat.duration || course.classFormat.mode?.length > 0 || course.classFormat.materials?.length > 0) && (
-              <section className="bg-white/5 border border-white/10 rounded-xl p-6">
+              <section className="bg-white/5 border border-white/10 rounded-xl p-6 reveal">
                 <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2"><Video className="w-6 h-6 text-primary-400" />Class Format</h2>
                 <div className="space-y-4">
                   {course.classFormat.duration && (
@@ -240,7 +255,7 @@ const CourseDetailPage: React.FC = () => {
 
             {/* Requirements Section - Conditional */}
             {course.requirements && course.requirements.length > 0 && (
-              <section className="bg-white/5 border border-white/10 rounded-xl p-6">
+              <section className="bg-white/5 border border-white/10 rounded-xl p-6 reveal">
                 <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2"><BookOpen className="w-6 h-6 text-primary-400" />Requirements</h2>
                 <ul className="space-y-3">
                   {course.requirements.map((req, idx) => (
@@ -254,8 +269,8 @@ const CourseDetailPage: React.FC = () => {
             )}
 
             {/* AI Teacher CTA */}
-            <section className="bg-gradient-to-br from-primary-500/10 to-accent-500/10 border border-primary-400/20 rounded-2xl p-8 text-center">
-              <div className="text-4xl mb-3">{CATEGORY_AI_MAP[course.category]?.emoji || '✨'}</div>
+            <section className="bg-gradient-to-br from-primary-500/10 to-accent-500/10 border border-primary-400/20 rounded-2xl p-8 text-center reveal animate-glow">
+              <div className="text-4xl mb-3 animate-float">{CATEGORY_AI_MAP[course.category]?.emoji || '✨'}</div>
               <h2 className="text-2xl font-black text-white mb-2 flex items-center justify-center gap-2">
                 <Sparkles className="w-5 h-5 text-primary-400" />
                 Need help with this subject?

@@ -13,7 +13,7 @@ export const TRANSLATIONS: Record<Language, any> = {
     brighterLearning: 'Brighter Learning',
     heroSub: 'At Muhammadi Online Academy, we connect hearts with foundational knowledge across faith, character, and modern skills. We believe learning should build strong values, critical thinking, and practical capability for every learner.',
     mission: 'Guided by faith and excellence, we deliver knowledge that shapes character, builds skills, and serves communities.',
-    nav: { courses: 'Courses', pricing: 'Pricing', admission: 'Admission', enroll: 'Enroll Now', login: 'Login', signUp: 'Sign Up', dashboard: 'Dashboard', logout: 'Logout', register: 'Register', explore: 'Explore', exploreSubjects: 'Explore subjects', findPath: 'Find your learning path', viewAllCourses: 'View all courses', seeMore: 'See more', startLearning: 'Start Learning', knowledgeStore: 'Knowledge Store', searchPlaceholder: 'What do you want to learn? (e.g., Quran, Arabic)', quickResults: 'Quick Results for', viewAllResults: 'View all results for', courses_label: 'courses' },
+    nav: { courses: 'Courses', pricing: 'Pricing', admission: 'Admission', enroll: 'Enroll Now', login: 'Login', signUp: 'Sign Up', dashboard: 'Dashboard', logout: 'Logout', register: 'Register', explore: 'Explore Courses', exploreSubjects: 'Explore subjects', findPath: 'Find your learning path', viewAllCourses: 'View all courses', seeMore: 'See more', startLearning: 'Start Learning', knowledgeStore: 'Knowledge Store', searchPlaceholder: 'What do you want to learn? (e.g., Quran, Arabic)', quickResults: 'Quick Results for', viewAllResults: 'View all results for', courses_label: 'courses' },
     courses: {
       title: 'What We Offer',
       subtitle: 'All classes are one-to-one, interactive, and designed according to the student\'s level',
@@ -551,7 +551,7 @@ export const TRANSLATIONS: Record<Language, any> = {
     brighterLearning: 'تعليم أفضل',
     heroSub: 'في أكاديمية المحمدي الإلكترونية، نربط القلوب بالمعرفة الأساسية عبر الإيمان والأخلاق والمهارات الحديثة. نؤمن بأن التعليم يجب أن يبني قيماً قوية وتفكيراً نقدياً وقدرة عملية لكل متعلم.',
     mission: 'بهداية الإيمان والتميز، نقدم المعرفة التي تصقل الشخصية وتبني المهارات وتخدم المجتمعات.',
-    nav: { courses: 'الدورات', pricing: 'الأسعار', admission: 'القبول', enroll: 'سجل الآن', login: 'تسجيل الدخول', signUp: 'إنشاء حساب', dashboard: 'لوحة التحكم', logout: 'تسجيل الخروج', register: 'التسجيل', explore: 'استكشف', exploreSubjects: 'استكشف المواد', findPath: 'ابحث عن مسارك التعليمي', viewAllCourses: 'عرض جميع الدورات', seeMore: 'المزيد', startLearning: 'ابدأ التعلم', knowledgeStore: 'متجر المعرفة', searchPlaceholder: 'ماذا تريد أن تتعلم؟ (مثل: القرآن، العربية)', quickResults: 'نتائج سريعة لـ', viewAllResults: 'عرض جميع النتائج لـ', courses_label: 'دورات' },
+    nav: { courses: 'الدورات', pricing: 'الأسعار', admission: 'القبول', enroll: 'سجل الآن', login: 'تسجيل الدخول', signUp: 'إنشاء حساب', dashboard: 'لوحة التحكم', logout: 'تسجيل الخروج', register: 'التسجيل', explore: 'استكشاف الدورات', exploreSubjects: 'استكشف المواد', findPath: 'ابحث عن مسارك التعليمي', viewAllCourses: 'عرض جميع الدورات', seeMore: 'المزيد', startLearning: 'ابدأ التعلم', knowledgeStore: 'متجر المعرفة', searchPlaceholder: 'ماذا تريد أن تتعلم؟ (مثل: القرآن، العربية)', quickResults: 'نتائج سريعة لـ', viewAllResults: 'عرض جميع النتائج لـ', courses_label: 'دورات' },
     courses: {
       title: 'ما نقدمه',
       subtitle: 'جميع الفصول فردية وتفاعلية ومصممة حسب مستوى الطالب',
@@ -1089,7 +1089,7 @@ export const TRANSLATIONS: Record<Language, any> = {
     brighterLearning: 'آموزش بهتر',
     heroSub: 'در آکادمی آنلاین محمدی، ما قلب‌ها را با دانش بنیادین در ایمان، اخلاق و مهارت‌های مدرن پیوند می‌دهیم. ما باور داریم که آموزش باید ارزش‌های قوی، تفکر انتقادی و توانایی عملی برای هر آموزنده بسازد.',
     mission: 'با هدایت ایمان و تعالی، دانشی ارائه می‌دهیم که شخصیت را شکل می‌دهد، مهارت‌ها را می‌سازد و به جوامع خدمت می‌کند.',
-    nav: { courses: 'دوره‌ها', pricing: 'هزینه‌ها', admission: 'پذیرش', enroll: 'ثبت نام کنید', login: 'ورود', signUp: 'ثبت نام', dashboard: 'داشبورد', logout: 'خروج', register: 'ثبت نام', explore: 'کاوش', exploreSubjects: 'کاوش موضوعات', findPath: 'مسیر یادگیری خود را بیابید', viewAllCourses: 'مشاهده همه دوره‌ها', seeMore: 'بیشتر', startLearning: 'شروع یادگیری', knowledgeStore: 'فروشگاه دانش', searchPlaceholder: 'چه می‌خواهید یاد بگیرید؟ (مثلاً قرآن، عربی)', quickResults: 'نتایج سریع برای', viewAllResults: 'مشاهده همه نتایج برای', courses_label: 'دوره' },
+    nav: { courses: 'دوره‌ها', pricing: 'هزینه‌ها', admission: 'پذیرش', enroll: 'ثبت نام کنید', login: 'ورود', signUp: 'ثبت نام', dashboard: 'داشبورد', logout: 'خروج', register: 'ثبت نام', explore: 'کاوش دوره‌ها', exploreSubjects: 'کاوش موضوعات', findPath: 'مسیر یادگیری خود را بیابید', viewAllCourses: 'مشاهده همه دوره‌ها', seeMore: 'بیشتر', startLearning: 'شروع یادگیری', knowledgeStore: 'فروشگاه دانش', searchPlaceholder: 'چه می‌خواهید یاد بگیرید؟ (مثلاً قرآن، عربی)', quickResults: 'نتایج سریع برای', viewAllResults: 'مشاهده همه نتایج برای', courses_label: 'دوره' },
     courses: {
       title: 'آنچه ارائه می‌دهیم',
       subtitle: 'تمام کلاس‌ها فردی، تعاملی و متناسب با سطح دانشجو طراحی شده‌اند',
@@ -1627,7 +1627,7 @@ export const TRANSLATIONS: Record<Language, any> = {
     brighterLearning: 'غوره زده کړه',
     heroSub: 'د محمدي آنلاین اکاډمي کې، موږ زړونه د ایمان، اخلاقو او عصري مهارتونو په بنسټیزه پوهه سره نښلوو. موږ باور لرو چې زده کړه باید قوي ارزښتونه، انتقادي فکر او عملي وړتیا ودروي.',
     mission: 'د ایمان او برتریا په لارښوونه، موږ هغه پوهه وړاندې کوو چې شخصیت ترتیبوي، مهارتونه جوړوي او ټولنو ته خدمت کوي.',
-    nav: { courses: 'کورسونه', pricing: 'فیسونه', admission: 'شمولیت', enroll: 'اوس ثبت نام وکړئ', login: 'ننوتل', signUp: 'نوی حساب', dashboard: 'ډشبورډ', logout: 'وتل', register: 'ثبت نام', explore: 'پلټنه', exploreSubjects: 'موضوعات وپلټئ', findPath: 'خپل د زده کړې لاره ومومئ', viewAllCourses: 'ټول کورسونه وګورئ', seeMore: 'نور وګورئ', startLearning: 'زده کړه پیل کړئ', knowledgeStore: 'د پوهې پلورنځی', searchPlaceholder: 'تاسو څه زده کول غواړئ؟ (لکه: قرآن، عربي)', quickResults: 'ګړندي پایلې د', viewAllResults: 'ټولې پایلې وګورئ د', courses_label: 'کورسونه' },
+    nav: { courses: 'کورسونه', pricing: 'فیسونه', admission: 'شمولیت', enroll: 'اوس ثبت نام وکړئ', login: 'ننوتل', signUp: 'نوی حساب', dashboard: 'ډشبورډ', logout: 'وتل', register: 'ثبت نام', explore: 'کورسونه وپلټئ', exploreSubjects: 'موضوعات وپلټئ', findPath: 'خپل د زده کړې لاره ومومئ', viewAllCourses: 'ټول کورسونه وګورئ', seeMore: 'نور وګورئ', startLearning: 'زده کړه پیل کړئ', knowledgeStore: 'د پوهې پلورنځی', searchPlaceholder: 'تاسو څه زده کول غواړئ؟ (لکه: قرآن، عربي)', quickResults: 'ګړندي پایلې د', viewAllResults: 'ټولې پایلې وګورئ د', courses_label: 'کورسونه' },
     courses: {
       title: 'موږ څه وړاندې کوو',
       subtitle: 'ټول ټولګي انفرادي، تعاملي او د زده کوونکي د سطحې مطابق ډیزاین شوي دي',

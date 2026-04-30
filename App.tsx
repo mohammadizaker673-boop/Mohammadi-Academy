@@ -7,6 +7,7 @@ import { SettingsProvider } from './contexts/SettingsContext';
 import AdminLayout from './components/admin/AdminLayout';
 import TeacherLayout from './components/teacher/TeacherLayout';
 import StudentLayout from './components/student/StudentLayout';
+import ScrollRevealInit from './components/motion/ScrollRevealInit';
 
 const HomePage = React.lazy(() => import('./pages/HomePage'));
 const LoginPage = React.lazy(() => import('./pages/auth/LoginPage'));
@@ -118,6 +119,8 @@ const AIParentReport = React.lazy(() => import('./components/ai/AIParentReport')
 const AIRecommendations = React.lazy(() => import('./components/ai/AIRecommendations'));
 const AITeacherTools = React.lazy(() => import('./components/ai/AITeacherTools'));
 const AITutorPage = React.lazy(() => import('./pages/AITutorPage'));
+const CourseLearningPage = React.lazy(() => import('./pages/CourseLearningPage'));
+const CreateCoursePage = React.lazy(() => import('./pages/CreateCoursePage'));
 const NotFoundPage = React.lazy(() => import('./pages/NotFoundPage'));
 
 // Error Boundary component
@@ -172,6 +175,7 @@ const App: React.FC = () => {
           <SettingsProvider>
             <ErrorBoundary>
             <ScrollToTop />
+            <ScrollRevealInit />
             <React.Suspense fallback={<LoadingFallback />}>
             <Routes>
             {/* Public Routes */}
@@ -193,6 +197,8 @@ const App: React.FC = () => {
             <Route path="/about" element={<AboutUs />} />
             <Route path="/contact" element={<ContactUs />} />
             <Route path="/ai-tutor" element={<AITutorPage />} />
+            <Route path="/learn/:courseId" element={<CourseLearningPage />} />
+            <Route path="/create-course" element={<CreateCoursePage />} />
             <Route path="/faq" element={<FAQPage />} />
             <Route path="/articles" element={<ArticlesPage />} />
             <Route path="/articles/:id" element={<ArticleDetailPage />} />

@@ -549,15 +549,15 @@ const HomePage: React.FC = () => {
       {/* Tuition Packages */}
       <section id="pricing" className="py-20 bg-[#0e1436]/80 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-16">
+          <div className="text-center mb-16 reveal">
             <h2 className="text-4xl sm:text-5xl font-black text-white mb-8 tracking-tight">{t.pricing.title}</h2>
             <div className="w-20 h-2 bg-primary-500 mx-auto rounded-full mb-10"></div>
             <p className="text-slate-400 max-w-2xl mx-auto font-medium text-sm">{t.pricing.subtitle}</p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-3 gap-6 stagger-children">
             {/* Basic Package */}
-            <div className="relative bg-gradient-to-br from-white/10 to-white/5 border-2 border-white/20 rounded-[2rem] p-10 hover:border-primary-400/50 transition-all hover:shadow-2xl hover:shadow-sky-400/10 hover:-translate-y-2 group">
+            <div className="relative bg-gradient-to-br from-white/10 to-white/5 border-2 border-white/20 rounded-[2rem] p-10 hover:border-primary-400/50 transition-all hover:shadow-2xl hover:shadow-sky-400/10 hover:-translate-y-2 group reveal depth-card">
               <div className="text-center mb-8">
                 <h3 className="text-2xl font-black text-white mb-4">{t.pricing.basic}</h3>
                 <div className="flex items-end justify-center gap-2">
@@ -780,8 +780,8 @@ const HomePage: React.FC = () => {
       {/* AI Teachers Section */}
       <section className="py-20 relative">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-14">
-            <div className="inline-flex items-center gap-3 px-5 py-2.5 bg-primary-400/10 border border-primary-400/20 rounded-full mb-6">
+          <div className="text-center mb-14 reveal">
+            <div className="inline-flex items-center gap-3 px-5 py-2.5 bg-primary-400/10 border border-primary-400/20 rounded-full mb-6 animate-glow">
               <Sparkles size={16} className="text-primary-400" />
               <span className="text-primary-300 text-[10px] font-black tracking-[0.3em] uppercase">AI-Powered Learning</span>
             </div>
@@ -793,7 +793,7 @@ const HomePage: React.FC = () => {
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-10 stagger-children">
             {[
               { emoji: '📖', name: 'Sheikh Noor', subject: 'Quran & Tajweed', color: 'from-emerald-500 to-teal-500' },
               { emoji: '🕌', name: 'Ustadh Ibrahim', subject: 'Islamic Studies', color: 'from-amber-500 to-orange-500' },
@@ -807,9 +807,9 @@ const HomePage: React.FC = () => {
               <Link
                 key={teacher.name}
                 to="/ai-tutor"
-                className="group bg-white/5 border border-white/10 rounded-2xl p-5 hover:border-primary-400/40 hover:bg-white/[0.08] transition-all"
+                className="group bg-white/5 border border-white/10 rounded-2xl p-5 hover:border-primary-400/40 hover:bg-white/[0.08] transition-all reveal depth-card"
               >
-                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${teacher.color} flex items-center justify-center text-xl mb-3`}>
+                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${teacher.color} flex items-center justify-center text-xl mb-3 animate-float-slow`}>
                   {teacher.emoji}
                 </div>
                 <h3 className="text-base font-black text-white mb-0.5">{teacher.name}</h3>

@@ -10,6 +10,7 @@ import LanguageSelector from '../components/LanguageSelector';
 import LogoLink from '../components/LogoLink';
 import BackButton from '../components/BackButton';
 import { getCourseDetailPath } from '../utils/courseRouting';
+import { DepthOrbs } from '../components/motion/MotionElements';
 
 const CoursesPage: React.FC = () => {
   const { language } = useLanguage();
@@ -159,7 +160,8 @@ const CoursesPage: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#050a12]">
+    <div className="min-h-screen bg-[#050a12] relative overflow-hidden">
+      <DepthOrbs count={4} colors={['rgba(59,130,246,0.10)', 'rgba(245,158,11,0.06)', 'rgba(139,92,246,0.08)', 'rgba(16,185,129,0.06)']} />
       <header className="fixed top-0 w-full z-50 bg-[#050a12]/80 backdrop-blur-2xl border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 grid grid-cols-1 lg:grid-cols-[auto,minmax(0,48rem),auto] items-center gap-4">
           <div className="flex items-center gap-4 justify-center lg:justify-start">
@@ -171,7 +173,7 @@ const CoursesPage: React.FC = () => {
                 aria-haspopup="true"
                 aria-expanded={exploreOpen}
               >
-                Explore
+                Explore Courses
               </button>
               {exploreOpen && (
                 <div className="absolute left-0 mt-3 w-56 rounded-xl border border-slate-700 bg-slate-900/95 backdrop-blur-xl shadow-xl z-50">
@@ -270,6 +272,9 @@ const CoursesPage: React.FC = () => {
           </div>
           <div className="flex gap-4 items-center justify-center lg:justify-end">
             <LanguageSelector />
+            <Link to="/create-course" className="px-4 py-2 text-primary-300 hover:text-primary-200 transition-colors flex items-center gap-1 font-semibold text-sm">
+              <span>✨</span> Create Course
+            </Link>
             <Link to="/ai-tutor" className="px-4 py-2 text-slate-300 hover:text-white transition-colors">AI Teachers</Link>
             <Link to="/login" className="px-4 py-2 text-slate-300 hover:text-white transition-colors">{t.nav.login}</Link>
             <Link to="/register" className="px-4 py-2 bg-gradient-to-r from-primary-500 to-accent-500 rounded-lg hover:from-primary-400 hover:to-accent-400 transition-all">{t.nav.enroll}</Link>
@@ -278,9 +283,15 @@ const CoursesPage: React.FC = () => {
       </header>
 
       <section className="pt-32 pb-16 px-4 text-center">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-5xl font-black mb-6 text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-accent-400">{t.form.ourCourses}</h1>
+        <div className="max-w-4xl mx-auto page-enter">
+          <h1 className="text-5xl font-black mb-6 text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-accent-400 animate-text-glow">{t.form.ourCourses}</h1>
           <p className="text-xl text-slate-300 mb-8">{t.form.comprehensiveEducation}</p>
+          <Link
+            to="/create-course"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-violet-500 to-purple-500 rounded-full text-white font-bold hover:from-violet-400 hover:to-purple-400 transition-all shadow-lg shadow-violet-500/20"
+          >
+            ✨ Create Your Own Course with AI
+          </Link>
         </div>
       </section>
 
@@ -402,14 +413,14 @@ const CoursesPage: React.FC = () => {
           </div>
         )}
         {sectionedCourses.map(section => (
-          <div key={section.id}>
+          <div key={section.id} className="reveal" style={{ transitionDelay: '100ms' }}>
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-3xl font-bold text-white">{section.title}</h2>
               <span className="text-sm text-slate-400">{section.courses.length} courses</span>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 stagger-children">
               {section.courses.map(course => (
-                <div key={course.id} className="bg-white/5 border border-white/10 rounded-xl overflow-hidden hover:border-primary-400/50 transition-all duration-300 group">
+                <div key={course.id} className="bg-white/5 border border-white/10 rounded-xl overflow-hidden hover:border-primary-400/50 transition-all duration-300 group depth-card reveal">
                   <div className="bg-gradient-to-br from-primary-600 to-accent-600 p-6">
                     <div className="flex justify-between items-start mb-3">
                       <GraduationCap className="w-10 h-10 text-white" />
@@ -447,6 +458,9 @@ const CoursesPage: React.FC = () => {
                     </div>
                     <Link to={getCourseDetailPath(course.id)} className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-gradient-to-r from-primary-500 to-accent-500 rounded-lg hover:from-primary-400 hover:to-accent-400 transition-all">
                       {t.form.viewDetails} <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </Link>
+                    <Link to={`/learn/${course.id}`} className="flex items-center justify-center gap-2 w-full px-4 py-2.5 mt-2 border border-emerald-500/30 bg-emerald-500/10 rounded-lg text-emerald-400 hover:bg-emerald-500/20 transition-all text-sm font-semibold">
+                      ▶ Start Learning
                     </Link>
                   </div>
                 </div>
