@@ -1,0 +1,7 @@
+﻿{
+  "name": "Mohammadi Online Quran Academy",
+  "description": "A professional online Quran learning platform offering Tajweed, Hifz, Noorani Qaida, and Islamic Studies with an integrated AI assistant for student admissions and support.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}

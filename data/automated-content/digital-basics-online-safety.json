@@ -1,0 +1,297 @@
+{
+  "course": {
+    "title": "Digital Basics & Online Safety",
+    "description": "A beginner-friendly, self-paced course that teaches safe and confident computer and internet use through clear lessons, real-life examples, and quick practice.",
+    "level": "beginner"
+  },
+  "lessons": [
+    {
+      "title": "Lesson 1: What Is a Computer? Parts and Basic Use",
+      "explanation": "A computer is a tool that helps you create, learn, and communicate. It has parts you can see, like the screen and keyboard, and parts inside that help it work.",
+      "keyPoints": [
+        "Screen shows what the computer is doing",
+        "Keyboard and mouse are input tools",
+        "The computer follows your instructions",
+        "Turn off safely using the Shut Down option"
+      ],
+      "examples": [
+        "You use the mouse to open a learning website.",
+        "You type a message using the keyboard."
+      ],
+      "exercise": "Identify the screen, keyboard, and mouse on your device and describe what each one does.",
+      "quiz": [
+        { "q": "Which part shows pictures and text?", "options": ["Screen", "Mouse", "Keyboard", "Speaker"], "answer": 0 },
+        { "q": "Which part helps you type?", "options": ["Screen", "Keyboard", "USB", "Printer"], "answer": 1 },
+        { "q": "Which tool moves the pointer?", "options": ["Mouse", "Screen", "Chair", "Speaker"], "answer": 0 },
+        { "q": "What is a safe way to turn off a computer?", "options": ["Unplug it", "Use Shut Down", "Hit the screen", "Close the lid forever"], "answer": 1 },
+        { "q": "The computer follows your instructions. True or false?", "options": ["True", "False", "Sometimes", "Never"], "answer": 0 }
+      ],
+      "recap": "You learned the basic parts of a computer and how to use them safely.",
+      "nextStep": "Practice clicking and opening a simple app."
+    },
+    {
+      "title": "Lesson 2: Mouse, Keyboard, and Typing Practice",
+      "explanation": "The mouse helps you point and click. The keyboard helps you type. Good control makes everything easier.",
+      "keyPoints": [
+        "Left click selects, double click opens",
+        "Right click shows more options",
+        "Use the space bar and backspace when typing",
+        "Practice typing slowly and correctly"
+      ],
+      "examples": [
+        "Double click a folder to open it.",
+        "Use backspace to fix a typing mistake."
+      ],
+      "exercise": "Type your name and a short sentence. Then correct any mistakes using backspace.",
+      "quiz": [
+        { "q": "What does a double click do?", "options": ["Opens an item", "Turns off the computer", "Prints", "Deletes"], "answer": 0 },
+        { "q": "Which key adds a space?", "options": ["Enter", "Space bar", "Shift", "Backspace"], "answer": 1 },
+        { "q": "Which click shows more options?", "options": ["Left", "Right", "Middle", "Double"], "answer": 1 },
+        { "q": "Backspace is used to", "options": ["Add letters", "Delete letters", "Open files", "Mute sound"], "answer": 1 },
+        { "q": "Typing correctly is better than typing fast. True?", "options": ["True", "False", "Only for adults", "Only for kids"], "answer": 0 }
+      ],
+      "recap": "You practiced mouse clicks and basic typing.",
+      "nextStep": "Practice opening a document and typing a short paragraph."
+    },
+    {
+      "title": "Lesson 3: Files, Folders, and Saving Work",
+      "explanation": "Files are your documents, photos, and work. Folders help you organize them so you can find them quickly.",
+      "keyPoints": [
+        "Save your work often",
+        "Use clear file names",
+        "Folders keep files organized",
+        "Know where your files are stored"
+      ],
+      "examples": [
+        "Save a homework file as: Math_Homework_1.",
+        "Create a folder called School to keep work together."
+      ],
+      "exercise": "Create a folder named Learning and save a file inside it with your name.",
+      "quiz": [
+        { "q": "What is a folder used for?", "options": ["Organizing files", "Printing", "Browsing", "Listening"], "answer": 0 },
+        { "q": "Which is a good file name?", "options": ["file1", "My Homework", "Homework_Math_Week1", "asdf"], "answer": 2 },
+        { "q": "Saving often prevents", "options": ["Losing work", "Typing", "Learning", "Internet"], "answer": 0 },
+        { "q": "Files can be", "options": ["Documents", "Photos", "Both", "Neither"], "answer": 2 },
+        { "q": "You should know where your files are stored. True?", "options": ["True", "False", "Only for teachers", "Only for IT"], "answer": 0 }
+      ],
+      "recap": "You learned how to save and organize your work.",
+      "nextStep": "Practice creating folders for different subjects."
+    },
+    {
+      "title": "Lesson 4: Internet Basics and Browsers",
+      "explanation": "The internet is a network that connects people and information. A browser is the app you use to visit websites.",
+      "keyPoints": [
+        "A browser opens websites",
+        "The address bar shows the website link",
+        "Use tabs to open multiple pages",
+        "Close tabs you do not need"
+      ],
+      "examples": [
+        "Open a browser and type a website address.",
+        "Use a new tab to open a second page."
+      ],
+      "exercise": "Open your browser, visit a learning website, and open one new tab.",
+      "quiz": [
+        { "q": "What is a browser?", "options": ["A website", "An app to visit websites", "A file", "A game"], "answer": 1 },
+        { "q": "Where do you type a website link?", "options": ["Title bar", "Address bar", "Taskbar", "Status bar"], "answer": 1 },
+        { "q": "Tabs help you", "options": ["Open more pages", "Close the internet", "Delete files", "Print"], "answer": 0 },
+        { "q": "Which is safer?", "options": ["Keep 30 tabs", "Close tabs you do not need", "Open random links", "Ignore updates"], "answer": 1 },
+        { "q": "The internet connects", "options": ["Only one computer", "People and information", "Only games", "Only emails"], "answer": 1 }
+      ],
+      "recap": "You learned how to use a browser and tabs.",
+      "nextStep": "Practice opening a trusted website and reading a short article."
+    },
+    {
+      "title": "Lesson 5: Searching Smartly",
+      "explanation": "Search engines help you find information. Good keywords give better results and save time.",
+      "keyPoints": [
+        "Use clear keywords",
+        "Check the website name before clicking",
+        "Avoid suspicious ads",
+        "Compare a few sources"
+      ],
+      "examples": [
+        "Search: \"how to create a folder\".",
+        "Check if the website looks trustworthy."
+      ],
+      "exercise": "Search for \"basic computer lesson\" and open two safe sources.",
+      "quiz": [
+        { "q": "Good keywords are", "options": ["Clear and specific", "Random words", "Very long sentences", "Emojis"], "answer": 0 },
+        { "q": "What should you check before clicking?", "options": ["Website name", "Screen color", "Keyboard type", "Mouse brand"], "answer": 0 },
+        { "q": "Ads can be", "options": ["Always safe", "Sometimes misleading", "Never shown", "Not clickable"], "answer": 1 },
+        { "q": "Comparing sources helps you", "options": ["Get better info", "Lose time", "Delete files", "Avoid learning"], "answer": 0 },
+        { "q": "Which is a good search?", "options": ["a a a", "homework", "how to save a file", "random"], "answer": 2 }
+      ],
+      "recap": "You learned how to search safely and effectively.",
+      "nextStep": "Practice finding a safe video lesson for beginners."
+    },
+    {
+      "title": "Lesson 6: Email and Messaging Safely",
+      "explanation": "Email and messages help you communicate, but you must stay safe by checking who sent them.",
+      "keyPoints": [
+        "Check the sender name and email",
+        "Do not click unknown links",
+        "Never share passwords",
+        "Use polite and clear messages"
+      ],
+      "examples": [
+        "An email asking for your password is a scam.",
+        "A teacher email uses the correct school address."
+      ],
+      "exercise": "Write a short safe email greeting to a teacher or friend.",
+      "quiz": [
+        { "q": "Should you share your password in email?", "options": ["Yes", "No", "Only with friends", "Only once"], "answer": 1 },
+        { "q": "If a message looks strange you should", "options": ["Click it", "Ignore or report it", "Forward to everyone", "Reply with your data"], "answer": 1 },
+        { "q": "Checking the sender helps you", "options": ["Stay safe", "Type faster", "Play games", "Print files"], "answer": 0 },
+        { "q": "A safe email is", "options": ["Polite and clear", "Rude", "Confusing", "All caps"], "answer": 0 },
+        { "q": "Unknown links are", "options": ["Always safe", "Always useful", "Risky", "Required"], "answer": 2 }
+      ],
+      "recap": "You learned how to communicate safely.",
+      "nextStep": "Practice identifying safe and unsafe emails."
+    },
+    {
+      "title": "Lesson 7: Passwords and Account Security",
+      "explanation": "Strong passwords protect your accounts. Use unique passwords and never share them.",
+      "keyPoints": [
+        "Use long passwords",
+        "Mix letters, numbers, and symbols",
+        "Do not reuse passwords",
+        "Enable two-step verification when possible"
+      ],
+      "examples": [
+        "A strong password looks like: Sun!River2026.",
+        "Use a password manager if needed."
+      ],
+      "exercise": "Create a strong password example (do not use your real password).",
+      "quiz": [
+        { "q": "A strong password should be", "options": ["Short", "Unique and long", "Your name", "12345"], "answer": 1 },
+        { "q": "Reusing passwords is", "options": ["Safe", "Risky", "Required", "Smart"], "answer": 1 },
+        { "q": "Two-step verification adds", "options": ["More security", "More games", "Less safety", "No change"], "answer": 0 },
+        { "q": "You should share passwords with", "options": ["Anyone", "Friends", "No one", "Social media"], "answer": 2 },
+        { "q": "Which is stronger?", "options": ["password", "Sun!River2026", "abc", "111111"], "answer": 1 }
+      ],
+      "recap": "You learned how to create and protect strong passwords.",
+      "nextStep": "Review your accounts and update weak passwords."
+    },
+    {
+      "title": "Lesson 8: Scams, Phishing, and Fake Links",
+      "explanation": "Scammers trick people into sharing information. Learn to spot red flags and avoid harm.",
+      "keyPoints": [
+        "Do not trust urgent threats",
+        "Check the real website address",
+        "Never send money to strangers",
+        "Report suspicious messages"
+      ],
+      "examples": [
+        "\"Your account will close today\" is a common scam line.",
+        "A fake website may have spelling mistakes."
+      ],
+      "exercise": "Write three signs of a phishing message.",
+      "quiz": [
+        { "q": "Phishing tries to", "options": ["Help you", "Steal information", "Teach", "Protect"], "answer": 1 },
+        { "q": "Urgent threats are", "options": ["Always real", "Often scams", "Never used", "Required"], "answer": 1 },
+        { "q": "You should check", "options": ["Website address", "Mouse color", "Keyboard style", "Screen size"], "answer": 0 },
+        { "q": "Send money to strangers?", "options": ["Yes", "No", "Only once", "If they ask"], "answer": 1 },
+        { "q": "Suspicious messages should be", "options": ["Reported", "Ignored forever", "Shared", "Liked"], "answer": 0 }
+      ],
+      "recap": "You learned how to spot scams and fake links.",
+      "nextStep": "Practice checking links before you click."
+    },
+    {
+      "title": "Lesson 9: Social Media Privacy and Digital Footprints",
+      "explanation": "What you post online can stay forever. Protect your privacy and think before you share.",
+      "keyPoints": [
+        "Use private account settings",
+        "Do not share personal info",
+        "Think before posting photos",
+        "Be kind and respectful online"
+      ],
+      "examples": [
+        "Set your profile to private for better safety.",
+        "Do not share your home address in posts."
+      ],
+      "exercise": "List three personal details you should never post publicly.",
+      "quiz": [
+        { "q": "A digital footprint is", "options": ["Your shoe size", "Your online history", "A device", "A folder"], "answer": 1 },
+        { "q": "Private settings help", "options": ["Protect you", "Delete homework", "Make games", "Send emails"], "answer": 0 },
+        { "q": "You should post", "options": ["Anything", "Only safe content", "Passwords", "Addresses"], "answer": 1 },
+        { "q": "Being respectful online is", "options": ["Optional", "Important", "Bad", "Only for adults"], "answer": 1 },
+        { "q": "Personal info like address should be", "options": ["Public", "Private", "Shared", "Posted"], "answer": 1 }
+      ],
+      "recap": "You learned how to protect privacy on social media.",
+      "nextStep": "Check your privacy settings today."
+    },
+    {
+      "title": "Lesson 10: Safe Downloading and Device Protection",
+      "explanation": "Downloads can bring helpful tools or harmful viruses. Only download from trusted sources.",
+      "keyPoints": [
+        "Download from official websites",
+        "Avoid unknown files",
+        "Keep your device updated",
+        "Use antivirus protection"
+      ],
+      "examples": [
+        "Download software from the official company website.",
+        "Ignore pop-up messages that offer random downloads."
+      ],
+      "exercise": "Find the official website of a trusted app and identify the download button.",
+      "quiz": [
+        { "q": "The safest download is from", "options": ["Official website", "Random pop-up", "Unknown link", "Spam email"], "answer": 0 },
+        { "q": "Updates help", "options": ["Security", "Slow devices", "Delete files", "None"], "answer": 0 },
+        { "q": "Antivirus is used to", "options": ["Protect", "Print", "Type", "Browse"], "answer": 0 },
+        { "q": "Unknown files are", "options": ["Always safe", "Risky", "Required", "Better"], "answer": 1 },
+        { "q": "Pop-ups offering downloads are", "options": ["Always safe", "Often unsafe", "Required", "Helpful"], "answer": 1 }
+      ],
+      "recap": "You learned safe downloading and device protection.",
+      "nextStep": "Review your device updates and security settings."
+    },
+    {
+      "title": "Lesson 11: Online Learning Tools",
+      "explanation": "Online tools help you study, attend classes, and submit work. Learn the basics of common tools.",
+      "keyPoints": [
+        "Use documents and slides for assignments",
+        "Join video classes safely",
+        "Share files only with trusted people",
+        "Organize learning folders"
+      ],
+      "examples": [
+        "Use a document tool to type homework.",
+        "Join class using a shared meeting link."
+      ],
+      "exercise": "Create a folder called Online Learning and save a document in it.",
+      "quiz": [
+        { "q": "Online tools help you", "options": ["Learn and submit work", "Delete files", "Avoid study", "Play only"], "answer": 0 },
+        { "q": "Meeting links should be shared with", "options": ["Everyone", "Trusted people", "Strangers", "Public"], "answer": 1 },
+        { "q": "Files should be organized in", "options": ["Folders", "Trash", "Random places", "Screens"], "answer": 0 },
+        { "q": "Document tools are for", "options": ["Writing", "Playing", "Deleting", "Breaking"], "answer": 0 },
+        { "q": "You should save work", "options": ["Often", "Never", "Only once", "At the end only"], "answer": 0 }
+      ],
+      "recap": "You learned the basics of online learning tools.",
+      "nextStep": "Practice joining a safe online class."
+    },
+    {
+      "title": "Lesson 12: Review and Final Safety Checklist",
+      "explanation": "This final lesson reviews key safety rules and helps you build a daily safe-use habit.",
+      "keyPoints": [
+        "Think before you click",
+        "Protect your passwords",
+        "Keep your device updated",
+        "Stay respectful online"
+      ],
+      "examples": [
+        "Check the website address before signing in.",
+        "Use a strong password and do not share it."
+      ],
+      "exercise": "Write your personal online safety checklist with 5 rules.",
+      "quiz": [
+        { "q": "Best habit before clicking a link?", "options": ["Check it", "Click fast", "Ignore", "Share"], "answer": 0 },
+        { "q": "A strong password is", "options": ["Long and unique", "Your name", "123", "password"], "answer": 0 },
+        { "q": "Updates help", "options": ["Security", "Games", "Spam", "Nothing"], "answer": 0 },
+        { "q": "Respect online means", "options": ["Be kind", "Be rude", "Share secrets", "Insult"], "answer": 0 },
+        { "q": "Final safety checklist helps you", "options": ["Stay safe daily", "Forget rules", "Ignore warnings", "Lose files"], "answer": 0 }
+      ],
+      "recap": "You reviewed all key safety skills for digital life.",
+      "nextStep": "Apply your checklist every day online."
+    }
+  ]
+}

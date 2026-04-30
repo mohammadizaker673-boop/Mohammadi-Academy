@@ -1,0 +1,56 @@
+const dedicatedCoursePaths: Record<string, string> = {
+  'noorani-qaida': '/noorani-qaida',
+  'quran-translation': '/quran-translation',
+  'islamic-studies': '/islamic-studies'
+};
+
+const dedicatedStudentCoursePaths: Record<string, string> = {
+  'noorani-qaida': '/student/noorani-qaida-player',
+  'quran-translation': '/student/quran-translation-player',
+  'islamic-studies': '/student/islamic-studies-player'
+};
+
+const dedicatedTeacherCoursePaths: Record<string, string> = {
+  'quran-translation': '/teacher/quran-translation-player',
+  'islamic-studies': '/teacher/islamic-studies-player'
+};
+
+export const getCourseDetailPath = (courseId: string) => {
+  const dedicatedPath = dedicatedCoursePaths[courseId];
+  if (dedicatedPath) {
+    return dedicatedPath;
+  }
+
+  return `/courses/${courseId}`;
+};
+
+export const isDedicatedCourse = (courseId: string) => courseId in dedicatedCoursePaths;
+
+export const getCoursePlayerPath = (courseId: string, role: 'student' | 'teacher' | 'admin') => {
+  if (role === 'admin') {
+    return getCourseDetailPath(courseId);
+  }
+
+  if (role === 'teacher') {
+    const dedicatedTeacherPath = dedicatedTeacherCoursePaths[courseId];
+    if (dedicatedTeacherPath) {
+      return dedicatedTeacherPath;
+    }
+    return `/teacher/courses/${courseId}`;
+  }
+
+  const dedicatedStudentPath = dedicatedStudentCoursePaths[courseId];
+  if (dedicatedStudentPath) {
+    return dedicatedStudentPath;
+  }
+
+  return `/student/courses/${courseId}`;
+};
+
+export const getDashboardCoursePath = (courseId: string, role: 'student' | 'teacher') => {
+  if (isDedicatedCourse(courseId)) {
+    return getCoursePlayerPath(courseId, role);
+  }
+
+  return getCourseDetailPath(courseId);
+};
