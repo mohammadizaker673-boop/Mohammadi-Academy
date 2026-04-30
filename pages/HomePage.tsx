@@ -432,115 +432,35 @@ const HomePage: React.FC = () => {
           </div>
           <div className="relative">
             <div className="absolute -inset-8 bg-gradient-to-br from-primary-400/10 to-accent-500/10 blur-3xl rounded-full"></div>
-            <div className="relative rounded-[2rem] overflow-hidden shadow-2xl border border-white/10 bg-white/5 backdrop-blur-xl">
-              {/* Image top */}
-              <div className="h-48 overflow-hidden relative">
-                <img src={backgroundImage} alt={t.name} className="w-full h-full object-cover" style={{ mixBlendMode: 'screen', filter: 'brightness(1.2) contrast(1.1)' }} />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#050a12] to-transparent"></div>
-              </div>
-              {/* Search area */}
-              <div className="p-6 -mt-8 relative z-10">
-                <h3 className="text-xl font-black text-white mb-3">What do you want to learn?</h3>
+            <div className="relative rounded-[3rem] overflow-hidden shadow-2xl border-2 border-white/10 bg-black">
+              <img src={backgroundImage} alt={t.name} className="w-full h-full object-cover" style={{ mixBlendMode: 'screen', filter: 'brightness(1.2) contrast(1.1)' }} />
+              {/* Search overlay on image */}
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-6 pt-16">
+                <h3 className="text-lg font-black text-white mb-3">What do you want to learn?</h3>
                 <form onSubmit={(e) => { e.preventDefault(); handleHeroSearch(); }} className="flex gap-2">
-                  <div className="relative flex-1">
-                    <input
-                      type="text"
-                      value={heroSearch}
-                      onChange={(e) => { setHeroSearch(e.target.value); setHeroSearched(false); }}
-                      placeholder="e.g. Tajweed, Python, Arabic, First Aid..."
-                      className="w-full px-5 py-3.5 bg-white/10 border border-white/15 rounded-xl text-white placeholder:text-slate-400 focus:border-primary-400 focus:outline-none transition-all text-sm"
-                    />
-                  </div>
+                  <input
+                    type="text"
+                    value={heroSearch}
+                    onChange={(e) => { setHeroSearch(e.target.value); setHeroSearched(false); }}
+                    placeholder="e.g. Tajweed, Python, Arabic, First Aid..."
+                    className="flex-1 px-4 py-3 bg-white/15 backdrop-blur-md border border-white/20 rounded-xl text-white placeholder:text-slate-300 focus:border-primary-400 focus:outline-none text-sm"
+                  />
                   <button
                     type="submit"
                     disabled={heroSearching || !heroSearch.trim()}
-                    className="px-5 py-3.5 bg-gradient-to-r from-primary-500 to-accent-500 text-white rounded-xl font-bold disabled:opacity-50 hover:from-primary-400 hover:to-accent-400 transition-all flex items-center gap-2 text-sm"
+                    className="px-5 py-3 bg-gradient-to-r from-primary-500 to-accent-500 text-white rounded-xl font-bold disabled:opacity-50 hover:from-primary-400 hover:to-accent-400 transition-all flex items-center gap-2 text-sm"
                   >
                     {heroSearching ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
-                    {heroSearching ? 'Finding...' : 'Find'}
                   </button>
                 </form>
-
-                {/* Results */}
-                {heroSearched && (
-                  <div className="mt-5 space-y-3">
-                    {heroResults.length > 0 && (
-                      <div>
-                        <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-2">Matching Courses</p>
-                        <div className="space-y-2">
-                          {heroResults.map(c => (
-                            <Link
-                              key={c.id}
-                              to={getCourseDetailPath(c.id)}
-                              className="flex items-center justify-between gap-3 px-4 py-3 bg-white/5 border border-white/10 rounded-xl hover:border-primary-400/40 transition-all group"
-                            >
-                              <div className="min-w-0">
-                                <p className="text-sm font-bold text-white truncate">{c.title}</p>
-                                <p className="text-xs text-slate-400 truncate">{c.category.replace('-', ' ')} · {c.level}</p>
-                              </div>
-                              <ArrowRight size={14} className="text-slate-400 group-hover:text-primary-400 flex-shrink-0 transition-colors" />
-                            </Link>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {aiCourse && (
-                      <div className="bg-gradient-to-br from-primary-500/10 to-accent-500/10 border border-primary-400/20 rounded-xl p-4">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Sparkles size={14} className="text-primary-400" />
-                          <p className="text-xs text-primary-300 font-bold uppercase tracking-wider">AI-Generated Course</p>
-                        </div>
-                        <h4 className="text-base font-black text-white mb-1">{aiCourse.title}</h4>
-                        <p className="text-xs text-slate-300 mb-3">{aiCourse.description}</p>
-                        <div className="flex flex-wrap gap-2 mb-3">
-                          <span className="px-2 py-0.5 bg-white/10 rounded-full text-[10px] text-slate-300">{aiCourse.duration}</span>
-                          <span className="px-2 py-0.5 bg-white/10 rounded-full text-[10px] text-slate-300">{aiCourse.level}</span>
-                          <span className="px-2 py-0.5 bg-white/10 rounded-full text-[10px] text-slate-300">{aiCourse.modules.length} modules</span>
-                        </div>
-                        <div className="space-y-1 mb-3">
-                          {aiCourse.modules.slice(0, 4).map((m, i) => (
-                            <p key={i} className="text-xs text-slate-400 flex items-center gap-2">
-                              <span className="w-4 h-4 rounded-full bg-primary-500/20 text-primary-400 flex items-center justify-center text-[9px] font-bold flex-shrink-0">{i + 1}</span>
-                              {m}
-                            </p>
-                          ))}
-                          {aiCourse.modules.length > 4 && (
-                            <p className="text-xs text-slate-500">+{aiCourse.modules.length - 4} more modules</p>
-                          )}
-                        </div>
-                        <Link
-                          to="/ai-tutor"
-                          className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary-500 to-accent-500 text-white rounded-lg text-xs font-bold hover:from-primary-400 hover:to-accent-400 transition-all"
-                        >
-                          <Sparkles size={12} /> Start Learning with AI
-                        </Link>
-                      </div>
-                    )}
-
-                    {heroResults.length === 0 && !aiCourse && (
-                      <div className="text-center py-4">
-                        <p className="text-sm text-slate-400 mb-3">No exact matches found for "{heroSearch}"</p>
-                        <Link
-                          to="/ai-tutor"
-                          className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary-500 to-accent-500 text-white rounded-lg text-xs font-bold hover:from-primary-400 hover:to-accent-400 transition-all"
-                        >
-                          <Sparkles size={12} /> Ask AI Teacher Instead
-                        </Link>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Popular topics */}
                 {!heroSearched && (
-                  <div className="mt-4 flex flex-wrap gap-2">
+                  <div className="mt-3 flex flex-wrap gap-1.5">
                     {['Quran', 'Arabic', 'Tajweed', 'Python', 'Islamic Studies', 'English'].map(topic => (
                       <button
                         key={topic}
                         type="button"
                         onClick={() => { setHeroSearch(topic); }}
-                        className="px-3 py-1.5 bg-white/5 border border-white/10 rounded-full text-xs text-slate-300 hover:text-white hover:border-white/20 transition-all"
+                        className="px-2.5 py-1 bg-white/10 backdrop-blur-sm border border-white/15 rounded-full text-[11px] text-white/80 hover:text-white hover:bg-white/20 transition-all"
                       >
                         {topic}
                       </button>
@@ -549,6 +469,76 @@ const HomePage: React.FC = () => {
                 )}
               </div>
             </div>
+            {/* Search results dropdown below image */}
+            {heroSearched && (
+              <div className="mt-4 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-5 space-y-3">
+                {heroResults.length > 0 && (
+                  <div>
+                    <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-2">Matching Courses</p>
+                    <div className="space-y-2">
+                      {heroResults.map(c => (
+                        <Link
+                          key={c.id}
+                          to={getCourseDetailPath(c.id)}
+                          className="flex items-center justify-between gap-3 px-4 py-3 bg-white/5 border border-white/10 rounded-xl hover:border-primary-400/40 transition-all group"
+                        >
+                          <div className="min-w-0">
+                            <p className="text-sm font-bold text-white truncate">{c.title}</p>
+                            <p className="text-xs text-slate-400 truncate">{c.category.replace('-', ' ')} · {c.level}</p>
+                          </div>
+                          <ArrowRight size={14} className="text-slate-400 group-hover:text-primary-400 flex-shrink-0 transition-colors" />
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {aiCourse && (
+                  <div className="bg-gradient-to-br from-primary-500/10 to-accent-500/10 border border-primary-400/20 rounded-xl p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Sparkles size={14} className="text-primary-400" />
+                      <p className="text-xs text-primary-300 font-bold uppercase tracking-wider">AI-Generated Course</p>
+                    </div>
+                    <h4 className="text-base font-black text-white mb-1">{aiCourse.title}</h4>
+                    <p className="text-xs text-slate-300 mb-3">{aiCourse.description}</p>
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      <span className="px-2 py-0.5 bg-white/10 rounded-full text-[10px] text-slate-300">{aiCourse.duration}</span>
+                      <span className="px-2 py-0.5 bg-white/10 rounded-full text-[10px] text-slate-300">{aiCourse.level}</span>
+                      <span className="px-2 py-0.5 bg-white/10 rounded-full text-[10px] text-slate-300">{aiCourse.modules.length} modules</span>
+                    </div>
+                    <div className="space-y-1 mb-3">
+                      {aiCourse.modules.slice(0, 4).map((m, i) => (
+                        <p key={i} className="text-xs text-slate-400 flex items-center gap-2">
+                          <span className="w-4 h-4 rounded-full bg-primary-500/20 text-primary-400 flex items-center justify-center text-[9px] font-bold flex-shrink-0">{i + 1}</span>
+                          {m}
+                        </p>
+                      ))}
+                      {aiCourse.modules.length > 4 && (
+                        <p className="text-xs text-slate-500">+{aiCourse.modules.length - 4} more modules</p>
+                      )}
+                    </div>
+                    <Link
+                      to="/ai-tutor"
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary-500 to-accent-500 text-white rounded-lg text-xs font-bold hover:from-primary-400 hover:to-accent-400 transition-all"
+                    >
+                      <Sparkles size={12} /> Start Learning with AI
+                    </Link>
+                  </div>
+                )}
+
+                {heroResults.length === 0 && !aiCourse && (
+                  <div className="text-center py-3">
+                    <p className="text-sm text-slate-400 mb-3">No exact matches found for &quot;{heroSearch}&quot;</p>
+                    <Link
+                      to="/ai-tutor"
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary-500 to-accent-500 text-white rounded-lg text-xs font-bold hover:from-primary-400 hover:to-accent-400 transition-all"
+                    >
+                      <Sparkles size={12} /> Ask AI Teacher Instead
+                    </Link>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-accent-500/10 blur-[120px] rounded-full"></div>

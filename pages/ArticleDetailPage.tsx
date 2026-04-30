@@ -31,6 +31,13 @@ const ArticleDetailPage: React.FC = () => {
   }
   const [article, setArticle] = useState<Article | null>(null);
 
+  useEffect(() => {
+    if (t && t.dir) {
+      document.documentElement.dir = t.dir;
+      document.documentElement.lang = language;
+    }
+  }, [language, t]);
+
   if (!t) {
     return (
       <div style={{ color: 'white', padding: '20px', textAlign: 'center' }}>
@@ -38,13 +45,6 @@ const ArticleDetailPage: React.FC = () => {
       </div>
     );
   }
-
-  useEffect(() => {
-    if (t && t.dir) {
-      document.documentElement.dir = t.dir;
-      document.documentElement.lang = language;
-    }
-  }, [language, t]);
 
   const articles: Record<string, Article> = {
     'light-of-knowledge': {

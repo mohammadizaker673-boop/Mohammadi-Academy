@@ -17,6 +17,13 @@ const ArticlesPage: React.FC = () => {
     t = TRANSLATIONS['en'];
   }
 
+  useEffect(() => {
+    if (t && t.dir) {
+      document.documentElement.dir = t.dir;
+      document.documentElement.lang = language;
+    }
+  }, [language, t]);
+
   if (!t) {
     return (
       <div style={{ color: 'white', padding: '20px', textAlign: 'center' }}>
@@ -24,13 +31,6 @@ const ArticlesPage: React.FC = () => {
       </div>
     );
   }
-
-  useEffect(() => {
-    if (t && t.dir) {
-      document.documentElement.dir = t.dir;
-      document.documentElement.lang = language;
-    }
-  }, [language, t]);
 
   const articles = [
     {

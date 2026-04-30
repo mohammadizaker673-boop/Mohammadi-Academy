@@ -24,14 +24,6 @@ const CoursesPage: React.FC = () => {
   const [automatedCourses, setAutomatedCourses] = useState<AutomatedCourse[]>([]);
   const [showSuggestions, setShowSuggestions] = useState<boolean>(false);
 
-  if (!t) {
-    return (
-      <div style={{ color: 'white', padding: '20px', textAlign: 'center' }}>
-        <h2>Error: Translations not loaded</h2>
-      </div>
-    );
-  }
-
   useEffect(() => {
     const ageGroupParam = searchParams.get('ageGroup');
     const categoryParam = searchParams.get('category');
@@ -59,6 +51,14 @@ const CoursesPage: React.FC = () => {
 
     loadAutomatedCourses();
   }, []);
+
+  if (!t) {
+    return (
+      <div style={{ color: 'white', padding: '20px', textAlign: 'center' }}>
+        <h2>Error: Translations not loaded</h2>
+      </div>
+    );
+  }
 
   const normalizeText = (value: string) =>
     value
@@ -146,7 +146,7 @@ const CoursesPage: React.FC = () => {
     .filter(section => section.courses.length > 0);
 
   const categoryOptions = [
-    { value: 'all', label: t.common.allCourses },
+    { value: 'all', label: t.form.allCourses },
     { value: 'quran', label: 'Quran & Tajweed' },
     { value: 'islamic-studies', label: 'Islamic Studies' },
     { value: 'language-learning', label: 'Languages' },
@@ -271,16 +271,16 @@ const CoursesPage: React.FC = () => {
           <div className="flex gap-4 items-center justify-center lg:justify-end">
             <LanguageSelector />
             <Link to="/ai-tutor" className="px-4 py-2 text-slate-300 hover:text-white transition-colors">AI Teachers</Link>
-            <Link to="/login" className="px-4 py-2 text-slate-300 hover:text-white transition-colors">{t.common.login}</Link>
-            <Link to="/register" className="px-4 py-2 bg-gradient-to-r from-primary-500 to-accent-500 rounded-lg hover:from-primary-400 hover:to-accent-400 transition-all">{t.common.enrollNow}</Link>
+            <Link to="/login" className="px-4 py-2 text-slate-300 hover:text-white transition-colors">{t.nav.login}</Link>
+            <Link to="/register" className="px-4 py-2 bg-gradient-to-r from-primary-500 to-accent-500 rounded-lg hover:from-primary-400 hover:to-accent-400 transition-all">{t.nav.enroll}</Link>
           </div>
         </div>
       </header>
 
-      <section className="py-16 px-4 text-center">
+      <section className="pt-32 pb-16 px-4 text-center">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-5xl font-black mb-6 text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-accent-400">{t.common.ourCourses}</h1>
-          <p className="text-xl text-slate-300 mb-8">{t.common.comprehensiveEducation}</p>
+          <h1 className="text-5xl font-black mb-6 text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-accent-400">{t.form.ourCourses}</h1>
+          <p className="text-xl text-slate-300 mb-8">{t.form.comprehensiveEducation}</p>
         </div>
       </section>
 
@@ -292,17 +292,17 @@ const CoursesPage: React.FC = () => {
 
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
         <div className="flex flex-wrap gap-4 items-center justify-center">
-          <div className="flex items-center gap-2"><Filter className="w-5 h-5 text-primary-400" /><span className="text-slate-300">{t.common.filterBy}:</span></div>
+          <div className="flex items-center gap-2"><Filter className="w-5 h-5 text-primary-400" /><span className="text-slate-300">{t.form.filterBy}:</span></div>
           <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)} className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-slate-200 focus:border-primary-400 focus:outline-none">
             {categoryOptions.map(option => (
               <option key={option.value} value={option.value}>{option.label}</option>
             ))}
           </select>
           <select value={selectedLevel} onChange={(e) => setSelectedLevel(e.target.value)} className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-slate-200 focus:border-primary-400 focus:outline-none">
-            <option value="all">{t.common.allLevels}</option>
-            <option value="beginner">{t.common.beginner}</option>
-            <option value="intermediate">{t.common.intermediate}</option>
-            <option value="advanced">{t.common.advanced}</option>
+            <option value="all">{t.form.allLevels}</option>
+            <option value="beginner">{t.form.beginner}</option>
+            <option value="intermediate">{t.form.intermediate}</option>
+            <option value="advanced">{t.form.advanced}</option>
           </select>
           <select value={selectedAgeGroup} onChange={(e) => setSelectedAgeGroup(e.target.value)} className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-slate-200 focus:border-primary-400 focus:outline-none">
             <option value="all">All Ages</option>
@@ -446,7 +446,7 @@ const CoursesPage: React.FC = () => {
                       <p className="text-xs text-slate-500">{course.pricing[0].label}</p>
                     </div>
                     <Link to={getCourseDetailPath(course.id)} className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-gradient-to-r from-primary-500 to-accent-500 rounded-lg hover:from-primary-400 hover:to-accent-400 transition-all">
-                      {t.common.viewDetails} <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                      {t.form.viewDetails} <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </Link>
                   </div>
                 </div>
