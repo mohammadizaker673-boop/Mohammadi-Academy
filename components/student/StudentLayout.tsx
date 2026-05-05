@@ -66,7 +66,6 @@ const StudentLayout: React.FC = () => {
   const navItems = [
     { path: '/student', icon: LayoutDashboard, label: t.dashboard.student.dashboard, exact: true },
     { path: '/student/progress', icon: TrendingUp, label: 'My Progress' },
-    { path: '/student/noorani-qaida-player', icon: BookOpen, label: 'Noorani Qaida Course' },
     { path: '/student/attendance', icon: Calendar, label: t.dashboard.student.attendance },
     { path: '/student/fees', icon: DollarSign, label: t.dashboard.student.fees },
     { path: '/student/announcements', icon: Bell, label: t.dashboard.student.announcements },

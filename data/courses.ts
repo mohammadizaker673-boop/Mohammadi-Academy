@@ -40,40 +40,6 @@ export const courses: Course[] = [
     ]
   },
   {
-    id: 'noorani-qaida',
-    title: 'Noorani Qaida & Prayer',
-    titleArabic: 'القاعدة النورانية والصلاة',
-    category: 'quran',
-    level: 'beginner',
-    ageGroup: 'all',
-    languages: ['arabic', 'dari', 'persian', 'pashto', 'english', 'urdu'],
-    targetAudience: 'Complete beginners, children, reverts, and families starting Arabic reading, Tajweed, and daily prayer practice',
-    ageRange: '5+ years',
-    duration: '19 interactive lessons • Self-paced',
-    description: 'A complete beginner-friendly Islamic foundation course covering Arabic letters, Noorani Qaida reading skills, Tajweed basics, and step-by-step Salah training with quizzes, progress tracking, and badges.',
-    learningOutcomes: [
-      { id: '1', description: 'Recognize and pronounce all Arabic letters' },
-      { id: '2', description: 'Read Arabic words and short sentences with correct harakat' },
-      { id: '3', description: 'Apply foundational Tajweed rules including Sukoon, Tanween, and Qalqalah' },
-      { id: '4', description: 'Perform wudhu and Salah step-by-step with confidence' },
-      { id: '5', description: 'Track progress through 19 guided lessons and quizzes' }
-    ],
-    syllabus: [],
-    classFormat: { duration: 'Self-paced lessons (15-30 minutes recommended)', mode: ['Interactive self-study', 'Student dashboard access'], materials: ['Lesson viewer', 'Quizzes', 'Progress tracker', 'Prayer practice guides'] },
-    requirements: ['No prior Arabic knowledge required', 'Student account recommended for saved progress', 'Stable internet connection'],
-    teacherInfo: { qualification: 'Structured digital beginner curriculum with academy guidance', experience: 'Designed for first-step Arabic and Salah learners', languages: ['Arabic', 'English', 'Urdu', 'Dari', 'Pashto'], gender: 'both' },
-    pricing: [
-      { sessions: 0, pricePerMonth: 0, label: 'Free self-paced access' }
-    ],
-    priceType: 'free',
-    lowBandwidthFriendly: true,
-    lessonOutline: [
-      { id: 'nq-1', title: 'Section 1: Noorani Qaida (7 lessons)', hasVideo: false, hasText: true, hasQuiz: true },
-      { id: 'nq-2', title: 'Section 2: Tajweed Basics (5 lessons)', hasVideo: false, hasText: true, hasQuiz: true },
-      { id: 'nq-3', title: 'Section 3: Salah Guide (7 lessons)', hasVideo: false, hasText: true, hasQuiz: true }
-    ]
-  },
-  {
     id: 'hifz-quran',
     title: 'Hifz-ul-Quran (Memorization)',
     titleArabic: 'حفظ القرآن الكريم',

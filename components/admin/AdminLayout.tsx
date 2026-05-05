@@ -104,7 +104,6 @@ const AdminLayout: React.FC = () => {
         { path: '/admin/courses/list', label: t.dashboard.admin.editCourses },
         { path: '/admin/courses/lessons', label: t.dashboard.admin.lessonsManager },
         { path: '/admin/courses/media', label: t.dashboard.admin.mediaLibrary },
-        { path: '/admin/courses/noorani', label: 'Noorani Qaida Course' },
         { path: '/admin/courses/quran-translation', label: 'Quran Translation Course' },
         { path: '/admin/courses/islamic-studies', label: 'Islamic Studies Course' },
         { path: '/admin/courses/access', label: 'Premium Course Access' },

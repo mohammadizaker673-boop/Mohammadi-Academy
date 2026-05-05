@@ -51,10 +51,6 @@ const ArabicLearningPlatform = React.lazy(() => import('./pages/student/ArabicLe
 // Quran Tajweed Learning Platform
 const QuranTajweedPlatform = React.lazy(() => import('./pages/student/QuranTajweedPlatform'));
 
-// Noorani Qaida & Prayer Course
-const NooraniQaidaCoursePage = React.lazy(() => import('./pages/student/NooraniQaidaCoursePage'));
-const StudentNooraniQaidaPage = React.lazy(() => import('./pages/student/StudentNooraniQaidaPage'));
-const NooraniQaidaManagement = React.lazy(() => import('./pages/admin/courses/NooraniQaidaManagement'));
 const QuranTranslationCoursePage = React.lazy(() => import('./pages/student/QuranTranslationCoursePage'));
 const StudentQuranTranslationPage = React.lazy(() => import('./pages/student/StudentQuranTranslationPage'));
 const QuranTranslationManagement = React.lazy(() => import('./pages/admin/courses/QuranTranslationManagement'));
@@ -189,7 +185,6 @@ const App: React.FC = () => {
             <Route path="/quick-teacher-login" element={<QuickTeacherLogin />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/courses" element={<CoursesPage />} />
-            <Route path="/courses/noorani-qaida" element={<Navigate to="/noorani-qaida" replace />} />
             <Route path="/courses/quran-translation" element={<Navigate to="/quran-translation" replace />} />
             <Route path="/courses/islamic-studies" element={<Navigate to="/islamic-studies" replace />} />
             <Route path="/courses/:courseId" element={<CourseDetailPage />} />
@@ -217,8 +212,6 @@ const App: React.FC = () => {
             {/* Quran Tajweed Learning Platform */}
             <Route path="/quran-tajweed" element={<QuranTajweedPlatform />} />
             
-            {/* Noorani Qaida & Prayer Course */}
-            <Route path="/noorani-qaida" element={<NooraniQaidaCoursePage />} />
             <Route path="/quran-translation" element={<QuranTranslationCoursePage />} />
             <Route path="/islamic-studies" element={<IslamicStudiesCoursePage />} />
             
@@ -244,8 +237,6 @@ const App: React.FC = () => {
               <Route path="courses/list" element={<CourseList />} />
               <Route path="courses/lessons" element={<LessonsManager />} />
               <Route path="courses/media" element={<MediaLibrary />} />
-              {/* Noorani Qaida Management */}
-              <Route path="courses/noorani" element={<NooraniQaidaManagement />} />
               <Route path="courses/quran-translation" element={<QuranTranslationManagement />} />
               <Route path="courses/islamic-studies" element={<IslamicStudiesManagement />} />
               <Route path="courses/access" element={<PremiumCourseAccessManagement />} />
@@ -329,8 +320,6 @@ const App: React.FC = () => {
               <Route path="fees" element={<StudentFees />} />
               <Route path="announcements" element={<StudentAnnouncements />} />
               <Route path="profile" element={<StudentProfile />} />
-              {/* Noorani Qaida Course */}
-              <Route path="noorani-qaida-player" element={<StudentNooraniQaidaPage />} />
               <Route path="quran-translation-player" element={<StudentQuranTranslationPage />} />
               <Route path="islamic-studies-player" element={<StudentIslamicStudiesPage />} />
               {/* Hifz System */}

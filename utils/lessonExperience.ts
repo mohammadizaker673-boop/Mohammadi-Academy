@@ -1,5 +1,4 @@
 import { CourseModuleLesson } from '../types/dedicated-course.types';
-import { Lesson as NooraniLesson } from '../types/noorani-qaida.types';
 
 export interface LessonReference {
   id: string;
@@ -1051,10 +1050,6 @@ export const resolveDedicatedReflectionQuestions = (lesson: CourseModuleLesson):
   return [...blockPrompts, ...createFallbackReflectionQuestions(lesson.title, lesson.objectives, lesson.keyPoints)].slice(0, 3);
 };
 
-export const resolveNooraniReflectionQuestions = (lesson: NooraniLesson): string[] => {
-  return createFallbackReflectionQuestions(lesson.title, lesson.content.learningObjectives, lesson.content.keyPoints);
-};
-
 const resolveReferencesFromRules = (title: string, rules: Array<{ test: RegExp; references: LessonReference[] }>) => {
   const match = rules.find((rule) => rule.test.test(title));
   return match?.references || genericQuranStudyReferences;
@@ -1063,10 +1058,6 @@ const resolveReferencesFromRules = (title: string, rules: Array<{ test: RegExp; 
 export const resolveDedicatedLessonReferences = (courseId: string, lesson: CourseModuleLesson): LessonReference[] => {
   const title = `${courseId} ${lesson.title}`;
   return resolveReferencesFromRules(title, dedicatedReferenceRules);
-};
-
-export const resolveNooraniLessonReferences = (lesson: NooraniLesson): LessonReference[] => {
-  return resolveReferencesFromRules(lesson.title, nooraniReferenceRules);
 };
 
 export const resolveDedicatedRecitationTarget = (lesson: CourseModuleLesson): LessonRecitationTarget | null => {
@@ -1081,24 +1072,6 @@ export const resolveDedicatedRecitationTarget = (lesson: CourseModuleLesson): Le
   };
 };
 
-export const resolveNooraniRecitationTarget = (lesson: NooraniLesson): LessonRecitationTarget | null => {
-  const block = lesson.content.mainContent.find((candidate) => Boolean(candidate.arabicText?.trim() || candidate.transliteration?.trim()));
-  if (block) {
-    return {
-      arabicText: block.arabicText?.trim() || undefined,
-      transliteration: block.transliteration?.trim() || undefined
-    };
-  }
-
-  if (lesson.content.transliteration?.trim()) {
-    return {
-      transliteration: lesson.content.transliteration.trim()
-    };
-  }
-
-  return null;
-};
-
 export const buildDedicatedLessonContext = (lesson: CourseModuleLesson): string => {
   const blocks = lesson.blocks
     .map((block) => [block.title, block.content, block.items?.join('; ')].filter(Boolean).join(': '))
@@ -1110,22 +1083,6 @@ export const buildDedicatedLessonContext = (lesson: CourseModuleLesson): string 
     `Description: ${lesson.description}`,
     `Objectives: ${lesson.objectives.join('; ')}`,
     `Key takeaways: ${lesson.keyPoints.join('; ')}`,
-    `Lesson blocks: ${blocks}`
-  ].join('\n');
-};
-
-export const buildNooraniLessonContext = (lesson: NooraniLesson): string => {
-  const blocks = lesson.content.mainContent
-    .map((block) => [block.content, block.arabicText, block.transliteration].filter(Boolean).join(' | '))
-    .filter(Boolean)
-    .join('\n');
-
-  return [
-    `Lesson title: ${lesson.title}`,
-    `Description: ${lesson.description}`,
-    `Introduction: ${lesson.content.introduction}`,
-    `Objectives: ${lesson.content.learningObjectives.join('; ')}`,
-    `Key takeaways: ${lesson.content.keyPoints.join('; ')}`,
     `Lesson blocks: ${blocks}`
   ].join('\n');
 };
