@@ -3,24 +3,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../../../services/firebase';
 import { BookOpen, Edit, Eye, EyeOff, Rocket, Play } from 'lucide-react';
+import { courses as allCourses } from '../../../data/courses';
 
-const PREDEFINED_COURSES = [
-  { id: 'quran-tajweed', name: 'Quran with Tajweed', category: 'quran' },
-  { id: 'noorani-qaida', name: 'Noorani Qaida & Prayer', category: 'quran' },
-  { id: 'hifz-quran', name: 'Hifz-ul-Quran', category: 'quran' },
-  { id: 'quran-tafsir', name: 'Quran Translation & Tafsir', category: 'quran' },
-  { id: 'arabic-language', name: 'Arabic Language Course', category: 'arabic' },
-  { id: 'islamic-studies', name: 'Islamic Studies & Fiqh', category: 'islamic-studies' },
-  { id: 'kids-general-knowledge', name: 'General Knowledge for Kids', category: 'general-knowledge' },
-  { id: 'kids-manners-character', name: 'Manners & Character (Kids)', category: 'life-skills' },
-  { id: 'preteens-math-for-life', name: 'Math for Life', category: 'life-skills' },
-  { id: 'preteens-digital-basics', name: 'Digital Basics & Online Safety', category: 'digital-skills' },
-  { id: 'youth-career-awareness', name: 'Career Awareness & CV Basics', category: 'life-skills' },
-  { id: 'youth-financial-literacy', name: 'Financial Literacy (Halal Income)', category: 'life-skills' },
-  { id: 'adult-small-business', name: 'Small Business Basics', category: 'life-skills' },
-  { id: 'adult-agriculture-basics', name: 'Agriculture & Livestock Basics', category: 'life-skills' },
-  { id: 'adult-family-health', name: 'Family Health & First Aid', category: 'life-skills' }
-];
+// Derive predefined courses from the canonical data source
+const PREDEFINED_COURSES = allCourses.map(c => ({
+  id: c.id,
+  name: c.title,
+  category: c.category,
+}));
 
 interface CourseData {
   id: string;

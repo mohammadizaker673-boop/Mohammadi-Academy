@@ -456,11 +456,8 @@ const CoursesPage: React.FC = () => {
                       )}
                       <p className="text-xs text-slate-500">{course.pricing[0].label}</p>
                     </div>
-                    <Link to={getCourseDetailPath(course.id)} className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-gradient-to-r from-primary-500 to-accent-500 rounded-lg hover:from-primary-400 hover:to-accent-400 transition-all">
+                    <Link to={getCourseDetailPath(course.id)} className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-gradient-to-r from-primary-500 to-accent-500 rounded-lg hover:from-primary-400 hover:to-accent-400 transition-all font-semibold">
                       {t.form.viewDetails} <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                    </Link>
-                    <Link to={`/learn/${course.id}`} className="flex items-center justify-center gap-2 w-full px-4 py-2.5 mt-2 border border-emerald-500/30 bg-emerald-500/10 rounded-lg text-emerald-400 hover:bg-emerald-500/20 transition-all text-sm font-semibold">
-                      ▶ Start Learning
                     </Link>
                   </div>
                 </div>

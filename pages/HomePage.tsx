@@ -641,7 +641,7 @@ const HomePage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-14">
             <p className="text-xs uppercase tracking-[0.35em] text-primary-300">{t.studentJourney?.label || 'Student Journey'}</p>
-            <h2 className="text-4xl sm:text-5xl font-black text-white mt-4">{t.studentJourney?.title || 'A clear roadmap from first letters to certification'}</h2>
+            <h2 className="text-4xl sm:text-5xl font-black text-white mt-4">{t.studentJourney?.title || 'A clear roadmap from enrollment to certification'}</h2>
             <p className="text-slate-300 max-w-3xl mx-auto mt-4">{t.studentJourney?.subtitle || 'Parents and students always know what comes next, how progress is measured, and when certification is earned.'}</p>
           </div>
 
@@ -649,11 +649,11 @@ const HomePage: React.FC = () => {
             <div className="bg-gradient-to-br from-white/5 to-white/0 border border-white/10 rounded-[2rem] p-8">
               <div className="flex flex-wrap gap-4">
                 {(t.studentJourney?.steps || [
-                  'Beginner Foundations',
-                  'Tajweed Mastery',
-                  'Memorization Track',
-                  'Tafsir & Meaning',
-                  'Certification'
+                  'Browse & Enroll',
+                  'Interactive Lessons',
+                  'Practice & Quizzes',
+                  'Track Progress',
+                  'Earn Certificate'
                 ]).map((step: string, index: number) => (
                   <div key={step} className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-full px-4 py-3">
                     <span className="w-7 h-7 rounded-full bg-primary-500/30 text-primary-200 text-xs font-black flex items-center justify-center">
@@ -665,9 +665,9 @@ const HomePage: React.FC = () => {
               </div>
               <div className="mt-8 grid sm:grid-cols-3 gap-4">
                 {(t.studentJourney?.levels || [
-                  { label: 'Beginner', detail: 'Arabic letters, reading fluency' },
-                  { label: 'Intermediate', detail: 'Tajweed rules and practice' },
-                  { label: 'Advanced', detail: 'Memorization + Tafsir skills' }
+                  { label: 'Beginner', detail: 'Foundation courses & guided learning' },
+                  { label: 'Intermediate', detail: 'Skill-building with practice exercises' },
+                  { label: 'Advanced', detail: 'Mastery projects & certification' }
                 ]).map((level: any) => (
                   <div key={level.label} className="rounded-2xl border border-white/10 bg-white/5 p-5">
                     <p className="text-sm uppercase tracking-[0.2em] text-slate-400">{level.label}</p>
@@ -681,17 +681,17 @@ const HomePage: React.FC = () => {
               <div className="rounded-2xl border border-primary-400/30 bg-gradient-to-br from-primary-500/15 to-accent-500/15 p-6">
                 <p className="text-xs uppercase tracking-[0.3em] text-primary-200">{t.studentJourney?.progressTracking || 'Progress Tracking'}</p>
                 <h3 className="text-2xl font-black text-white mt-3">{t.studentJourney?.liveDashboard || 'Live dashboard for parents and students'}</h3>
-                <p className="text-slate-200 mt-3">{t.studentJourney?.liveDashboardDesc || 'Attendance, teacher feedback, memorization milestones, and monthly reports in one place.'}</p>
+                <p className="text-slate-200 mt-3">{t.studentJourney?.liveDashboardDesc || 'Attendance, teacher feedback, learning milestones, and monthly reports in one place.'}</p>
               </div>
               <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
                 <p className="text-xs uppercase tracking-[0.3em] text-slate-400">{t.studentJourney?.certification || 'Certification'}</p>
                 <h3 className="text-xl font-black text-white mt-3">{t.studentJourney?.earnCertificates || 'Earn verified certificates'}</h3>
                 <p className="text-slate-300 mt-3">{t.studentJourney?.earnCertificatesDesc || 'Students receive certificates at key milestones and final completion.'}</p>
                 <Link
-                  to="/register"
+                  to="/courses"
                   className="mt-5 inline-flex items-center justify-center px-5 py-3 bg-gradient-to-r from-primary-500 to-accent-500 text-white rounded-full text-xs font-black uppercase tracking-[0.3em]"
                 >
-                  {t.studentJourney?.startJourney || 'Start Journey'}
+                  {t.studentJourney?.startJourney || 'Explore Courses'}
                 </Link>
               </div>
             </div>
@@ -700,82 +700,6 @@ const HomePage: React.FC = () => {
       </section>
       {/* Featured Content Section */}
       <FeaturesSection maxItems={6} />
-
-      {/* Noorani Qaida Course CTA */}
-      <section className="py-16 bg-gradient-to-br from-primary-900/30 to-accent-900/30 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-primary-400/5 blur-[120px] rounded-full"></div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-accent-500/5 blur-[120px] rounded-full"></div>
-        
-        <div className="max-w-7xl mx-auto px-6 relative">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <div className="inline-block px-4 py-2 bg-primary-500/20 text-primary-300 rounded-full text-sm font-bold mb-6">
-                🆕 {t.noorani?.badge || 'NEW COURSE'}
-              </div>
-              <h2 className="text-4xl sm:text-5xl font-black text-white mb-6 leading-tight">
-                {t.noorani?.title1 || 'Master Quran & Prayer'}<br />{t.noorani?.title2 || 'with Noorani Qaida'}
-              </h2>
-              <p className="text-xl text-slate-200 mb-8">
-                {t.noorani?.description || 'A comprehensive 3-section course with 19 interactive lessons, quizzes, and gamification. Perfect for beginners and advancing learners.'}
-              </p>
-              
-              <div className="space-y-4 mb-8">
-                <div className="flex items-start gap-3">
-                  <span className="text-2xl">📖</span>
-                  <div>
-                    <p className="text-white font-bold">{t.noorani?.feature1Title || 'Arabic Alphabet & Tajweed (12 lessons)'}</p>
-                    <p className="text-slate-300 text-sm">{t.noorani?.feature1Desc || 'Learn Arabic letters, Quranic rules, and perfect recitation'}</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <span className="text-2xl">🧎</span>
-                  <div>
-                    <p className="text-white font-bold">{t.noorani?.feature2Title || 'Daily Prayer (Salah) Practice (7 lessons)'}</p>
-                    <p className="text-slate-300 text-sm">{t.noorani?.feature2Desc || 'Complete guide with video demonstrations and step-by-step instructions'}</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <span className="text-2xl">🏆</span>
-                  <div>
-                    <p className="text-white font-bold">{t.noorani?.feature3Title || 'Progress Tracking & Certificates'}</p>
-                    <p className="text-slate-300 text-sm">{t.noorani?.feature3Desc || 'Earn badges, maintain streaks, and get certified upon completion'}</p>
-                  </div>
-                </div>
-              </div>
-
-              <Link
-                to="/noorani-qaida"
-                className="group relative px-8 py-4 bg-gradient-to-r from-primary-500 to-accent-500 text-white font-black rounded-xl text-lg hover:from-primary-400 hover:to-accent-400 transition-all shadow-lg inline-block"
-              >
-                {t.noorani?.exploreCourse || 'Explore Course'} →
-              </Link>
-            </div>
-
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary-500/20 to-accent-500/20 rounded-3xl blur-3xl"></div>
-              <div className="relative bg-gradient-to-br from-slate-800/90 to-slate-900/90 border border-white/10 rounded-3xl p-10 text-center">
-                <div className="text-8xl mb-6">📚</div>
-                <h3 className="text-2xl font-black text-white mb-2">{t.noorani?.lessonsCount || '19 Lessons'}</h3>
-                <p className="text-slate-300 mb-6">{t.noorani?.completeEducation || 'Complete Islamic Education'}</p>
-                <div className="grid grid-cols-3 gap-3 text-center">
-                  <div className="bg-white/10 rounded-lg p-3">
-                    <p className="text-sm font-bold text-primary-300">3</p>
-                    <p className="text-xs text-slate-400">{t.noorani?.sections || 'Sections'}</p>
-                  </div>
-                  <div className="bg-white/10 rounded-lg p-3">
-                    <p className="text-sm font-bold text-accent-300">19</p>
-                    <p className="text-xs text-slate-400">{t.noorani?.lessons || 'Lessons'}</p>
-                  </div>
-                  <div className="bg-white/10 rounded-lg p-3">
-                    <p className="text-sm font-bold text-green-300">100%</p>
-                    <p className="text-xs text-slate-400">{t.noorani?.free || 'Free'}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* AI Teachers Section */}
       <section className="py-20 relative">

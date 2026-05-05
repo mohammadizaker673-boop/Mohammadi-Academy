@@ -76,6 +76,15 @@ interface LessonData {
 
 // ─── Storage Helpers ──────────────────────────────────────────────
 const STORAGE_PREFIX = 'ma_course_';
+const ENROLLMENT_KEY = 'ma_enrollments';
+
+const isEnrolled = (courseId: string): boolean => {
+  try {
+    const raw = localStorage.getItem(ENROLLMENT_KEY);
+    const enrollments = raw ? JSON.parse(raw) : {};
+    return !!enrollments[courseId];
+  } catch { return false; }
+};
 
 const saveCourseProgress = (courseId: string, data: { currentWeek: number; currentLesson: number; completedLessons: string[]; weekTestScores: Record<number, number>; completedSteps?: Record<string, string[]> }) => {
   try {
@@ -600,6 +609,13 @@ const CourseLearningPage: React.FC = () => {
   }, [course, courseId]);
 
   const activeCourse = course || customCourse;
+
+  // Enrollment guard — redirect unenrolled users to course detail page
+  useEffect(() => {
+    if (courseId && !courseId.startsWith('ai-custom-') && !isEnrolled(courseId)) {
+      navigate(`/courses/${courseId}`, { replace: true });
+    }
+  }, [courseId, navigate]);
 
   const [weeks, setWeeks] = useState<WeekData[]>([]);
   const [currentWeekIdx, setCurrentWeekIdx] = useState(0);

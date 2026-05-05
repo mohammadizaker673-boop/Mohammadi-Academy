@@ -1,10 +1,30 @@
-﻿import React from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { BookOpen, Clock, Users, GraduationCap, CheckCircle, Calendar, Video, Globe, ArrowLeft, Play, Sparkles } from 'lucide-react';
+import { BookOpen, Clock, Users, GraduationCap, CheckCircle, Calendar, Video, Globe, ArrowLeft, Play, Sparkles, Shield, CreditCard } from 'lucide-react';
 import { courses } from '../data/courses';
 import LanguageSelector from '../components/LanguageSelector';
 import LogoLink from '../components/LogoLink';
 import { DepthOrbs } from '../components/motion/MotionElements';
+
+// ─── Enrollment helpers ──────────────────────────────────
+const ENROLLMENT_KEY = 'ma_enrollments';
+
+const getEnrollments = (): Record<string, { plan: number; enrolledAt: string }> => {
+  try {
+    const raw = localStorage.getItem(ENROLLMENT_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch { return {}; }
+};
+
+const enrollInCourse = (courseId: string, planIndex: number) => {
+  const enrollments = getEnrollments();
+  enrollments[courseId] = { plan: planIndex, enrolledAt: new Date().toISOString() };
+  localStorage.setItem(ENROLLMENT_KEY, JSON.stringify(enrollments));
+};
+
+const isEnrolled = (courseId: string): boolean => {
+  return !!getEnrollments()[courseId];
+};
 
 const CATEGORY_AI_MAP: Record<string, { name: string; emoji: string }> = {
   'quran': { name: 'Sheikh Noor', emoji: '📖' },
@@ -23,21 +43,33 @@ const CourseDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const course = courses.find(c => c.id === courseId);
 
-  // Check if this is the Hifz course
   const isHifzCourse = courseId === 'hifz-quran';
-  
-  // Check if this is the Arabic Learning course
   const isArabicCourse = courseId === 'arabic-language';
 
+  const [enrolled, setEnrolled] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState(0);
+  const [showEnrollSuccess, setShowEnrollSuccess] = useState(false);
+
+  useEffect(() => {
+    if (courseId) setEnrolled(isEnrolled(courseId));
+  }, [courseId]);
+
+  const handleEnroll = () => {
+    if (!courseId) return;
+    enrollInCourse(courseId, selectedPlan);
+    setEnrolled(true);
+    setShowEnrollSuccess(true);
+    setTimeout(() => setShowEnrollSuccess(false), 3000);
+  };
+
   const handleLaunchCourse = () => {
-    if (isHifzCourse) {
-      navigate(`/hifz/hifz-quran`);
-    } else if (isArabicCourse) {
-      navigate('/learn-arabic');
-    } else {
-      // Navigate to the AI-powered learning page
-      navigate(`/learn/${courseId}`);
+    if (!enrolled) {
+      document.getElementById('enroll-section')?.scrollIntoView({ behavior: 'smooth' });
+      return;
     }
+    if (isHifzCourse) navigate('/hifz/hifz-quran');
+    else if (isArabicCourse) navigate('/learn-arabic');
+    else navigate(`/learn/${courseId}`);
   };
 
   if (!course) {
@@ -52,7 +84,7 @@ const CourseDetailPage: React.FC = () => {
   }
 
   const scrollToEnroll = () => {
-    handleLaunchCourse();
+    document.getElementById('enroll-section')?.scrollIntoView({ behavior: 'smooth' });
   };
 
   const isFree = course.priceType === 'free' || course.pricing[0].pricePerMonth === 0;
@@ -60,50 +92,39 @@ const CourseDetailPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#050a12] relative overflow-hidden">
       <DepthOrbs count={3} colors={['rgba(59,130,246,0.10)', 'rgba(245,158,11,0.07)', 'rgba(139,92,246,0.08)']} />
+
+      {/* Enrollment success toast */}
+      {showEnrollSuccess && (
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[100] px-6 py-3 bg-emerald-500 text-white font-bold rounded-xl shadow-2xl shadow-emerald-500/30 flex items-center gap-2 animate-bounce">
+          <CheckCircle className="w-5 h-5" />
+          Enrolled successfully! You can now start learning.
+        </div>
+      )}
+
       <header className="bg-[#050a12]/80 backdrop-blur-2xl border-b border-white/10 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <LogoLink showText={false} compact />
-          <div className="flex gap-4 items-center">
+          <div className="flex gap-3 items-center">
             <LanguageSelector />
-            <Link to="/" className="px-4 py-2 text-slate-300 hover:text-white transition-colors flex items-center gap-2">
-              <ArrowLeft className="w-4 h-4" /> Home
+            <Link to="/courses" className="px-4 py-2 text-slate-300 hover:text-white transition-colors flex items-center gap-2 text-sm">
+              <ArrowLeft className="w-4 h-4" /> Courses
             </Link>
-            <Link to="/ai-tutor" className="px-4 py-2 text-slate-300 hover:text-white transition-colors text-sm">
-              AI Teachers
-            </Link>
-            {isHifzCourse && (
+            {enrolled ? (
               <button
                 onClick={handleLaunchCourse}
-                className="px-6 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg shadow-cyan-400/30 flex items-center gap-2 font-semibold"
-              >
-                <Play className="w-4 h-4" />
-                Launch Hifz System
-              </button>
-            )}
-            {isArabicCourse && (
-              <button
-                onClick={handleLaunchCourse}
-                className="px-6 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full hover:from-emerald-600 hover:to-teal-600 transition-all shadow-lg shadow-emerald-400/30 flex items-center gap-2 font-semibold"
-              >
-                <Play className="w-4 h-4" />
-                Start Learning Arabic
-              </button>
-            )}
-            {!isHifzCourse && !isArabicCourse && (
-              <button
-                onClick={handleLaunchCourse}
-                className="px-6 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full hover:from-emerald-400 hover:to-teal-400 transition-all shadow-lg shadow-emerald-400/30 flex items-center gap-2 font-semibold"
+                className="px-6 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full hover:from-emerald-400 hover:to-teal-400 transition-all shadow-lg shadow-emerald-400/30 flex items-center gap-2 font-semibold text-white text-sm"
               >
                 <Play className="w-4 h-4" />
                 Start Learning
               </button>
+            ) : (
+              <button
+                onClick={scrollToEnroll}
+                className="px-6 py-2 bg-gradient-to-r from-primary-500 to-accent-500 rounded-full hover:from-primary-400 hover:to-accent-400 transition-all shadow-lg shadow-primary-400/30 text-white font-semibold text-sm"
+              >
+                Enroll Now
+              </button>
             )}
-            <button 
-              onClick={scrollToEnroll} 
-              className="px-6 py-2 bg-gradient-to-r from-primary-500 to-accent-500 rounded-full hover:from-primary-400 hover:to-accent-400 transition-all shadow-lg shadow-primary-400/30"
-            >
-              {isHifzCourse || isArabicCourse ? 'Enroll / Learn More' : 'Course Details'}
-            </button>
           </div>
         </div>
       </header>
@@ -128,13 +149,22 @@ const CourseDetailPage: React.FC = () => {
           {course.titleArabic && <p className="text-3xl text-sky-100 mb-6 font-arabic">{course.titleArabic}</p>}
           <p className="text-xl text-white/90 max-w-3xl mb-8">{course.description}</p>
           
-          {isHifzCourse && (
+          {isHifzCourse && enrolled && (
             <button
               onClick={handleLaunchCourse}
               className="px-8 py-4 bg-white text-blue-600 rounded-lg font-bold text-lg hover:bg-slate-100 transition-all shadow-xl flex items-center gap-3"
             >
               <Play className="w-6 h-6" />
               🌟 Start Your Hifz Journey Now
+            </button>
+          )}
+          {isHifzCourse && !enrolled && (
+            <button
+              onClick={scrollToEnroll}
+              className="px-8 py-4 bg-white text-blue-600 rounded-lg font-bold text-lg hover:bg-slate-100 transition-all shadow-xl flex items-center gap-3"
+            >
+              <CreditCard className="w-6 h-6" />
+              Enroll to Start Hifz
             </button>
           )}
         </div>
@@ -169,10 +199,17 @@ const CourseDetailPage: React.FC = () => {
               )}
             </div>
             <div className="mt-6">
-              <button onClick={handleLaunchCourse} className="px-6 py-3 bg-gradient-to-r from-primary-500 to-accent-500 rounded-full hover:from-primary-400 hover:to-accent-400 transition-all shadow-lg shadow-primary-400/30 flex items-center gap-2 font-semibold">
-                <Play className="w-5 h-5" />
-                Start Course
-              </button>
+              {enrolled ? (
+                <button onClick={handleLaunchCourse} className="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full hover:from-emerald-400 hover:to-teal-400 transition-all shadow-lg shadow-emerald-400/30 flex items-center gap-2 font-semibold text-white">
+                  <Play className="w-5 h-5" />
+                  Start Learning
+                </button>
+              ) : (
+                <button onClick={scrollToEnroll} className="px-6 py-3 bg-gradient-to-r from-primary-500 to-accent-500 rounded-full hover:from-primary-400 hover:to-accent-400 transition-all shadow-lg shadow-primary-400/30 flex items-center gap-2 font-semibold text-white">
+                  <CreditCard className="w-5 h-5" />
+                  {isFree ? 'Enroll for Free' : 'Enroll Now'}
+                </button>
+              )}
             </div>
           </section>
 
@@ -267,6 +304,88 @@ const CourseDetailPage: React.FC = () => {
                 </ul>
               </section>
             )}
+
+            {/* ─── Enrollment Section ─── */}
+            <section id="enroll-section" className="bg-gradient-to-br from-primary-500/10 to-accent-500/10 border-2 border-primary-400/30 rounded-2xl p-8 reveal" style={{ transitionDelay: '250ms' }}>
+              <div className="text-center mb-8">
+                <Shield className="w-10 h-10 text-primary-400 mx-auto mb-3" />
+                <h2 className="text-3xl font-black text-white mb-2">
+                  {enrolled ? 'You\'re Enrolled!' : (isFree ? 'Enroll for Free' : 'Choose Your Plan & Enroll')}
+                </h2>
+                <p className="text-slate-300 max-w-lg mx-auto">
+                  {enrolled
+                    ? 'You have access to this course. Start learning anytime.'
+                    : 'Select a plan that fits your schedule and begin your learning journey today.'}
+                </p>
+              </div>
+
+              {enrolled ? (
+                <div className="text-center">
+                  <div className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-500/20 border border-emerald-500/40 rounded-xl text-emerald-400 font-bold mb-6">
+                    <CheckCircle className="w-5 h-5" />
+                    Enrolled
+                  </div>
+                  <div>
+                    <button
+                      onClick={handleLaunchCourse}
+                      className="px-10 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-2xl text-white font-black text-lg hover:from-emerald-400 hover:to-teal-400 transition-all shadow-lg shadow-emerald-500/20 flex items-center gap-3 mx-auto"
+                    >
+                      <Play className="w-6 h-6" />
+                      Start Learning Now
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {/* Pricing Plans */}
+                  <div className={`grid gap-4 mb-8 ${course.pricing.length === 1 ? 'max-w-md mx-auto' : course.pricing.length === 2 ? 'grid-cols-1 sm:grid-cols-2 max-w-2xl mx-auto' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'}`}>
+                    {course.pricing.map((plan, idx) => {
+                      const isSelected = selectedPlan === idx;
+                      const isPlanFree = plan.pricePerMonth === 0;
+                      return (
+                        <button
+                          key={idx}
+                          onClick={() => setSelectedPlan(idx)}
+                          className={`text-left p-6 rounded-2xl border-2 transition-all ${
+                            isSelected
+                              ? 'border-primary-400 bg-primary-500/15 shadow-lg shadow-primary-500/10'
+                              : 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/[0.08]'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between mb-3">
+                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${isSelected ? 'border-primary-400' : 'border-slate-500'}`}>
+                              {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-primary-400" />}
+                            </div>
+                            {idx === 1 && course.pricing.length > 2 && (
+                              <span className="px-2 py-0.5 bg-accent-500/20 text-accent-400 text-xs font-bold rounded-full">POPULAR</span>
+                            )}
+                          </div>
+                          <p className="text-3xl font-black text-white mb-1">
+                            {isPlanFree ? 'Free' : `$${plan.pricePerMonth}`}
+                            {!isPlanFree && <span className="text-sm text-slate-400 font-normal">/month</span>}
+                          </p>
+                          <p className="text-sm text-slate-300">{plan.label}</p>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Enroll button */}
+                  <div className="text-center">
+                    <button
+                      onClick={handleEnroll}
+                      className="px-10 py-4 bg-gradient-to-r from-primary-500 to-accent-500 rounded-2xl text-white font-black text-lg hover:from-primary-400 hover:to-accent-400 transition-all shadow-lg shadow-primary-500/20 flex items-center gap-3 mx-auto"
+                    >
+                      <CreditCard className="w-6 h-6" />
+                      {isFree ? 'Enroll for Free' : `Enroll — $${course.pricing[selectedPlan].pricePerMonth}/month`}
+                    </button>
+                    <p className="text-xs text-slate-500 mt-3">
+                      {isFree ? 'No payment required. Start learning immediately.' : 'Payment will be processed securely. Cancel anytime.'}
+                    </p>
+                  </div>
+                </>
+              )}
+            </section>
 
             {/* AI Teacher CTA */}
             <section className="bg-gradient-to-br from-primary-500/10 to-accent-500/10 border border-primary-400/20 rounded-2xl p-8 text-center reveal animate-glow">
