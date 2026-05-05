@@ -53,11 +53,8 @@ const QuranTajweedPlatform = React.lazy(() => import('./pages/student/QuranTajwe
 
 const QuranTranslationCoursePage = React.lazy(() => import('./pages/student/QuranTranslationCoursePage'));
 const StudentQuranTranslationPage = React.lazy(() => import('./pages/student/StudentQuranTranslationPage'));
-const QuranTranslationManagement = React.lazy(() => import('./pages/admin/courses/QuranTranslationManagement'));
 const IslamicStudiesCoursePage = React.lazy(() => import('./pages/student/IslamicStudiesCoursePage'));
 const StudentIslamicStudiesPage = React.lazy(() => import('./pages/student/StudentIslamicStudiesPage'));
-const IslamicStudiesManagement = React.lazy(() => import('./pages/admin/courses/IslamicStudiesManagement'));
-const PremiumCourseAccessManagement = React.lazy(() => import('./pages/admin/courses/PremiumCourseAccessManagement'));
 
 // Teacher Pages
 const MyStudents = React.lazy(() => import('./pages/teacher/MyStudents'));
@@ -237,9 +234,6 @@ const App: React.FC = () => {
               <Route path="courses/list" element={<CourseList />} />
               <Route path="courses/lessons" element={<LessonsManager />} />
               <Route path="courses/media" element={<MediaLibrary />} />
-              <Route path="courses/quran-translation" element={<QuranTranslationManagement />} />
-              <Route path="courses/islamic-studies" element={<IslamicStudiesManagement />} />
-              <Route path="courses/access" element={<PremiumCourseAccessManagement />} />
               {/* Students Routes */}
               <Route path="students/add" element={<AddStudent />} />
               <Route path="students" element={<StudentManagement />} />
