@@ -7,11 +7,11 @@ import { SettingsProvider } from './contexts/SettingsContext';
 import AdminLayout from './components/admin/AdminLayout';
 import TeacherLayout from './components/teacher/TeacherLayout';
 import StudentLayout from './components/student/StudentLayout';
+import ProtectedRoute from './components/auth/ProtectedRoute';
 import ScrollRevealInit from './components/motion/ScrollRevealInit';
 
 const HomePage = React.lazy(() => import('./pages/HomePage'));
 const LoginPage = React.lazy(() => import('./pages/auth/LoginPage'));
-const QuickAdminLogin = React.lazy(() => import('./pages/auth/QuickAdminLogin'));
 const QuickStudentLogin = React.lazy(() => import('./pages/auth/QuickStudentLogin'));
 const QuickTeacherLogin = React.lazy(() => import('./pages/auth/QuickTeacherLogin'));
 const RegisterPage = React.lazy(() => import('./pages/auth/RegisterPage'));
@@ -178,8 +178,8 @@ const App: React.FC = () => {
             {/* Public Routes */}
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />
-            <Route path="/quick-admin" element={<QuickAdminLogin />} />
-            <Route path="/quick-admin-login" element={<Navigate to="/quick-admin" replace />} />
+            <Route path="/quick-admin" element={<Navigate to="/login" replace />} />
+            <Route path="/quick-admin-login" element={<Navigate to="/login" replace />} />
             <Route path="/quick-student" element={<QuickStudentLogin />} />
             <Route path="/quick-student-login" element={<QuickStudentLogin />} />
             <Route path="/quick-teacher" element={<QuickTeacherLogin />} />
@@ -229,7 +229,7 @@ const App: React.FC = () => {
             <Route path="/hifz/admin/:courseId" element={<HifzCoursePage userRole="admin" />} />
             
             {/* Admin Dashboard with Layout and Nested Routes */}
-            <Route path="/admin" element={<AdminLayout />}>
+            <Route path="/admin" element={<ProtectedRoute allowedRoles={['admin']}><AdminLayout /></ProtectedRoute>}>
               <Route index element={<AdminDashboard />} />
               <Route path="copilot" element={<AICopilot />} />
               <Route path="analytics" element={<AdminAnalyticsPage />} />
@@ -297,7 +297,7 @@ const App: React.FC = () => {
             <Route path="/admin-dashboard" element={<Navigate to="/admin" replace />} />
             
             {/* Teacher Dashboard with Layout */}
-            <Route path="/teacher" element={<TeacherLayout />}>
+            <Route path="/teacher" element={<ProtectedRoute allowedRoles={['teacher']}><TeacherLayout /></ProtectedRoute>}>
               <Route index element={<TeacherDashboard />} />
               <Route path="courses/:courseId" element={<AutomatedCoursePlayer />} />
               <Route path="noorani-qaida-player" element={<TeacherNooraniQaidaPage />} />
@@ -313,7 +313,7 @@ const App: React.FC = () => {
             </Route>
             
             {/* Student Dashboard with Layout */}
-            <Route path="/student" element={<StudentLayout />}>
+            <Route path="/student" element={<ProtectedRoute allowedRoles={['student']}><StudentLayout /></ProtectedRoute>}>
               <Route index element={<StudentDashboard />} />
               <Route path="courses/:courseId" element={<AutomatedCoursePlayer />} />
               <Route path="progress" element={<StudentProgress />} />

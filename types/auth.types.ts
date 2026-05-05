@@ -1,4 +1,5 @@
 export type UserRole = 'admin' | 'teacher' | 'student';
+export type OAuthProvider = 'google' | 'facebook';
 
 export interface AuthUser {
   uid: string;
@@ -30,6 +31,7 @@ export interface AuthContextType {
   loading: boolean;
   login: (credentials: LoginCredentials) => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
+  signInWithOAuth: (provider: OAuthProvider) => Promise<void>;
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
 }

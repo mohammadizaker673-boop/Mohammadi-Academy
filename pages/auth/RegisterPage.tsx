@@ -176,7 +176,6 @@ const RegisterPage: React.FC = () => {
               >
                 <option value="student" className="bg-slate-900">Student</option>
                 <option value="teacher" className="bg-slate-900">Teacher</option>
-                <option value="admin" className="bg-slate-900">Admin</option>
               </select>
             </div>
 

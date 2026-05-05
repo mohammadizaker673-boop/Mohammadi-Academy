@@ -2,18 +2,16 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { auth, db } from '../../services/firebase';
 import { TRANSLATIONS, ACADEMY_NAME } from '../../constants';
 import LanguageSelector from '../../components/LanguageSelector';
 import LogoLink from '../../components/LogoLink';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { supabase } from '../../services/supabase';
 
 const LoginPage: React.FC = () => {
   const { language } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
-  const { login } = useAuth();
+  const { login, signInWithOAuth } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [info, setInfo] = useState('');
@@ -46,88 +44,48 @@ const LoginPage: React.FC = () => {
 
     try {
       await login(formData);
-      
-      // Get user data to determine redirect
-      const user = auth.currentUser;
-      if (user) {
-        try {
-          const userDoc = await withTimeout(getDoc(doc(db, 'users', user.uid)), 5000);
-          if (userDoc.exists()) {
-            const userData = userDoc.data();
-            const role = userData.role;
-            
-            // Redirect based on role
-            if (role === 'admin') {
-              navigate('/admin', { replace: true });
-            } else if (role === 'teacher') {
-              navigate('/teacher', { replace: true });
-            } else if (role === 'student') {
-              navigate('/student', { replace: true });
-            } else {
-              navigate(from, { replace: true });
-            }
-            return;
-          } else {
-            const email = user.email?.toLowerCase() || '';
-            if (email === 'admin@mohammadiacademy.com') {
-              navigate('/admin', { replace: true });
-            } else {
-              navigate(from, { replace: true });
-            }
-            return;
-          }
-        } catch (docError) {
-          setInfo('Signed in. Loading your dashboard...');
-          const email = user.email?.toLowerCase() || '';
-          if (email === 'admin@mohammadiacademy.com') {
-            navigate('/admin', { replace: true });
-            return;
-          }
+
+      const userResult = await withTimeout(supabase.auth.getUser(), 5000);
+      const sessionUser = userResult.data.user;
+      if (sessionUser) {
+        const profileResult = await withTimeout(
+          supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', sessionUser.id)
+            .maybeSingle(),
+          5000
+        );
+        const role = profileResult.data?.role || 'student';
+
+        if (role === 'admin') {
+          navigate('/admin', { replace: true });
+          return;
         }
+        if (role === 'teacher') {
+          navigate('/teacher', { replace: true });
+          return;
+        }
+        navigate('/student', { replace: true });
+        return;
       }
-      
-      // Fallback redirect
+
       navigate(from, { replace: true });
     } catch (err: any) {
-      // If login fails because user doesn't exist, offer to create account
-      if (err.code === 'auth/user-not-found' || err.message?.includes('user-not-found')) {
-        try {
-          setInfo('Account not found. Creating new account...');
-          
-          // Create new user account
-          const userCredential = await createUserWithEmailAndPassword(
-            auth,
-            formData.email,
-            formData.password
-          );
-
-          // Create user document in Firestore with student role by default
-          await setDoc(doc(db, 'users', userCredential.user.uid), {
-            email: formData.email,
-            displayName: formData.email.split('@')[0],
-            phone: '',
-            role: 'student', // Default role
-            photoURL: null,
-            emailVerified: false,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            isActive: true,
-            lastLogin: new Date()
-          });
-
-          setInfo('Account created successfully! Redirecting...');
-          
-          setTimeout(() => {
-            navigate('/student', { replace: true });
-          }, 1000);
-        } catch (createErr: any) {
-          setError('Failed to create account: ' + (createErr.message || 'Unknown error'));
-        }
-      } else {
-        setError(err.message || 'Failed to login');
-      }
+      setError(err.message || 'Failed to login');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSocialLogin = async (provider: 'google' | 'facebook') => {
+    setError('');
+    setInfo('Redirecting to provider...');
+    try {
+      await signInWithOAuth(provider);
+    } catch (err: any) {
+      setInfo('');
+      setError(err.message || `Failed to continue with ${provider}`);
     }
   };
 
@@ -179,12 +137,22 @@ const LoginPage: React.FC = () => {
             </div>
           )}
 
-          {/* Admin Login Helper */}
-          <div className="mb-6 p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-200 text-xs">
-            <p className="font-bold mb-2">👨‍💼 First time admin login?</p>
-            <p className="mb-2">Email: <span className="font-mono">admin@mohammadiacademy.com</span></p>
-            <p>Password: <span className="font-mono">admin123456</span></p>
-            <p className="mt-2 text-amber-300">Or <Link to="/quick-admin" className="underline font-bold hover:text-white">use Quick Admin Access</Link></p>
+          <div className="mb-6 space-y-3">
+            <button
+              type="button"
+              onClick={() => handleSocialLogin('google')}
+              className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl hover:bg-white/15 transition text-white font-semibold"
+            >
+              Continue with Google
+            </button>
+            <button
+              type="button"
+              onClick={() => handleSocialLogin('facebook')}
+              className="w-full px-4 py-3 bg-[#1877F2]/20 border border-[#1877F2]/40 rounded-xl hover:bg-[#1877F2]/30 transition text-white font-semibold"
+            >
+              Continue with Facebook
+            </button>
+            <div className="text-center text-slate-500 text-xs uppercase tracking-[0.2em]">or</div>
           </div>
 
           {/* Login Form */}
