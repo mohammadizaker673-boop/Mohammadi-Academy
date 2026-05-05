@@ -2,6 +2,57 @@
 
 export const courses: Course[] = [
   {
+    id: 'noorani-qaida',
+    title: 'Noorani Qaida - Learn to Read Quran',
+    titleArabic: 'نورانی قاعدہ - قرآن پڑھنا سیکھیں',
+    category: 'quran',
+    level: 'beginner',
+    ageGroup: 'all',
+    languages: ['arabic', 'dari', 'persian', 'pashto', 'english', 'urdu'],
+    targetAudience: 'Complete beginners who want to learn to read the Quran from scratch',
+    ageRange: '5+ years',
+    duration: '6-8 weeks (daily 20-30 min)',
+    description: 'A comprehensive, step-by-step course to learn reading the Quran from zero. Master Arabic letters, pronunciation (Makharij), vowels (Harakaat), connected letters, Sukoon, Madd, Tanween, Shaddah, and transition to reading real Quranic text — all with daily structured progress, AI-powered pronunciation coaching, and teacher correction.',
+    learningOutcomes: [
+      { id: '1', description: 'Recognize and correctly pronounce all 28 Arabic letters with proper Makharij' },
+      { id: '2', description: 'Read Arabic letters with Fatha, Kasra, and Damma (short vowels)' },
+      { id: '3', description: 'Read connected 2-letter and 3-letter Arabic words fluently' },
+      { id: '4', description: 'Apply Sukoon (stop) and Madd (elongation) rules correctly' },
+      { id: '5', description: 'Read words with Tanween and Shaddah with proper pronunciation' },
+      { id: '6', description: 'Transition from Qaida to reading short Surahs from the Quran' },
+      { id: '7', description: 'Develop daily Quran reading habit with structured practice routine' },
+      { id: '8', description: 'Build confidence to begin Tajweed and Hifz studies' }
+    ],
+    syllabus: [
+      { week: 1, title: 'Arabic Letters & Makharij', topics: ['Letters أ to ي', 'Articulation points', 'Heavy vs light letters', 'Letter forms (isolated)'] },
+      { week: 2, title: 'Short Vowels (Harakaat)', topics: ['Fatha (َ)', 'Kasra (ِ)', 'Damma (ُ)', 'Reading letters with vowels'] },
+      { week: 3, title: 'Joining Letters', topics: ['2-letter combinations', '3-letter combinations', 'Word formation', 'Reading practice lines'] },
+      { week: 4, title: 'Sukoon & Madd', topics: ['Sukoon (ْ)', 'Madd with Alif', 'Madd with Waw', 'Madd with Ya', 'Leen letters'] },
+      { week: 5, title: 'Tanween & Shaddah', topics: ['Tanween Fath', 'Tanween Kasr', 'Tanween Damm', 'Shaddah rules'] },
+      { week: 6, title: 'Quran Reading Transition', topics: ['Al-Fatiha', 'Al-Ikhlas', 'Al-Falaq', 'An-Nas', 'Real Mushaf reading'] }
+    ],
+    classFormat: { duration: '20-30 minutes per session', mode: ['One-on-One', 'Group Classes (max 4)', 'Family Sessions'], materials: ['Interactive Noorani Qaida', 'Audio pronunciation library', 'Practice worksheets', 'Voice recording tools', 'Progress tracker'] },
+    requirements: ['No prior knowledge required', 'Microphone for voice practice', 'Quiet learning environment', 'Commitment to daily 20-30 min practice'],
+    teacherInfo: { qualification: 'Certified Quran teacher with Noorani Qaida specialization', experience: '5+ years teaching beginners of all ages', languages: ['Arabic', 'English', 'Urdu', 'Dari'], gender: 'both' },
+    pricing: [
+      { sessions: 3, pricePerMonth: 35, label: '3 sessions/week' },
+      { sessions: 5, pricePerMonth: 55, label: '5 sessions/week (recommended)' },
+      { sessions: 7, pricePerMonth: 75, label: 'Daily sessions' }
+    ],
+    priceType: 'paid',
+    lowBandwidthFriendly: true,
+    lessonOutline: [
+      { id: 'nq-1', title: 'Arabic Alphabet (أ - ث)', hasVideo: true, hasText: true, hasQuiz: true },
+      { id: 'nq-2', title: 'Arabic Alphabet (ج - ز)', hasVideo: true, hasText: true, hasQuiz: true },
+      { id: 'nq-3', title: 'Arabic Alphabet (س - ظ)', hasVideo: true, hasText: true, hasQuiz: true },
+      { id: 'nq-4', title: 'Arabic Alphabet (ع - ي) & Makharij', hasVideo: true, hasText: true, hasQuiz: true },
+      { id: 'nq-5', title: 'Fatha, Kasra & Damma', hasVideo: true, hasText: true, hasQuiz: true },
+      { id: 'nq-6', title: 'Joining Letters & Word Formation', hasVideo: true, hasText: true, hasQuiz: true },
+      { id: 'nq-7', title: 'Sukoon, Madd & Tanween', hasVideo: true, hasText: true, hasQuiz: true },
+      { id: 'nq-8', title: 'Reading Short Surahs', hasVideo: true, hasText: true, hasQuiz: true }
+    ]
+  },
+  {
     id: 'quran-tajweed',
     title: 'Quran with Tajweed',
     titleArabic: 'القرآن الكريم مع التجويد',

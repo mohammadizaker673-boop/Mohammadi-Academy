@@ -45,6 +45,7 @@ const CourseDetailPage: React.FC = () => {
 
   const isHifzCourse = courseId === 'hifz-quran';
   const isArabicCourse = courseId === 'arabic-language';
+  const isNooraniCourse = courseId === 'noorani-qaida';
 
   const [enrolled, setEnrolled] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(0);
@@ -69,6 +70,7 @@ const CourseDetailPage: React.FC = () => {
     }
     if (isHifzCourse) navigate('/hifz/hifz-quran');
     else if (isArabicCourse) navigate('/learn-arabic');
+    else if (isNooraniCourse) navigate('/student/noorani-qaida-player');
     else navigate(`/learn/${courseId}`);
   };
 

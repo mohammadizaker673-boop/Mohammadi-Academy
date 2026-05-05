@@ -55,6 +55,8 @@ const QuranTranslationCoursePage = React.lazy(() => import('./pages/student/Qura
 const StudentQuranTranslationPage = React.lazy(() => import('./pages/student/StudentQuranTranslationPage'));
 const IslamicStudiesCoursePage = React.lazy(() => import('./pages/student/IslamicStudiesCoursePage'));
 const StudentIslamicStudiesPage = React.lazy(() => import('./pages/student/StudentIslamicStudiesPage'));
+const NooraniQaidaCoursePage = React.lazy(() => import('./pages/student/NooraniQaidaCoursePage'));
+const StudentNooraniQaidaPage = React.lazy(() => import('./pages/student/StudentNooraniQaidaPage'));
 
 // Teacher Pages
 const MyStudents = React.lazy(() => import('./pages/teacher/MyStudents'));
@@ -63,6 +65,7 @@ const Lessons = React.lazy(() => import('./pages/teacher/Lessons'));
 const TeacherAnnouncements = React.lazy(() => import('./pages/teacher/TeacherAnnouncements'));
 const TeacherQuranTranslationPage = React.lazy(() => import('./pages/teacher/TeacherQuranTranslationPage'));
 const TeacherIslamicStudiesPage = React.lazy(() => import('./pages/teacher/TeacherIslamicStudiesPage'));
+const TeacherNooraniQaidaPage = React.lazy(() => import('./pages/teacher/TeacherNooraniQaidaPage'));
 
 // Admin Pages
 const CreateNewCourse = React.lazy(() => import('./pages/admin/courses/CreateNewCourse'));
@@ -71,6 +74,7 @@ const CourseDetails = React.lazy(() => import('./pages/admin/courses/CourseDetai
 const CourseList = React.lazy(() => import('./pages/admin/courses/CourseList'));
 const LessonsManager = React.lazy(() => import('./pages/admin/courses/LessonsManager'));
 const MediaLibrary = React.lazy(() => import('./pages/admin/courses/MediaLibrary'));
+const NooraniQaidaManagement = React.lazy(() => import('./pages/admin/courses/NooraniQaidaManagement'));
 const AddStudent = React.lazy(() => import('./pages/admin/students/AddStudent'));
 const StudentManagement = React.lazy(() => import('./pages/admin/StudentManagement'));
 const ProgressRecords = React.lazy(() => import('./pages/admin/students/ProgressRecords'));
@@ -182,6 +186,7 @@ const App: React.FC = () => {
             <Route path="/quick-teacher-login" element={<QuickTeacherLogin />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/courses" element={<CoursesPage />} />
+            <Route path="/courses/noorani-qaida" element={<NooraniQaidaCoursePage />} />
             <Route path="/courses/quran-translation" element={<Navigate to="/quran-translation" replace />} />
             <Route path="/courses/islamic-studies" element={<Navigate to="/islamic-studies" replace />} />
             <Route path="/courses/:courseId" element={<CourseDetailPage />} />
@@ -234,6 +239,7 @@ const App: React.FC = () => {
               <Route path="courses/list" element={<CourseList />} />
               <Route path="courses/lessons" element={<LessonsManager />} />
               <Route path="courses/media" element={<MediaLibrary />} />
+              <Route path="courses/noorani" element={<NooraniQaidaManagement />} />
               {/* Students Routes */}
               <Route path="students/add" element={<AddStudent />} />
               <Route path="students" element={<StudentManagement />} />
@@ -294,6 +300,7 @@ const App: React.FC = () => {
             <Route path="/teacher" element={<TeacherLayout />}>
               <Route index element={<TeacherDashboard />} />
               <Route path="courses/:courseId" element={<AutomatedCoursePlayer />} />
+              <Route path="noorani-qaida-player" element={<TeacherNooraniQaidaPage />} />
               <Route path="quran-translation-player" element={<TeacherQuranTranslationPage />} />
               <Route path="islamic-studies-player" element={<TeacherIslamicStudiesPage />} />
               <Route path="students" element={<MyStudents />} />
@@ -314,6 +321,7 @@ const App: React.FC = () => {
               <Route path="fees" element={<StudentFees />} />
               <Route path="announcements" element={<StudentAnnouncements />} />
               <Route path="profile" element={<StudentProfile />} />
+              <Route path="noorani-qaida-player" element={<StudentNooraniQaidaPage />} />
               <Route path="quran-translation-player" element={<StudentQuranTranslationPage />} />
               <Route path="islamic-studies-player" element={<StudentIslamicStudiesPage />} />
               {/* Hifz System */}

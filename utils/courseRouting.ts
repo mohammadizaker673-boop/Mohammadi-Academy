@@ -1,5 +1,5 @@
 const dedicatedCoursePaths: Record<string, string> = {
-  'noorani-qaida': '/noorani-qaida',
+  'noorani-qaida': '/courses/noorani-qaida',
   'quran-translation': '/quran-translation',
   'islamic-studies': '/islamic-studies'
 };
@@ -11,6 +11,7 @@ const dedicatedStudentCoursePaths: Record<string, string> = {
 };
 
 const dedicatedTeacherCoursePaths: Record<string, string> = {
+  'noorani-qaida': '/teacher/noorani-qaida-player',
   'quran-translation': '/teacher/quran-translation-player',
   'islamic-studies': '/teacher/islamic-studies-player'
 };

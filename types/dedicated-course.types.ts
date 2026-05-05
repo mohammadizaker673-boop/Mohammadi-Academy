@@ -1,7 +1,7 @@
 import { Course } from './course.types';
 
 export type CourseModuleTone = 'emerald' | 'blue' | 'amber' | 'rose' | 'violet' | 'cyan';
-export type CourseModuleBlockType = 'text' | 'callout' | 'list' | 'reflection' | 'case-study';
+export type CourseModuleBlockType = 'text' | 'callout' | 'list' | 'reflection' | 'case-study' | 'audio-letter' | 'letter-practice' | 'pronunciation-guide' | 'join-animation';
 
 export interface CourseModuleFeature {
   icon: string;
@@ -41,6 +41,14 @@ export interface CourseModuleContentBlock {
   arabicText?: string;
   transliteration?: string;
   caption?: string;
+  /** audio-letter block: array of { letter, name, transliteration, makhraj } */
+  letters?: { letter: string; name: string; transliteration: string; makhraj: string }[];
+  /** letter-practice / join-animation block: practice items */
+  practiceItems?: { arabic: string; transliteration: string; meaning?: string }[];
+  /** pronunciation-guide block: articulation zones */
+  articulationZones?: { zone: string; letters: string; description: string }[];
+  /** audio-letter speed hint */
+  speedToggle?: boolean;
 }
 
 export interface CourseModuleQuizOption {

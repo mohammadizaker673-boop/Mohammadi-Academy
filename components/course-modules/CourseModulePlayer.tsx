@@ -163,6 +163,17 @@ const CourseModulePlayer: React.FC<CourseModulePlayerProps> = ({ course }) => {
   const currentLessonQuizStats = currentLesson ? quizStatsByLesson[currentLesson.id] || { attempts: 0, bestScore: 0 } : { attempts: 0, bestScore: 0 };
   const courseLessonOverview = useMemo(() => lessons.map((lesson) => ({ id: lesson.id, title: lesson.title })), [lessons]);
 
+  const speakArabic = (text: string, rate = 0.9) => {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window) || !text) {
+      return;
+    }
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'ar-SA';
+    utterance.rate = rate;
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(utterance);
+  };
+
   useEffect(() => {
     if (authLoading) {
       return;
@@ -482,6 +493,68 @@ const CourseModulePlayer: React.FC<CourseModulePlayerProps> = ({ course }) => {
                     </ul>
                   ) : null}
                   {block.caption ? <p className="text-xs uppercase tracking-[0.2em] text-slate-500 mt-4">{block.caption}</p> : null}
+
+                  {block.type === 'audio-letter' && block.letters?.length ? (
+                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-4">
+                      {block.letters.map((letterItem) => (
+                        <div key={`${currentLesson.id}-${index}-${letterItem.letter}`} className="rounded-xl bg-slate-950/40 border border-white/5 p-3">
+                          <p className="text-2xl text-right font-arabic text-white">{letterItem.letter}</p>
+                          <p className="text-sm text-slate-200 font-semibold mt-1">{letterItem.name}</p>
+                          <p className="text-xs text-slate-400 italic">{letterItem.transliteration}</p>
+                          <p className="text-xs text-slate-500 mt-1">{letterItem.makhraj}</p>
+                          <div className="flex gap-2 mt-3">
+                            <button
+                              type="button"
+                              onClick={() => speakArabic(letterItem.letter, 0.9)}
+                              className="px-2 py-1 rounded bg-primary-500/20 text-primary-200 text-xs hover:bg-primary-500/30 transition"
+                            >
+                              Play
+                            </button>
+                            {block.speedToggle ? (
+                              <button
+                                type="button"
+                                onClick={() => speakArabic(letterItem.letter, 0.65)}
+                                className="px-2 py-1 rounded bg-accent-500/20 text-accent-200 text-xs hover:bg-accent-500/30 transition"
+                              >
+                                Slow
+                              </button>
+                            ) : null}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
+
+                  {(block.type === 'letter-practice' || block.type === 'join-animation') && block.practiceItems?.length ? (
+                    <div className="grid sm:grid-cols-2 gap-3 mt-4">
+                      {block.practiceItems.map((item, itemIndex) => (
+                        <div key={`${currentLesson.id}-${index}-practice-${itemIndex}`} className="rounded-xl bg-slate-950/30 border border-white/5 p-3">
+                          <p className="text-right text-xl text-white font-arabic">{item.arabic}</p>
+                          <p className="text-sm text-slate-300 italic mt-1">{item.transliteration}</p>
+                          {item.meaning ? <p className="text-xs text-slate-500 mt-1">{item.meaning}</p> : null}
+                          <button
+                            type="button"
+                            onClick={() => speakArabic(item.arabic, 0.75)}
+                            className="mt-2 px-2 py-1 rounded bg-primary-500/20 text-primary-200 text-xs hover:bg-primary-500/30 transition"
+                          >
+                            Hear
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
+
+                  {block.type === 'pronunciation-guide' && block.articulationZones?.length ? (
+                    <div className="space-y-2 mt-4">
+                      {block.articulationZones.map((zone) => (
+                        <div key={`${currentLesson.id}-${index}-${zone.zone}`} className="rounded-xl bg-slate-950/30 border border-white/5 p-3">
+                          <p className="text-sm font-bold text-white">{zone.zone}</p>
+                          <p className="text-sm text-primary-200 font-arabic mt-1">{zone.letters}</p>
+                          <p className="text-xs text-slate-400 mt-1">{zone.description}</p>
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
                 </div>
               ))}
             </div>
