@@ -828,5 +828,331 @@ export const courses: Course[] = [
     ],
     priceType: 'paid',
     lowBandwidthFriendly: true
+  },
+  {
+    id: 'hadith-sunnah',
+    title: 'Hadith & Sunnah Studies',
+    titleArabic: 'دراسة الحديث والسنة',
+    category: 'islamic-studies',
+    level: 'all',
+    ageGroup: 'youth',
+    languages: ['arabic', 'dari', 'persian', 'pashto', 'english', 'urdu'],
+    targetAudience: 'Students seeking authentic knowledge of Prophetic traditions and their application',
+    ageRange: '12+ years',
+    duration: '14 weeks',
+    description: 'Study the sayings, actions, and approvals of Prophet Muhammad ﷺ from the six major Hadith collections. Learn Hadith classification, chain of narrators analysis, and how to apply Sunnah in daily life.',
+    learningOutcomes: [
+      { id: '1', description: 'Understand the science of Hadith (Mustalah al-Hadith) and its terminology' },
+      { id: '2', description: 'Study selected Ahadith from Sahih Bukhari and Sahih Muslim with explanation' },
+      { id: '3', description: 'Differentiate between Sahih, Hasan, and Da\'if narrations' },
+      { id: '4', description: 'Learn the chain of narrators (Isnad) and its importance' },
+      { id: '5', description: 'Apply Prophetic teachings to contemporary situations' },
+      { id: '6', description: 'Memorize 40 essential Ahadith (Nawawi collection)' }
+    ],
+    syllabus: [],
+    classFormat: { duration: '50 minutes per session', mode: ['One-on-One', 'Group Classes (max 6)'], materials: ['Hadith compilations', 'Mustalah charts', 'Memorization cards', 'Commentary books'] },
+    requirements: ['Basic knowledge of Islamic beliefs', 'Ability to read Arabic script helpful but not required', 'Notebook for journaling'],
+    teacherInfo: { qualification: 'Scholar with specialization in Hadith Sciences', experience: '7+ years teaching Hadith', languages: ['Arabic', 'English', 'Urdu'], gender: 'both' },
+    pricing: [
+      { sessions: 2, pricePerMonth: 45, label: '2 sessions/week' },
+      { sessions: 3, pricePerMonth: 65, label: '3 sessions/week' }
+    ],
+    priceType: 'paid',
+    lowBandwidthFriendly: true,
+    lessonOutline: [
+      { id: 'hadith-1', title: 'Introduction to Hadith Sciences', hasVideo: true, hasText: true, hasQuiz: true },
+      { id: 'hadith-2', title: 'The Six Major Hadith Collections', hasVideo: true, hasText: true, hasQuiz: true },
+      { id: 'hadith-3', title: 'Chain of Narrators & Classification', hasVideo: true, hasText: true, hasQuiz: true },
+      { id: 'hadith-4', title: '40 Nawawi Ahadith - Memorization & Study', hasVideo: true, hasText: true, hasQuiz: true }
+    ]
+  },
+  {
+    id: 'seerah',
+    title: 'Seerah - Life of Prophet Muhammad ﷺ',
+    titleArabic: 'السيرة النبوية',
+    category: 'islamic-studies',
+    level: 'all',
+    ageGroup: 'all',
+    languages: ['arabic', 'dari', 'persian', 'pashto', 'english', 'urdu'],
+    targetAudience: 'Anyone wanting to learn the complete biography of Prophet Muhammad ﷺ',
+    ageRange: '10+ years',
+    duration: '16 weeks',
+    description: 'A comprehensive journey through the life of Prophet Muhammad ﷺ from birth to passing. Study key events, battles, treaties, miracles, and timeless lessons that shaped Islamic civilization.',
+    learningOutcomes: [
+      { id: '1', description: 'Know the complete timeline of the Prophet\'s life from birth to passing' },
+      { id: '2', description: 'Understand the socio-political context of pre-Islamic Arabia' },
+      { id: '3', description: 'Study major events: Hijrah, Badr, Uhud, Hudaybiyyah, Conquest of Makkah' },
+      { id: '4', description: 'Extract leadership, mercy, and justice lessons from the Prophet\'s decisions' },
+      { id: '5', description: 'Learn the Prophet\'s relationships with family, companions, and non-Muslims' }
+    ],
+    syllabus: [],
+    classFormat: { duration: '55 minutes per session', mode: ['One-on-One', 'Group Classes (max 8)', 'Family Sessions'], materials: ['Seerah textbooks', 'Timeline charts', 'Map of Arabia', 'Presentation slides'] },
+    requirements: ['No prior knowledge required', 'Interest in Islamic history'],
+    teacherInfo: { qualification: 'Islamic scholar with specialization in Seerah', experience: '8+ years teaching Seerah', languages: ['Arabic', 'English', 'Urdu'], gender: 'both' },
+    pricing: [
+      { sessions: 2, pricePerMonth: 40, label: '2 sessions/week' },
+      { sessions: 3, pricePerMonth: 60, label: '3 sessions/week' }
+    ],
+    priceType: 'paid',
+    lowBandwidthFriendly: true,
+    lessonOutline: [
+      { id: 'seerah-1', title: 'Pre-Islamic Arabia & Birth of the Prophet', hasVideo: true, hasText: true, hasQuiz: true },
+      { id: 'seerah-2', title: 'Revelation & Early Dawah in Makkah', hasVideo: true, hasText: true, hasQuiz: true },
+      { id: 'seerah-3', title: 'Hijrah & Building the Madinah Community', hasVideo: true, hasText: true, hasQuiz: true },
+      { id: 'seerah-4', title: 'Major Battles & Treaties', hasVideo: true, hasText: true, hasQuiz: true },
+      { id: 'seerah-5', title: 'Conquest of Makkah & Final Years', hasVideo: true, hasText: true, hasQuiz: true }
+    ]
+  },
+  {
+    id: 'aqeedah',
+    title: 'Aqeedah - Islamic Creed',
+    titleArabic: 'العقيدة الإسلامية',
+    category: 'islamic-studies',
+    level: 'all',
+    ageGroup: 'youth',
+    languages: ['arabic', 'dari', 'persian', 'pashto', 'english', 'urdu'],
+    targetAudience: 'Muslims seeking clarity on core Islamic beliefs and theology',
+    ageRange: '13+ years',
+    duration: '10 weeks',
+    description: 'Study the foundational beliefs of Islam in depth — Tawheed (monotheism), the Names and Attributes of Allah, belief in angels, books, prophets, the Day of Judgment, and divine decree (Qadr).',
+    learningOutcomes: [
+      { id: '1', description: 'Understand Tawheed (Rububiyyah, Uluhiyyah, Asma wa Sifat) in depth' },
+      { id: '2', description: 'Study the 99 Names of Allah with meanings and implications' },
+      { id: '3', description: 'Clarify misconceptions about Islamic beliefs' },
+      { id: '4', description: 'Understand the concept of Qadr (divine decree) and its relationship to free will' },
+      { id: '5', description: 'Build a firm foundation that protects against doubts and deviant ideologies' }
+    ],
+    syllabus: [],
+    classFormat: { duration: '50 minutes per session', mode: ['One-on-One', 'Group Classes (max 6)'], materials: ['Aqeedah textbooks', 'Charts of Asma ul-Husna', 'Study guides'] },
+    requirements: ['Sincere desire to understand Islamic beliefs', 'Basic familiarity with Islam helpful'],
+    teacherInfo: { qualification: 'Islamic scholar specializing in Aqeedah and Tawheed', experience: '10+ years teaching Islamic creed', languages: ['Arabic', 'English', 'Urdu'], gender: 'both' },
+    pricing: [
+      { sessions: 2, pricePerMonth: 40, label: '2 sessions/week' },
+      { sessions: 3, pricePerMonth: 60, label: '3 sessions/week' }
+    ],
+    priceType: 'paid',
+    lowBandwidthFriendly: true,
+    lessonOutline: [
+      { id: 'aqeedah-1', title: 'Tawheed - The Oneness of Allah', hasVideo: true, hasText: true, hasQuiz: true },
+      { id: 'aqeedah-2', title: 'The 99 Names of Allah', hasVideo: true, hasText: true, hasQuiz: true },
+      { id: 'aqeedah-3', title: 'Angels, Books, and Messengers', hasVideo: true, hasText: true, hasQuiz: true },
+      { id: 'aqeedah-4', title: 'Day of Judgment & Divine Decree', hasVideo: true, hasText: true, hasQuiz: true }
+    ]
+  },
+  {
+    id: 'dua-adhkar',
+    title: 'Dua & Daily Adhkar',
+    titleArabic: 'الدعاء والأذكار اليومية',
+    category: 'islamic-studies',
+    level: 'beginner',
+    ageGroup: 'all',
+    languages: ['arabic', 'dari', 'persian', 'pashto', 'english', 'urdu'],
+    targetAudience: 'All Muslims wanting to strengthen their daily connection with Allah through supplications',
+    ageRange: '6+ years',
+    duration: '8 weeks',
+    description: 'Learn authentic daily supplications (Duas) and remembrances (Adhkar) from the Quran and Sunnah. Covers morning/evening Adhkar, Duas for every occasion, and how to build a habit of constant Dhikr.',
+    learningOutcomes: [
+      { id: '1', description: 'Memorize essential morning and evening Adhkar' },
+      { id: '2', description: 'Learn Duas for daily activities (eating, sleeping, traveling, etc.)' },
+      { id: '3', description: 'Understand the meanings and virtues of each Dua' },
+      { id: '4', description: 'Study the etiquettes of making Dua for acceptance' },
+      { id: '5', description: 'Build a consistent daily Dhikr routine' }
+    ],
+    syllabus: [],
+    classFormat: { duration: '30-40 minutes per session', mode: ['One-on-One', 'Group Classes (max 10)', 'Family Sessions'], materials: ['Fortress of the Muslim (Hisn al-Muslim)', 'Dua cards', 'Audio recordings', 'Dhikr tracking sheet'] },
+    requirements: ['No prior knowledge required', 'Willingness to practice daily'],
+    teacherInfo: { qualification: 'Quran and Hadith teacher with Dua specialization', experience: '5+ years', languages: ['Arabic', 'English', 'Urdu', 'Dari'], gender: 'both' },
+    pricing: [
+      { sessions: 2, pricePerMonth: 25, label: '2 sessions/week' },
+      { sessions: 3, pricePerMonth: 40, label: '3 sessions/week' }
+    ],
+    priceType: 'paid',
+    lowBandwidthFriendly: true,
+    lessonOutline: [
+      { id: 'dua-1', title: 'Morning & Evening Adhkar', hasVideo: true, hasText: true, hasQuiz: true },
+      { id: 'dua-2', title: 'Duas for Daily Activities', hasVideo: true, hasText: true, hasQuiz: true },
+      { id: 'dua-3', title: 'Etiquettes & Times of Acceptance', hasVideo: true, hasText: true, hasQuiz: true },
+      { id: 'dua-4', title: 'Building a Daily Dhikr Habit', hasVideo: false, hasText: true, hasQuiz: false }
+    ]
+  },
+  {
+    id: 'islamic-history',
+    title: 'Islamic History & Civilization',
+    titleArabic: 'التاريخ الإسلامي والحضارة',
+    category: 'islamic-studies',
+    level: 'intermediate',
+    ageGroup: 'youth',
+    languages: ['arabic', 'dari', 'persian', 'pashto', 'english', 'urdu'],
+    targetAudience: 'Students interested in the rise, achievements, and legacy of Islamic civilization',
+    ageRange: '14+ years',
+    duration: '14 weeks',
+    description: 'Explore the golden ages of Islam — from the Rightly Guided Caliphs to the Abbasid era, Andalusia, Ottoman Empire, and beyond. Study Islamic contributions to science, medicine, architecture, and philosophy.',
+    learningOutcomes: [
+      { id: '1', description: 'Understand the era of the four Rightly Guided Caliphs' },
+      { id: '2', description: 'Study the Umayyad and Abbasid dynasties and their achievements' },
+      { id: '3', description: 'Learn about Islamic Golden Age contributions to science, math, and medicine' },
+      { id: '4', description: 'Explore Islamic civilization in Andalusia, Central Asia, and Africa' },
+      { id: '5', description: 'Analyze lessons from Islamic history for contemporary Muslims' }
+    ],
+    syllabus: [],
+    classFormat: { duration: '55 minutes per session', mode: ['One-on-One', 'Group Classes (max 8)'], materials: ['History textbooks', 'Maps and timelines', 'Documentary resources', 'Discussion guides'] },
+    requirements: ['Basic knowledge of Islamic history helpful', 'Interest in history and civilization'],
+    teacherInfo: { qualification: 'Historian with Islamic studies background', experience: '6+ years teaching Islamic history', languages: ['Arabic', 'English', 'Urdu'], gender: 'both' },
+    pricing: [
+      { sessions: 2, pricePerMonth: 40, label: '2 sessions/week' },
+      { sessions: 3, pricePerMonth: 60, label: '3 sessions/week' }
+    ],
+    priceType: 'paid',
+    lowBandwidthFriendly: true,
+    lessonOutline: [
+      { id: 'hist-1', title: 'The Rightly Guided Caliphs', hasVideo: true, hasText: true, hasQuiz: true },
+      { id: 'hist-2', title: 'Umayyad & Abbasid Dynasties', hasVideo: true, hasText: true, hasQuiz: true },
+      { id: 'hist-3', title: 'The Islamic Golden Age', hasVideo: true, hasText: true, hasQuiz: true },
+      { id: 'hist-4', title: 'Islamic Civilization Across Continents', hasVideo: true, hasText: true, hasQuiz: true }
+    ]
+  },
+  {
+    id: 'akhlaq-adab',
+    title: 'Islamic Ethics & Character (Akhlaq)',
+    titleArabic: 'الأخلاق والآداب الإسلامية',
+    category: 'islamic-studies',
+    level: 'beginner',
+    ageGroup: 'all',
+    languages: ['arabic', 'dari', 'persian', 'pashto', 'english', 'urdu'],
+    targetAudience: 'Muslims of all ages wanting to develop noble character traits based on Quran and Sunnah',
+    ageRange: '8+ years',
+    duration: '10 weeks',
+    description: 'Develop beautiful character (Husn al-Khuluq) as taught by Prophet Muhammad ﷺ. Study honesty, patience, gratitude, humility, kindness to parents, rights of neighbors, and Islamic social etiquette.',
+    learningOutcomes: [
+      { id: '1', description: 'Understand the importance of Akhlaq in Islam' },
+      { id: '2', description: 'Learn the Prophet\'s character traits and how to emulate them' },
+      { id: '3', description: 'Practice patience (Sabr), gratitude (Shukr), and trust in Allah (Tawakkul)' },
+      { id: '4', description: 'Understand rights of parents, neighbors, and community in Islam' },
+      { id: '5', description: 'Develop habits of Islamic social etiquette and manners (Adab)' }
+    ],
+    syllabus: [],
+    classFormat: { duration: '40 minutes per session', mode: ['One-on-One', 'Group Classes (max 10)', 'Family Sessions'], materials: ['Character development workbook', 'Hadith on Akhlaq collection', 'Activity sheets'] },
+    requirements: ['No prior knowledge required', 'Open heart and willingness to grow'],
+    teacherInfo: { qualification: 'Islamic educator specializing in tarbiyah and character development', experience: '6+ years', languages: ['Arabic', 'English', 'Dari', 'Urdu'], gender: 'both' },
+    pricing: [
+      { sessions: 2, pricePerMonth: 30, label: '2 sessions/week' },
+      { sessions: 3, pricePerMonth: 45, label: '3 sessions/week' }
+    ],
+    priceType: 'paid',
+    lowBandwidthFriendly: true,
+    lessonOutline: [
+      { id: 'akhlaq-1', title: 'The Prophet\'s Character - Our Role Model', hasVideo: true, hasText: true, hasQuiz: true },
+      { id: 'akhlaq-2', title: 'Sabr, Shukr & Tawakkul', hasVideo: true, hasText: true, hasQuiz: true },
+      { id: 'akhlaq-3', title: 'Rights of Parents, Family & Neighbors', hasVideo: true, hasText: true, hasQuiz: true },
+      { id: 'akhlaq-4', title: 'Islamic Social Etiquette & Adab', hasVideo: true, hasText: true, hasQuiz: true }
+    ]
+  },
+  {
+    id: 'fiqh-worship',
+    title: 'Fiqh of Worship (Ibadat)',
+    titleArabic: 'فقه العبادات',
+    category: 'islamic-studies',
+    level: 'all',
+    ageGroup: 'youth',
+    languages: ['arabic', 'dari', 'persian', 'pashto', 'english', 'urdu'],
+    targetAudience: 'Muslims wanting to learn the correct way to perform acts of worship',
+    ageRange: '10+ years',
+    duration: '12 weeks',
+    description: 'Learn the detailed rulings of the five pillars of Islam — Salah (prayer), Sawm (fasting), Zakah (charity), and Hajj (pilgrimage). Covers purification (Taharah), prayer methods, and practical Fiqh scenarios.',
+    learningOutcomes: [
+      { id: '1', description: 'Master the Fiqh of Taharah (purification, Wudu, Ghusl, Tayammum)' },
+      { id: '2', description: 'Learn the complete Fiqh of Salah including conditions, pillars, and Sunnah acts' },
+      { id: '3', description: 'Understand the Fiqh of Fasting — what invalidates and validates the fast' },
+      { id: '4', description: 'Study Zakah calculation, categories of recipients, and distribution' },
+      { id: '5', description: 'Learn the rites of Hajj and Umrah step by step' }
+    ],
+    syllabus: [],
+    classFormat: { duration: '50 minutes per session', mode: ['One-on-One', 'Group Classes (max 6)'], materials: ['Fiqh textbooks', 'Prayer demonstration videos', 'Zakah calculator', 'Hajj guide'] },
+    requirements: ['Shahada (testimony of faith)', 'Willingness to learn and practice'],
+    teacherInfo: { qualification: 'Islamic scholar with specialization in Fiqh', experience: '8+ years teaching Fiqh', languages: ['Arabic', 'English', 'Urdu'], gender: 'both' },
+    pricing: [
+      { sessions: 2, pricePerMonth: 45, label: '2 sessions/week' },
+      { sessions: 3, pricePerMonth: 65, label: '3 sessions/week' },
+      { sessions: 4, pricePerMonth: 85, label: '4 sessions/week' }
+    ],
+    priceType: 'paid',
+    lowBandwidthFriendly: true,
+    lessonOutline: [
+      { id: 'fiqh-1', title: 'Taharah - Purification & Wudu', hasVideo: true, hasText: true, hasQuiz: true },
+      { id: 'fiqh-2', title: 'Fiqh of Salah - Complete Guide', hasVideo: true, hasText: true, hasQuiz: true },
+      { id: 'fiqh-3', title: 'Fiqh of Fasting & Zakah', hasVideo: true, hasText: true, hasQuiz: true },
+      { id: 'fiqh-4', title: 'Hajj & Umrah - Step by Step', hasVideo: true, hasText: true, hasQuiz: true }
+    ]
+  },
+  {
+    id: 'kids-islamic-foundations',
+    title: 'Kids Islamic Foundations',
+    titleArabic: 'أساسيات الإسلام للأطفال',
+    category: 'islamic-studies',
+    level: 'beginner',
+    ageGroup: 'children',
+    languages: ['arabic', 'dari', 'persian', 'pashto', 'english', 'urdu'],
+    targetAudience: 'Young children learning the basics of Islam in a fun and engaging way',
+    ageRange: '5-10 years',
+    duration: '12 weeks',
+    description: 'A fun, interactive Islamic course designed for young learners. Covers the five pillars of Islam, stories of the Prophets, basic Duas, good manners, and love for Allah and His Messenger ﷺ through activities and storytelling.',
+    learningOutcomes: [
+      { id: '1', description: 'Learn the five pillars of Islam and six pillars of Iman' },
+      { id: '2', description: 'Know stories of key Prophets (Adam, Nuh, Ibrahim, Musa, Isa, Muhammad ﷺ)' },
+      { id: '3', description: 'Memorize essential daily Duas (eating, sleeping, entering masjid, etc.)' },
+      { id: '4', description: 'Develop love for Allah, the Quran, and the Prophet ﷺ' },
+      { id: '5', description: 'Practice good Islamic manners and kindness' }
+    ],
+    syllabus: [],
+    classFormat: { duration: '30 minutes per session', mode: ['One-on-One', 'Group Classes (max 8)', 'Family Sessions'], materials: ['Colorful workbooks', 'Story cards', 'Activity sheets', 'Sticker rewards'] },
+    requirements: ['No prior knowledge required', 'Parent/guardian supervision recommended'],
+    teacherInfo: { qualification: 'Islamic educator trained in early childhood development', experience: '5+ years teaching young children', languages: ['Arabic', 'English', 'Dari', 'Urdu'], gender: 'both' },
+    pricing: [
+      { sessions: 2, pricePerMonth: 25, label: '2 sessions/week' },
+      { sessions: 3, pricePerMonth: 40, label: '3 sessions/week' }
+    ],
+    priceType: 'paid',
+    lowBandwidthFriendly: true,
+    lessonOutline: [
+      { id: 'kids-islam-1', title: 'Who is Allah? The Five Pillars', hasVideo: true, hasText: true, hasQuiz: true },
+      { id: 'kids-islam-2', title: 'Stories of the Prophets', hasVideo: true, hasText: true, hasQuiz: true },
+      { id: 'kids-islam-3', title: 'My Daily Duas & Good Manners', hasVideo: true, hasText: true, hasQuiz: true }
+    ]
+  },
+  {
+    id: 'tafsir-quran',
+    title: 'Tafsir - Quran Commentary',
+    titleArabic: 'تفسير القرآن الكريم',
+    category: 'quran',
+    level: 'intermediate',
+    ageGroup: 'youth',
+    languages: ['arabic', 'dari', 'persian', 'pashto', 'english', 'urdu'],
+    targetAudience: 'Students who want to deeply understand the meanings, context, and rulings of the Quran',
+    ageRange: '15+ years',
+    duration: '20 weeks (ongoing)',
+    description: 'Deep dive into the meanings of the Quran through classical and contemporary Tafsir. Study Surah by Surah with context of revelation (Asbab al-Nuzul), linguistic analysis, and practical lessons for today.',
+    learningOutcomes: [
+      { id: '1', description: 'Understand the methodology of Tafsir (interpretation) and its sciences' },
+      { id: '2', description: 'Study major Surahs with detailed commentary from classical scholars' },
+      { id: '3', description: 'Learn Asbab al-Nuzul (reasons for revelation) and their significance' },
+      { id: '4', description: 'Extract practical guidance and rulings from Quranic verses' },
+      { id: '5', description: 'Appreciate the linguistic miracles (I\'jaz) of the Quran' }
+    ],
+    syllabus: [],
+    classFormat: { duration: '60 minutes per session', mode: ['One-on-One', 'Group Classes (max 6)'], materials: ['Tafsir books (Ibn Kathir, Al-Sa\'di)', 'Arabic Mushaf', 'Study notes', 'Discussion questions'] },
+    requirements: ['Ability to read Arabic text', 'Basic understanding of Islamic terminology', 'Completion of Quran Translation course recommended'],
+    teacherInfo: { qualification: 'Islamic scholar with specialization in Tafsir and Quranic Sciences', experience: '10+ years teaching Tafsir', languages: ['Arabic', 'English', 'Urdu'], gender: 'both' },
+    pricing: [
+      { sessions: 2, pricePerMonth: 55, label: '2 sessions/week' },
+      { sessions: 3, pricePerMonth: 75, label: '3 sessions/week' }
+    ],
+    priceType: 'paid',
+    lowBandwidthFriendly: true,
+    lessonOutline: [
+      { id: 'tafsir-1', title: 'Introduction to Tafsir Sciences', hasVideo: true, hasText: true, hasQuiz: true },
+      { id: 'tafsir-2', title: 'Tafsir of Surah Al-Fatiha & Short Surahs', hasVideo: true, hasText: true, hasQuiz: true },
+      { id: 'tafsir-3', title: 'Tafsir of Surah Al-Baqarah (Selected Passages)', hasVideo: true, hasText: true, hasQuiz: true },
+      { id: 'tafsir-4', title: 'Thematic Tafsir: Tawbah, Sabr, Tawakkul', hasVideo: true, hasText: true, hasQuiz: true }
+    ]
   }
 ];
