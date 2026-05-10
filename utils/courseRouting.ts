@@ -29,7 +29,11 @@ export const isDedicatedCourse = (courseId: string) => courseId in dedicatedCour
 
 export const getCoursePlayerPath = (courseId: string, role: 'student' | 'teacher' | 'admin') => {
   if (role === 'admin') {
-    return getCourseDetailPath(courseId);
+    const dedicatedTeacherPath = dedicatedTeacherCoursePaths[courseId];
+    if (dedicatedTeacherPath) {
+      return dedicatedTeacherPath;
+    }
+    return `/teacher/courses/${courseId}`;
   }
 
   if (role === 'teacher') {

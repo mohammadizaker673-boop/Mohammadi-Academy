@@ -58,7 +58,7 @@ const AutomatedCourseDetailPage: React.FC = () => {
       return;
     }
 
-    const targetPath = user.role === 'teacher' ? `/teacher/courses/${courseId}` : `/student/courses/${courseId}`;
+    const targetPath = user.role === 'student' ? `/student/courses/${courseId}` : `/teacher/courses/${courseId}`;
     navigate(targetPath, { replace: true });
   };
 
@@ -135,7 +135,7 @@ const AutomatedCourseDetailPage: React.FC = () => {
             </button>
             {hasAccess && (
               <Link
-                to={user?.role === 'teacher' ? `/teacher/courses/${course.id}` : `/student/courses/${course.id}`}
+                to={user?.role === 'student' ? `/student/courses/${course.id}` : `/teacher/courses/${course.id}`}
                 className="px-6 py-3 border border-white/10 rounded-full text-slate-200 hover:text-white hover:border-white/30 transition"
               >
                 Open Course Player

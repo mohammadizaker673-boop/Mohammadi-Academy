@@ -184,6 +184,12 @@ const CourseModulePlayer: React.FC<CourseModulePlayerProps> = ({ course }) => {
       return;
     }
 
+    if (user.role === 'admin') {
+      setBlocked(false);
+      setAccessLoading(false);
+      return;
+    }
+
     if (course.metadata.priceType !== 'paid') {
       setBlocked(false);
       setAccessLoading(false);
