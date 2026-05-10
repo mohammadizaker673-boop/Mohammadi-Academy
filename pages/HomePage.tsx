@@ -433,7 +433,12 @@ const HomePage: React.FC = () => {
           <div className="relative">
             <div className="absolute -inset-8 bg-gradient-to-br from-primary-400/10 to-accent-500/10 blur-3xl rounded-full"></div>
             <div className="relative rounded-[3rem] overflow-hidden shadow-2xl border-2 border-white/10 bg-black">
-              <img src={backgroundImage} alt={t.name} className="w-full h-full object-cover" style={{ mixBlendMode: 'screen', filter: 'brightness(1.2) contrast(1.1)' }} />
+              <img
+                src={backgroundImage}
+                alt={t.name}
+                className="w-full h-full object-cover select-none"
+                style={{ mixBlendMode: 'multiply', filter: 'brightness(0.98) contrast(1.08)' }}
+              />
               {/* Search overlay on image */}
               <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-6 pt-16">
                 <h3 className="text-lg font-black text-white mb-3">What do you want to learn?</h3>
