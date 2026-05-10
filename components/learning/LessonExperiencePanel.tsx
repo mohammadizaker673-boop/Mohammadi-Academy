@@ -3,7 +3,6 @@ import { BookMarked, Brain, MessageSquare, NotebookPen, Send, ShieldCheck, Targe
 import LearningPathPanel from './LearningPathPanel';
 import LessonAITutor from './LessonAITutor';
 import LessonRecitationCoach from './LessonRecitationCoach';
-import LessonAITutor from './LessonAITutor';
 import {
   buildLessonInsight,
   buildLessonSpiritualGuidance,
