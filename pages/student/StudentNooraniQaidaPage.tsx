@@ -1,9 +1,9 @@
 import React from 'react';
-import CourseModulePlayer from '../../components/course-modules/CourseModulePlayer';
+import NooraniLessonPlayer from '../../components/noorani/NooraniLessonPlayer';
 import { nooraniQaidaCourseData } from '../../data/nooraniQaidaCourseData';
 
 const StudentNooraniQaidaPage: React.FC = () => {
-  return <CourseModulePlayer course={nooraniQaidaCourseData} />;
+  return <NooraniLessonPlayer course={nooraniQaidaCourseData} />;
 };
 
 export default StudentNooraniQaidaPage;
