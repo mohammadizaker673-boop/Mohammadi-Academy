@@ -6,6 +6,7 @@ import {
   CourseModuleSection,
   DedicatedCourseModule
 } from '../types/dedicated-course.types';
+import { applyCourseModuleCompleteness } from '../utils/courseModuleCompleteness';
 
 const courseMetadata = courses.find((course) => course.id === 'noorani-qaida');
 
@@ -1348,7 +1349,7 @@ const lessonMetrics: CourseModuleLessonMetric[] = sections
 const averageCompletion = Math.round(lessonMetrics.reduce((sum, item) => sum + item.completionRate, 0) / lessonMetrics.length);
 const averageScore = Math.round(lessonMetrics.reduce((sum, item) => sum + item.averageScore, 0) / lessonMetrics.length);
 
-export const nooraniQaidaCourseData: DedicatedCourseModule = {
+export const nooraniQaidaCourseData: DedicatedCourseModule = applyCourseModuleCompleteness({
   metadata: courseMetadata,
   publicRoute: '/courses/noorani-qaida',
   studentRoute: '/student/noorani-qaida-player',
@@ -1424,4 +1425,4 @@ export const nooraniQaidaCourseData: DedicatedCourseModule = {
   },
   lessonMetrics,
   enrollmentCta: 'Enroll in Noorani Qaida'
-};
+});

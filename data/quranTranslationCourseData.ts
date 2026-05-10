@@ -6,6 +6,7 @@ import {
   CourseModuleSection,
   DedicatedCourseModule
 } from '../types/dedicated-course.types';
+import { applyCourseModuleCompleteness } from '../utils/courseModuleCompleteness';
 
 const courseMetadata = courses.find((course) => course.id === 'quran-translation');
 
@@ -685,7 +686,7 @@ const lessonMetrics: CourseModuleLessonMetric[] = sections.flatMap((section) => 
 const averageCompletion = Math.round(lessonMetrics.reduce((sum, item) => sum + item.completionRate, 0) / lessonMetrics.length);
 const averageScore = Math.round(lessonMetrics.reduce((sum, item) => sum + item.averageScore, 0) / lessonMetrics.length);
 
-export const quranTranslationCourseData: DedicatedCourseModule = {
+export const quranTranslationCourseData: DedicatedCourseModule = applyCourseModuleCompleteness({
   metadata: courseMetadata,
   publicRoute: '/quran-translation',
   studentRoute: '/student/quran-translation-player',
@@ -758,5 +759,5 @@ export const quranTranslationCourseData: DedicatedCourseModule = {
     averageScore
   },
   lessonMetrics,
-  enrollmentCta: 'Enroll in Quran Translation'
-};
+  enrollmentCta: 'Enroll in Quran Translation & Tafsir'
+});

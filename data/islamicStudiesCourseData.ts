@@ -6,6 +6,7 @@ import {
   CourseModuleSection,
   DedicatedCourseModule
 } from '../types/dedicated-course.types';
+import { applyCourseModuleCompleteness } from '../utils/courseModuleCompleteness';
 
 const courseMetadata = courses.find((course) => course.id === 'islamic-studies');
 
@@ -785,7 +786,7 @@ const lessonMetrics: CourseModuleLessonMetric[] = sections.flatMap((section) => 
 const averageCompletion = Math.round(lessonMetrics.reduce((sum, item) => sum + item.completionRate, 0) / lessonMetrics.length);
 const averageScore = Math.round(lessonMetrics.reduce((sum, item) => sum + item.averageScore, 0) / lessonMetrics.length);
 
-export const islamicStudiesCourseData: DedicatedCourseModule = {
+export const islamicStudiesCourseData: DedicatedCourseModule = applyCourseModuleCompleteness({
   metadata: courseMetadata,
   publicRoute: '/islamic-studies',
   studentRoute: '/student/islamic-studies-player',
@@ -859,4 +860,4 @@ export const islamicStudiesCourseData: DedicatedCourseModule = {
   },
   lessonMetrics,
   enrollmentCta: 'Enroll in Islamic Studies'
-};
+});
