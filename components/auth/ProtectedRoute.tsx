@@ -36,7 +36,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Navigate to="/complete-profile" replace />;
   }
 
-  if (allowedRoles && !allowedRoles.includes(user.role)) {
+  if (allowedRoles && user.role !== 'admin' && !allowedRoles.includes(user.role)) {
     return <Navigate to={`/${user.role}`} replace />;
   }
 
