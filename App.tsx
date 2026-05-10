@@ -12,6 +12,7 @@ import ScrollRevealInit from './components/motion/ScrollRevealInit';
 
 const HomePage = React.lazy(() => import('./pages/HomePage'));
 const LoginPage = React.lazy(() => import('./pages/auth/LoginPage'));
+const CompleteProfilePage = React.lazy(() => import('./pages/auth/CompleteProfilePage'));
 const QuickStudentLogin = React.lazy(() => import('./pages/auth/QuickStudentLogin'));
 const QuickTeacherLogin = React.lazy(() => import('./pages/auth/QuickTeacherLogin'));
 const RegisterPage = React.lazy(() => import('./pages/auth/RegisterPage'));
@@ -178,6 +179,7 @@ const App: React.FC = () => {
             {/* Public Routes */}
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/complete-profile" element={<CompleteProfilePage />} />
             <Route path="/quick-admin" element={<Navigate to="/login" replace />} />
             <Route path="/quick-admin-login" element={<Navigate to="/login" replace />} />
             <Route path="/quick-student" element={<QuickStudentLogin />} />

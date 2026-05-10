@@ -80,7 +80,7 @@ const LoginPage: React.FC = () => {
 
   const handleSocialLogin = async (provider: 'google' | 'facebook') => {
     setError('');
-    setInfo('Redirecting to provider...');
+    setInfo(`Redirecting to ${provider === 'google' ? 'Google' : 'Facebook'}...`);
     try {
       await signInWithOAuth(provider);
     } catch (err: any) {

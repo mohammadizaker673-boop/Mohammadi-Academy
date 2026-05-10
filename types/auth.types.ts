@@ -26,12 +26,20 @@ export interface RegisterData {
   role: UserRole;
 }
 
+export interface CompleteProfileData {
+  displayName: string;
+  phone?: string;
+  role: Exclude<UserRole, 'admin'>;
+}
+
 export interface AuthContextType {
   user: AuthUser | null;
   loading: boolean;
+  needsProfileCompletion: boolean;
   login: (credentials: LoginCredentials) => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
   signInWithOAuth: (provider: OAuthProvider) => Promise<void>;
+  completeProfile: (data: CompleteProfileData) => Promise<void>;
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
 }

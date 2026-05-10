@@ -150,14 +150,14 @@ const RegisterPage: React.FC = () => {
 
             <div>
               <label className="block text-[10px] font-black text-primary-400 mb-3 uppercase tracking-[0.2em]">
-                Phone Number
+                Phone Number <span className="text-slate-400 normal-case tracking-normal">(optional)</span>
               </label>
               <input
                 type="tel"
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
-                required
+                required={false}
                 className="w-full px-6 py-4 bg-white/10 border border-white/20 rounded-[1.2rem] focus:ring-2 focus:ring-primary-400/50 focus:border-primary-400 focus:bg-white/15 outline-none transition-all text-white placeholder-slate-400"
                 placeholder="+93 79 646 4640"
               />

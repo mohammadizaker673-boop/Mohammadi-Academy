@@ -14,7 +14,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   allowedRoles,
   redirectTo = '/login'
 }) => {
-  const { user, loading } = useAuth();
+  const { user, loading, needsProfileCompletion } = useAuth();
   const location = useLocation();
 
   if (loading) {
@@ -30,6 +30,10 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   if (!user) {
     return <Navigate to={redirectTo} state={{ from: location }} replace />;
+  }
+
+  if (needsProfileCompletion && location.pathname !== '/complete-profile') {
+    return <Navigate to="/complete-profile" replace />;
   }
 
   if (allowedRoles && !allowedRoles.includes(user.role)) {

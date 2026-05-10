@@ -17,12 +17,12 @@ const LogoLink: React.FC<LogoLinkProps> = ({ showText = true, compact = false, c
 
   return (
     <Link to="/" className={`flex items-center gap-3 ${className}`} aria-label="Go to home">
-      <div className="relative flex items-center justify-center">
+      <div className="relative flex items-center justify-center bg-transparent">
         <img
           src={logoImage}
           alt="Mohammadi Academy logo"
-          className={`${sizeClass} w-auto object-contain drop-shadow-xl`}
-          style={{ mixBlendMode: 'screen' }}
+          className={`${sizeClass} w-auto object-contain bg-transparent`}
+          style={{ filter: 'drop-shadow(0 10px 20px rgba(15, 23, 42, 0.28))' }}
         />
       </div>
       {showText && (
