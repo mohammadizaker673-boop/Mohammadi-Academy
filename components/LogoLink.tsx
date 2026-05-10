@@ -22,7 +22,7 @@ const LogoLink: React.FC<LogoLinkProps> = ({ showText = true, compact = false, c
           src={logoImage}
           alt="Mohammadi Academy logo"
           className={`${sizeClass} w-auto object-contain bg-transparent`}
-          style={{ filter: 'drop-shadow(0 10px 20px rgba(15, 23, 42, 0.28))' }}
+          style={{ mixBlendMode: 'screen', filter: 'brightness(1.12) contrast(1.06) drop-shadow(0 10px 20px rgba(15, 23, 42, 0.28))' }}
         />
       </div>
       {showText && (
