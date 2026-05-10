@@ -8,6 +8,7 @@ import { useAuth } from '../contexts/AuthContext';
 import LogoLink from '../components/LogoLink';
 import LanguageSelector from '../components/LanguageSelector';
 import { hasRestrictedCourseAccess } from '../services/courseAccessService';
+import { getCoursePlayerPath } from '../utils/courseRouting';
 
 const AutomatedCourseDetailPage: React.FC = () => {
   const { courseId } = useParams<{ courseId: string }>();
@@ -58,7 +59,7 @@ const AutomatedCourseDetailPage: React.FC = () => {
       return;
     }
 
-    const targetPath = user.role === 'student' ? `/student/courses/${courseId}` : `/teacher/courses/${courseId}`;
+    const targetPath = getCoursePlayerPath(courseId, user.role);
     navigate(targetPath, { replace: true });
   };
 
@@ -135,7 +136,7 @@ const AutomatedCourseDetailPage: React.FC = () => {
             </button>
             {hasAccess && (
               <Link
-                to={user?.role === 'student' ? `/student/courses/${course.id}` : `/teacher/courses/${course.id}`}
+                to={user ? getCoursePlayerPath(course.id, user.role) : '/login'}
                 className="px-6 py-3 border border-white/10 rounded-full text-slate-200 hover:text-white hover:border-white/30 transition"
               >
                 Open Course Player

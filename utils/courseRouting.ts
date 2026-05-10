@@ -16,6 +16,12 @@ const dedicatedTeacherCoursePaths: Record<string, string> = {
   'islamic-studies': '/teacher/islamic-studies-player'
 };
 
+const dedicatedAdminCoursePaths: Record<string, string> = {
+  'noorani-qaida': '/admin/noorani-qaida-player',
+  'quran-translation': '/admin/quran-translation-player',
+  'islamic-studies': '/admin/islamic-studies-player'
+};
+
 export const getCourseDetailPath = (courseId: string) => {
   const dedicatedPath = dedicatedCoursePaths[courseId];
   if (dedicatedPath) {
@@ -29,11 +35,11 @@ export const isDedicatedCourse = (courseId: string) => courseId in dedicatedCour
 
 export const getCoursePlayerPath = (courseId: string, role: 'student' | 'teacher' | 'admin') => {
   if (role === 'admin') {
-    const dedicatedTeacherPath = dedicatedTeacherCoursePaths[courseId];
-    if (dedicatedTeacherPath) {
-      return dedicatedTeacherPath;
+    const dedicatedAdminPath = dedicatedAdminCoursePaths[courseId];
+    if (dedicatedAdminPath) {
+      return dedicatedAdminPath;
     }
-    return `/teacher/courses/${courseId}`;
+    return `/admin/courses/player/${courseId}`;
   }
 
   if (role === 'teacher') {

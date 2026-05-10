@@ -242,6 +242,10 @@ const App: React.FC = () => {
               <Route path="courses/lessons" element={<LessonsManager />} />
               <Route path="courses/media" element={<MediaLibrary />} />
               <Route path="courses/noorani" element={<NooraniQaidaManagement />} />
+              <Route path="courses/player/:courseId" element={<AutomatedCoursePlayer />} />
+              <Route path="noorani-qaida-player" element={<TeacherNooraniQaidaPage />} />
+              <Route path="quran-translation-player" element={<TeacherQuranTranslationPage />} />
+              <Route path="islamic-studies-player" element={<TeacherIslamicStudiesPage />} />
               {/* Students Routes */}
               <Route path="students/add" element={<AddStudent />} />
               <Route path="students" element={<StudentManagement />} />
