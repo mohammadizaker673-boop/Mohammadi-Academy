@@ -1,12 +1,16 @@
 import { collection, doc, getDoc, getDocs, orderBy, query } from 'firebase/firestore';
 import { db } from './firebase';
 import { AutomatedCourse, AutomatedLesson } from '../types/automated-course.types';
+import {
+  ensureAutomatedCourseCompleteness,
+  ensureAutomatedLessonsCompleteness
+} from '../utils/automatedCourseCompleteness';
 
 export const fetchAutomatedCourses = async (): Promise<AutomatedCourse[]> => {
   const snapshot = await getDocs(collection(db, 'automated_courses'));
   return snapshot.docs.map((docSnap) => {
     const data = docSnap.data();
-    return {
+    return ensureAutomatedCourseCompleteness({
       id: docSnap.id,
       title: data.title,
       description: data.description,
@@ -22,7 +26,7 @@ export const fetchAutomatedCourses = async (): Promise<AutomatedCourse[]> => {
       isActive: data.isActive ?? true,
       createdAt: data.createdAt?.toDate?.(),
       updatedAt: data.updatedAt?.toDate?.()
-    } as AutomatedCourse;
+    } as AutomatedCourse);
   });
 };
 
@@ -31,7 +35,7 @@ export const fetchAutomatedCourse = async (courseId: string): Promise<AutomatedC
   const snap = await getDoc(courseRef);
   if (!snap.exists()) return null;
   const data = snap.data();
-  return {
+  return ensureAutomatedCourseCompleteness({
     id: snap.id,
     title: data.title,
     description: data.description,
@@ -47,20 +51,25 @@ export const fetchAutomatedCourse = async (courseId: string): Promise<AutomatedC
     isActive: data.isActive ?? true,
     createdAt: data.createdAt?.toDate?.(),
     updatedAt: data.updatedAt?.toDate?.()
-  } as AutomatedCourse;
+  } as AutomatedCourse);
 };
 
 export const fetchAutomatedLessons = async (courseId: string): Promise<AutomatedLesson[]> => {
   const lessonsRef = collection(db, 'automated_courses', courseId, 'lessons');
   const lessonsQuery = query(lessonsRef, orderBy('order', 'asc'));
   const snapshot = await getDocs(lessonsQuery);
-  return snapshot.docs.map((docSnap) => {
+  const lessons = snapshot.docs.map((docSnap) => {
     const data = docSnap.data();
     return {
       id: docSnap.id,
       title: data.title,
       order: data.order,
-      content: data.content
+      content: data.content,
+      materials: data.materials,
+      resources: data.resources,
+      optionalResources: data.optionalResources
     } as AutomatedLesson;
   });
+
+  return ensureAutomatedLessonsCompleteness(lessons);
 };

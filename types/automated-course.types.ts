@@ -7,6 +7,15 @@ export type AutomatedLessonQuiz = {
   correctIndex: number;
 };
 
+export type AutomatedLessonResource = {
+  id: string;
+  title: string;
+  description: string;
+  includedItems: string[];
+  type: string;
+  isOptional?: boolean;
+};
+
 export type AutomatedLessonContent = {
   summary: string;
   explanation: string;
@@ -20,6 +29,9 @@ export interface AutomatedLesson {
   title: string;
   order: number;
   content: AutomatedLessonContent;
+  materials?: string[];
+  resources?: AutomatedLessonResource[];
+  optionalResources?: AutomatedLessonResource[];
 }
 
 export interface AutomatedCourse {

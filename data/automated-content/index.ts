@@ -1,5 +1,9 @@
 import digitalBasics from './digital-basics-online-safety.json';
 import { AutomatedCourse, AutomatedLesson } from '../../types/automated-course.types';
+import {
+  ensureAutomatedCourseCompleteness,
+  ensureAutomatedLessonsCompleteness
+} from '../../utils/automatedCourseCompleteness';
 
 export type PrebuiltLesson = {
   title: string;
@@ -59,7 +63,7 @@ export const buildAutomatedCourseFromPrebuilt = (key: string): AutomatedCourse |
   const meta = getPrebuiltCourseMeta(key);
   if (!content || !meta) return null;
 
-  return {
+  return ensureAutomatedCourseCompleteness({
     id: key,
     title: content.course.title,
     description: content.course.description,
@@ -73,14 +77,14 @@ export const buildAutomatedCourseFromPrebuilt = (key: string): AutomatedCourse |
     accessDurationDays: meta.accessDurationDays,
     status: 'published',
     isActive: true
-  };
+  });
 };
 
 export const buildAutomatedLessonsFromPrebuilt = (key: string): AutomatedLesson[] => {
   const content = getPrebuiltCourseContent(key);
   if (!content) return [];
 
-  return content.lessons.map((lesson, index) => {
+  const lessons = content.lessons.map((lesson, index) => {
     const quiz = lesson.quiz[0] || { q: 'Choose the best answer.', options: ['A', 'B', 'C', 'D'], answer: 0 };
     return {
       id: `lesson-${index + 1}`,
@@ -96,7 +100,14 @@ export const buildAutomatedLessonsFromPrebuilt = (key: string): AutomatedLesson[
           options: quiz.options,
           correctIndex: quiz.answer
         }
-      }
+      },
+      materials: [
+        'Lesson guide',
+        'Practice worksheet',
+        'Review checklist'
+      ]
     };
   });
+
+  return ensureAutomatedLessonsCompleteness(lessons);
 };

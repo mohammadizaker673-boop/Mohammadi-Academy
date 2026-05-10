@@ -154,6 +154,57 @@ const AutomatedCoursePlayer: React.FC = () => {
                 <h3 className="text-lg font-semibold text-white mb-2">Exercise</h3>
                 <p className="text-slate-300">{activeLesson.content.exercise}</p>
               </div>
+
+              {activeLesson.materials?.length ? (
+                <div>
+                  <h3 className="text-lg font-semibold text-white mb-2">Lesson Materials</h3>
+                  <ul className="space-y-2">
+                    {activeLesson.materials.map((material, index) => (
+                      <li key={`${activeLesson.id}-material-${index}`} className="flex items-start gap-2 text-slate-300">
+                        <ChevronRight className="w-4 h-4 text-primary-400 mt-1" />
+                        <span>{material}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+
+              {activeLesson.resources?.length ? (
+                <div>
+                  <h3 className="text-lg font-semibold text-white mb-2">Required Resources</h3>
+                  <div className="space-y-3">
+                    {activeLesson.resources.map((resource) => (
+                      <div key={resource.id} className="rounded-xl border border-white/10 bg-slate-900/40 p-4">
+                        <p className="text-white font-semibold">{resource.title}</p>
+                        <p className="text-slate-400 text-sm mt-1">{resource.description}</p>
+                        <ul className="mt-2 space-y-1">
+                          {resource.includedItems.map((item, index) => (
+                            <li key={`${resource.id}-item-${index}`} className="text-slate-300 text-sm flex items-start gap-2">
+                              <ChevronRight className="w-3.5 h-3.5 text-primary-400 mt-1" />
+                              <span>{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+
+              {activeLesson.optionalResources?.length ? (
+                <div>
+                  <h3 className="text-lg font-semibold text-white mb-2">Optional Extensions</h3>
+                  <div className="space-y-3">
+                    {activeLesson.optionalResources.map((resource) => (
+                      <div key={resource.id} className="rounded-xl border border-white/10 bg-slate-900/30 p-4">
+                        <p className="text-white font-semibold">{resource.title}</p>
+                        <p className="text-slate-400 text-sm mt-1">{resource.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+
               <div className="border border-white/10 rounded-xl p-4">
                 <h3 className="text-lg font-semibold text-white mb-3">Quick Quiz</h3>
                 <p className="text-slate-300 mb-4">{activeLesson.content.quiz.question}</p>
