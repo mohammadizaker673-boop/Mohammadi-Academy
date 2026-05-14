@@ -19,7 +19,7 @@ const LoginPage: React.FC = () => {
     email: '',
     password: ''
   });
-  const primaryAdminEmail = 'admin@mohammadiacademy.com';
+  const adminEmails = new Set(['admin@mohammadiacademy.com', 'zakeradham54@gmail.com']);
 
   const withTimeout = <T,>(promise: Promise<T>, ms: number) =>
     new Promise<T>((resolve, reject) => {
@@ -60,7 +60,7 @@ const LoginPage: React.FC = () => {
         );
         let role = profileResult.data?.role || 'student';
 
-        if (normalizedEmail === primaryAdminEmail) {
+        if (adminEmails.has(normalizedEmail)) {
           role = 'admin';
         }
 

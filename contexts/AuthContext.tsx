@@ -11,7 +11,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [error, setError] = useState<string | null>(null);
   const [needsProfileCompletion, setNeedsProfileCompletion] = useState(false);
   const emailCooldownMs = 60_000;
-  const primaryAdminEmail = 'admin@mohammadiacademy.com';
+  const adminEmails = new Set(['admin@mohammadiacademy.com', 'zakeradham54@gmail.com']);
 
   const withTimeout = <T,>(promise: Promise<T>, ms: number, label: string) =>
     new Promise<T>((resolve, reject) => {
@@ -47,7 +47,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const normalizeEmail = (value: string) => value.trim().toLowerCase();
 
-  const isPrimaryAdminEmail = (value?: string | null) => normalizeEmail(value || '') === primaryAdminEmail;
+  const isPrimaryAdminEmail = (value?: string | null) => adminEmails.has(normalizeEmail(value || ''));
 
   const emailCooldownKey = (action: 'register' | 'reset', email: string) =>
     `auth-email-cooldown:${action}:${normalizeEmail(email)}`;
