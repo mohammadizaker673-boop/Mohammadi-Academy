@@ -12,6 +12,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [needsProfileCompletion, setNeedsProfileCompletion] = useState(false);
   const emailCooldownMs = 60_000;
   const adminEmails = new Set(['admin@mohammadiacademy.com', 'zakeradham54@gmail.com']);
+  const sessionRememberMs = 30 * 24 * 60 * 60 * 1000;
+  const sessionRememberKey = 'auth-remember-until';
+  const sessionCookieKey = 'ma_session_active';
 
   const withTimeout = <T,>(promise: Promise<T>, ms: number, label: string) =>
     new Promise<T>((resolve, reject) => {
@@ -48,6 +51,39 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const normalizeEmail = (value: string) => value.trim().toLowerCase();
 
   const isPrimaryAdminEmail = (value?: string | null) => adminEmails.has(normalizeEmail(value || ''));
+
+  const setRememberSession = () => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const rememberUntil = Date.now() + sessionRememberMs;
+    window.localStorage.setItem(sessionRememberKey, String(rememberUntil));
+    document.cookie = `${sessionCookieKey}=1; Max-Age=${Math.floor(sessionRememberMs / 1000)}; Path=/; SameSite=Lax`;
+  };
+
+  const clearRememberSession = () => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    window.localStorage.removeItem(sessionRememberKey);
+    document.cookie = `${sessionCookieKey}=; Max-Age=0; Path=/; SameSite=Lax`;
+  };
+
+  const isRememberSessionValid = () => {
+    if (typeof window === 'undefined') {
+      return true;
+    }
+
+    const raw = window.localStorage.getItem(sessionRememberKey);
+    if (!raw) {
+      return false;
+    }
+
+    const until = Number(raw);
+    return Number.isFinite(until) && until > Date.now();
+  };
 
   const emailCooldownKey = (action: 'register' | 'reset', email: string) =>
     `auth-email-cooldown:${action}:${normalizeEmail(email)}`;
@@ -180,17 +216,21 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     const bootstrap = async () => {
       try {
-        const { data } = await withTimeout(supabase.auth.getUser(), 7000, 'auth-bootstrap');
+        const { data: sessionData } = await withTimeout(supabase.auth.getSession(), 4000, 'auth-session-bootstrap');
         if (disposed) {
           return;
         }
-        if (data.user) {
-          const hydrated = await buildAuthUser(data.user);
+
+        const sessionUser = sessionData.session?.user;
+        if (sessionUser) {
+          const hydrated = await buildAuthUser(sessionUser);
           if (disposed) {
             return;
           }
           setUser(hydrated);
+          setRememberSession();
         } else {
+          clearRememberSession();
           setUser(null);
         }
       } catch (err) {
@@ -208,7 +248,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     bootstrap();
 
-    const { data: listener } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const { data: listener } = supabase.auth.onAuthStateChange(async (event, session) => {
       try {
         if (disposed) {
           return;
@@ -219,7 +259,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             return;
           }
           setUser(hydrated);
+          if (event === 'SIGNED_IN' || event === 'PASSWORD_RECOVERY' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION') {
+            setRememberSession();
+          }
         } else {
+          clearRememberSession();
           setUser(null);
           setNeedsProfileCompletion(false);
         }
@@ -300,6 +344,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             role: data.role,
           });
         }
+
+        setRememberSession();
       }
     } catch (error: any) {
       if (error?.message) {
@@ -344,6 +390,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
 
         setUser(hydrated);
+        setRememberSession();
       }
     } catch (error: any) {
       console.error('Login error:', error);
@@ -370,6 +417,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (signOutError) {
         throw signOutError;
       }
+      clearRememberSession();
     } catch (error: any) {
       console.error('Logout error:', error);
       throw new Error(error.message || 'Failed to logout');
