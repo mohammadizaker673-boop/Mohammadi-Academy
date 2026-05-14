@@ -9,7 +9,7 @@ import { ShieldCheck } from 'lucide-react';
 
 const AdminLoginPage: React.FC = () => {
   const navigate = useNavigate();
-  const { login, signInWithOAuth, resetPassword, user } = useAuth();
+  const { login, resetPassword, user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
@@ -79,7 +79,16 @@ const AdminLoginPage: React.FC = () => {
     setInfo('');
     setOauthLoading(true);
     try {
-      await signInWithOAuth('google');
+      const { error: oauthError } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`
+        }
+      });
+
+      if (oauthError) {
+        throw oauthError;
+      }
       // After OAuth redirect comes back, the auth state listener will
       // pick up the session; AdminLoginPage's useEffect will redirect admins.
     } catch (err: any) {
