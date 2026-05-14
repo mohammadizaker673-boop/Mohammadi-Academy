@@ -117,6 +117,7 @@ const AdminLayout: React.FC = () => {
         { path: '/admin/students', label: t.dashboard.admin.allStudents },
         { path: '/admin/students/progress', label: t.dashboard.admin.progressRecords },
         { path: '/admin/admissions', label: t.dashboard.admin.admissions },
+        { path: '/admin/signups', label: 'Signup Approvals' },
       ]
     },
     {

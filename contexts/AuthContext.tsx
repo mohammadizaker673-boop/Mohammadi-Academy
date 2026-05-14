@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '../services/supabase';
 import { AuthUser, LoginCredentials, RegisterData, AuthContextType, UserRole, OAuthProvider, CompleteProfileData } from '../types/auth.types';
+import { createSignupApprovalRequest, getSignupApprovalStatusByEmail } from '../services/db';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -223,6 +224,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           created_at: new Date().toISOString(),
           last_login: new Date().toISOString()
         });
+
+        if (data.role !== 'admin') {
+          await createSignupApprovalRequest({
+            fullName: data.displayName,
+            email: data.email,
+            phone: data.phone,
+            role: data.role,
+          });
+        }
       }
     } catch (error: any) {
       if (error?.message) {
@@ -251,6 +261,21 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       if (data.user) {
         const hydrated = await buildAuthUser(data.user);
+
+        if (hydrated.role !== 'admin') {
+          const approvalStatus = await getSignupApprovalStatusByEmail(hydrated.email);
+
+          if (approvalStatus === 'pending') {
+            await supabase.auth.signOut();
+            throw new Error('Your account is pending admin approval. Please wait until an administrator approves your signup.');
+          }
+
+          if (approvalStatus === 'rejected') {
+            await supabase.auth.signOut();
+            throw new Error('Your signup request was rejected. Please contact the administrator for assistance.');
+          }
+        }
+
         setUser(hydrated);
       }
     } catch (error: any) {

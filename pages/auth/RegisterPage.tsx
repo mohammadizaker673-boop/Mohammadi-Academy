@@ -76,7 +76,7 @@ const RegisterPage: React.FC = () => {
             </svg>
           </div>
           <h2 className="text-3xl font-black text-white mb-4">Registration Successful!</h2>
-          <p className="text-slate-300">Redirecting to login page...</p>
+          <p className="text-slate-300">Your account request was submitted. Please wait for admin approval before signing in.</p>
         </div>
       </div>
     );

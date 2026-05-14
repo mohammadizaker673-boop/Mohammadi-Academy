@@ -81,6 +81,7 @@ const AddStudent = React.lazy(() => import('./pages/admin/students/AddStudent'))
 const StudentManagement = React.lazy(() => import('./pages/admin/StudentManagement'));
 const ProgressRecords = React.lazy(() => import('./pages/admin/students/ProgressRecords'));
 const AdmissionRequests = React.lazy(() => import('./pages/admin/AdmissionRequests'));
+const SignupApprovals = React.lazy(() => import('./pages/admin/SignupApprovals'));
 const AddTeacher = React.lazy(() => import('./pages/admin/teachers/AddTeacher'));
 const TeacherManagement = React.lazy(() => import('./pages/admin/TeacherManagement'));
 const TeacherSchedule = React.lazy(() => import('./pages/admin/teachers/TeacherSchedule'));
@@ -253,6 +254,7 @@ const App: React.FC = () => {
               <Route path="students" element={<StudentManagement />} />
               <Route path="students/progress" element={<ProgressRecords />} />
               <Route path="admissions" element={<AdmissionRequests />} />
+              <Route path="signups" element={<SignupApprovals />} />
               {/* Teachers Routes */}
               <Route path="teachers/add" element={<AddTeacher />} />
               <Route path="teachers" element={<TeacherManagement />} />

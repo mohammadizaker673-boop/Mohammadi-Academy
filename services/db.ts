@@ -420,6 +420,122 @@ export const getAdmissionRequests = async () => {
   }));
 };
 
+export type SignupApprovalStatus = 'pending' | 'approved' | 'rejected';
+
+export interface SignupApprovalRequest {
+  id: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  role: 'student' | 'teacher';
+  status: SignupApprovalStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+const SIGNUP_COURSE_PREFIX = 'signup:';
+
+const parseSignupRole = (courseInterest: string | null): 'student' | 'teacher' => {
+  if (courseInterest?.toLowerCase().includes('teacher')) {
+    return 'teacher';
+  }
+  return 'student';
+};
+
+export const createSignupApprovalRequest = async (payload: {
+  fullName: string;
+  email: string;
+  phone?: string;
+  role: 'student' | 'teacher';
+}): Promise<void> => {
+  const normalizedEmail = payload.email.trim().toLowerCase();
+
+  const { data: latest, error: latestError } = await supabase
+    .from('admission_requests')
+    .select('id, status')
+    .eq('email', normalizedEmail)
+    .like('course_interest', `${SIGNUP_COURSE_PREFIX}%`)
+    .order('created_at', { ascending: false })
+    .limit(1);
+
+  throwOnError(latest, latestError, 'createSignupApprovalRequest/checkLatest');
+
+  if (latest && latest.length > 0 && latest[0].status === 'pending') {
+    return;
+  }
+
+  const nowIso = new Date().toISOString();
+
+  const { error } = await supabase.from('admission_requests').insert({
+    full_name: payload.fullName,
+    email: normalizedEmail,
+    phone: payload.phone ?? '',
+    status: 'pending',
+    student_type: 'online',
+    course_interest: `${SIGNUP_COURSE_PREFIX}${payload.role}`,
+    message: `Account signup request for ${payload.role} role`,
+    created_at: nowIso,
+    updated_at: nowIso,
+  });
+
+  throwOnError(null, error, 'createSignupApprovalRequest/insert');
+};
+
+export const getSignupApprovalRequests = async (): Promise<SignupApprovalRequest[]> => {
+  const { data, error } = await supabase
+    .from('admission_requests')
+    .select('*')
+    .like('course_interest', `${SIGNUP_COURSE_PREFIX}%`)
+    .order('created_at', { ascending: false });
+
+  throwOnError(data, error, 'getSignupApprovalRequests');
+
+  return (data ?? []).map((r: any) => ({
+    id: r.id,
+    fullName: r.full_name,
+    email: r.email,
+    phone: r.phone ?? '',
+    role: parseSignupRole(r.course_interest),
+    status: (r.status ?? 'pending') as SignupApprovalStatus,
+    createdAt: r.created_at,
+    updatedAt: r.updated_at,
+  }));
+};
+
+export const getSignupApprovalStatusByEmail = async (
+  email: string
+): Promise<SignupApprovalStatus | null> => {
+  const normalizedEmail = email.trim().toLowerCase();
+
+  const { data, error } = await supabase
+    .from('admission_requests')
+    .select('status')
+    .eq('email', normalizedEmail)
+    .like('course_interest', `${SIGNUP_COURSE_PREFIX}%`)
+    .order('created_at', { ascending: false })
+    .limit(1);
+
+  throwOnError(data, error, 'getSignupApprovalStatusByEmail');
+
+  if (!data || data.length === 0) {
+    return null;
+  }
+
+  return (data[0].status ?? 'pending') as SignupApprovalStatus;
+};
+
+export const updateSignupApprovalStatus = async (
+  id: string,
+  status: SignupApprovalStatus
+): Promise<void> => {
+  const { error } = await supabase
+    .from('admission_requests')
+    .update({ status, updated_at: new Date().toISOString() })
+    .eq('id', id);
+
+  throwOnError(null, error, 'updateSignupApprovalStatus');
+};
+
 export const updateAdmissionStatus = async (id: string, status: 'pending' | 'approved' | 'rejected'): Promise<void> => {
   const { error } = await supabase.from('admission_requests').update({ status, updated_at: new Date().toISOString() }).eq('id', id);
   throwOnError(null, error, 'updateAdmissionStatus');
