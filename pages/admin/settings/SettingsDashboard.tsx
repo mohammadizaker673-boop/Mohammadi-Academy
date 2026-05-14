@@ -23,6 +23,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { useAuth } from '../../../contexts/AuthContext';
+import { supabase } from '../../../services/supabase';
 import BackButton from '../../../components/BackButton';
 import LogoLink from '../../../components/LogoLink';
 import LanguageSelector from '../../../components/LanguageSelector';
@@ -63,6 +64,11 @@ const SettingsDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<SettingTab>('branding');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [globalMessage, setGlobalMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [passwordData, setPasswordData] = useState({
+    newPassword: '',
+    confirmPassword: ''
+  });
+  const [passwordSaving, setPasswordSaving] = useState(false);
 
   useEffect(() => {
     const loadSettings = async () => {
@@ -128,6 +134,46 @@ const SettingsDashboard: React.FC = () => {
     link.download = `settings-backup-${new Date().toISOString().split('T')[0]}.json`;
     link.click();
     URL.revokeObjectURL(url);
+  };
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setGlobalMessage(null);
+
+    if (!passwordData.newPassword || !passwordData.confirmPassword) {
+      setGlobalMessage({ type: 'error', text: 'Please fill both password fields.' });
+      return;
+    }
+
+    if (passwordData.newPassword.length < 8) {
+      setGlobalMessage({ type: 'error', text: 'New password must be at least 8 characters long.' });
+      return;
+    }
+
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      setGlobalMessage({ type: 'error', text: 'Passwords do not match.' });
+      return;
+    }
+
+    try {
+      setPasswordSaving(true);
+      const { error } = await supabase.auth.updateUser({
+        password: passwordData.newPassword
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      setPasswordData({ newPassword: '', confirmPassword: '' });
+      setGlobalMessage({ type: 'success', text: 'Password updated successfully.' });
+      setTimeout(() => setGlobalMessage(null), 3000);
+    } catch (error: any) {
+      console.error('Error updating password:', error);
+      setGlobalMessage({ type: 'error', text: error?.message || 'Failed to update password.' });
+    } finally {
+      setPasswordSaving(false);
+    }
   };
 
   if (loading) {
@@ -270,7 +316,49 @@ const SettingsDashboard: React.FC = () => {
                 isSaving={isSaving}
               />
             )}
-            {['financial', 'users', 'communication', 'security'].includes(activeTab) && (
+            {activeTab === 'security' && (
+              <div className="bg-slate-900/50 border border-slate-700 rounded-xl p-6 sm:p-8">
+                <h2 className="text-2xl font-bold text-white mb-2">Change Admin Password</h2>
+                <p className="text-slate-400 mb-6">Update your admin account password while logged in.</p>
+
+                <form onSubmit={handleChangePassword} className="space-y-5 max-w-xl">
+                  <div>
+                    <label className="block text-sm font-semibold text-white mb-2">New Password</label>
+                    <input
+                      type="password"
+                      value={passwordData.newPassword}
+                      onChange={(e) => setPasswordData((prev) => ({ ...prev, newPassword: e.target.value }))}
+                      minLength={8}
+                      required
+                      className="w-full px-4 py-3 bg-slate-800/70 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-primary-500"
+                      placeholder="Enter new password"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-white mb-2">Confirm New Password</label>
+                    <input
+                      type="password"
+                      value={passwordData.confirmPassword}
+                      onChange={(e) => setPasswordData((prev) => ({ ...prev, confirmPassword: e.target.value }))}
+                      minLength={8}
+                      required
+                      className="w-full px-4 py-3 bg-slate-800/70 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-primary-500"
+                      placeholder="Confirm new password"
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={passwordSaving}
+                    className="px-5 py-3 bg-primary-600 hover:bg-primary-500 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {passwordSaving ? 'Updating Password...' : 'Update Password'}
+                  </button>
+                </form>
+              </div>
+            )}
+            {['financial', 'users', 'communication'].includes(activeTab) && (
               <div className="bg-slate-900/50 border border-slate-700 rounded-xl p-12 text-center">
                 <Settings className="mx-auto text-slate-400 mb-4" size={48} />
                 <h2 className="text-2xl font-bold text-white mb-2">Coming Soon</h2>

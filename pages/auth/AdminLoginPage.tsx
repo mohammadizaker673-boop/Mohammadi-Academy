@@ -9,10 +9,12 @@ import { ShieldCheck } from 'lucide-react';
 
 const AdminLoginPage: React.FC = () => {
   const navigate = useNavigate();
-  const { login, signInWithOAuth, user } = useAuth();
+  const { login, signInWithOAuth, resetPassword, user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
   const [error, setError] = useState('');
+  const [info, setInfo] = useState('');
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -36,6 +38,7 @@ const AdminLoginPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setInfo('');
     setLoading(true);
 
     try {
@@ -73,6 +76,7 @@ const AdminLoginPage: React.FC = () => {
 
   const handleGoogleLogin = async () => {
     setError('');
+    setInfo('');
     setOauthLoading(true);
     try {
       await signInWithOAuth('google');
@@ -81,6 +85,26 @@ const AdminLoginPage: React.FC = () => {
     } catch (err: any) {
       setError(err.message || 'Failed to continue with Google');
       setOauthLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    setError('');
+    setInfo('');
+
+    if (!formData.email.trim()) {
+      setError('Please enter your admin email first, then click Forgot Password.');
+      return;
+    }
+
+    try {
+      setResetLoading(true);
+      await resetPassword(formData.email.trim());
+      setInfo('Password reset email sent. Please check your inbox and spam folder.');
+    } catch (err: any) {
+      setError(err.message || 'Failed to send password reset email');
+    } finally {
+      setResetLoading(false);
     }
   };
 
@@ -131,6 +155,12 @@ const AdminLoginPage: React.FC = () => {
             </div>
           )}
 
+          {info && (
+            <div className="mb-6 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-300 text-sm">
+              ✅ {info}
+            </div>
+          )}
+
           {/* Google OAuth */}
           <div className="mb-6">
             <button
@@ -174,6 +204,17 @@ const AdminLoginPage: React.FC = () => {
                 className="w-full px-6 py-5 bg-white/10 border border-white/20 rounded-[1.2rem] focus:ring-2 focus:ring-red-400/50 focus:border-red-400 focus:bg-white/15 outline-none transition-all text-white placeholder-slate-400"
                 placeholder="••••••••"
               />
+            </div>
+
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={handleForgotPassword}
+                disabled={resetLoading || loading || oauthLoading}
+                className="text-sm text-red-300 hover:text-red-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {resetLoading ? 'Sending reset email...' : 'Forgot password?'}
+              </button>
             </div>
 
             <button
