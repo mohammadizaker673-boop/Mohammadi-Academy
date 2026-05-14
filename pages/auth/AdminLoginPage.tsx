@@ -12,6 +12,7 @@ const AdminLoginPage: React.FC = () => {
   const { login, resetPassword, user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState(false);
+  const [oauthCallbackProcessed, setOauthCallbackProcessed] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
   const [error, setError] = useState('');
   const [info, setInfo] = useState('');
@@ -26,6 +27,129 @@ const AdminLoginPage: React.FC = () => {
       navigate('/admin', { replace: true });
     }
   }, [user, navigate]);
+
+  React.useEffect(() => {
+    if (oauthCallbackProcessed) {
+      return;
+    }
+
+    const hash = window.location.hash.startsWith('#')
+      ? window.location.hash.slice(1)
+      : '';
+    if (!hash) {
+      setOauthCallbackProcessed(true);
+      return;
+    }
+
+    const hashParams = new URLSearchParams(hash);
+    const accessToken = hashParams.get('access_token');
+    const refreshToken = hashParams.get('refresh_token');
+    const hasAuthPayload = Boolean(accessToken && refreshToken);
+
+    if (!hasAuthPayload) {
+      setOauthCallbackProcessed(true);
+      return;
+    }
+
+    const finalizeOAuthAdminLogin = async () => {
+      setOauthLoading(true);
+      setError('');
+      setInfo('Verifying admin account...');
+
+      try {
+        const { error: sessionError } = await supabase.auth.setSession({
+          access_token: accessToken as string,
+          refresh_token: refreshToken as string,
+        });
+
+        if (sessionError) {
+          throw sessionError;
+        }
+
+        const { data: userResult, error: userError } = await supabase.auth.getUser();
+        if (userError || !userResult.user) {
+          throw userError || new Error('Failed to read authenticated user');
+        }
+
+        const oauthUser = userResult.user;
+        const normalizedEmail = (oauthUser.email || '').trim().toLowerCase();
+
+        const byIdResult = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', oauthUser.id)
+          .maybeSingle();
+
+        if (byIdResult.error) {
+          throw byIdResult.error;
+        }
+
+        let role = byIdResult.data?.role || null;
+
+        if (!role && normalizedEmail) {
+          const byEmailResult = await supabase
+            .from('profiles')
+            .select('id, role, display_name, phone')
+            .eq('email', normalizedEmail)
+            .eq('role', 'admin')
+            .order('updated_at', { ascending: false })
+            .limit(1)
+            .maybeSingle();
+
+          if (byEmailResult.error) {
+            throw byEmailResult.error;
+          }
+
+          if (byEmailResult.data?.role === 'admin') {
+            role = 'admin';
+
+            const displayName =
+              byEmailResult.data.display_name ||
+              oauthUser.user_metadata?.full_name ||
+              oauthUser.user_metadata?.name ||
+              normalizedEmail.split('@')[0] ||
+              'Administrator';
+
+            await supabase.from('profiles').upsert({
+              id: oauthUser.id,
+              email: normalizedEmail,
+              display_name: displayName,
+              phone: byEmailResult.data.phone || '',
+              role: 'admin',
+              last_login: new Date().toISOString(),
+            }, { onConflict: 'id' });
+
+            await supabase.auth.updateUser({
+              data: {
+                role: 'admin',
+                profile_completed: true,
+              }
+            });
+          }
+        }
+
+        window.history.replaceState({}, document.title, '/dashboard');
+
+        if (role === 'admin') {
+          navigate('/admin', { replace: true });
+          return;
+        }
+
+        await supabase.auth.signOut();
+        setError('Access denied. This login portal is for administrators only. Please use the main login page.');
+        setInfo('');
+      } catch (err: any) {
+        console.error('Admin OAuth callback error:', err);
+        setError(err?.message || 'Failed to complete Google sign-in. Please try again.');
+        setInfo('');
+      } finally {
+        setOauthLoading(false);
+        setOauthCallbackProcessed(true);
+      }
+    };
+
+    void finalizeOAuthAdminLogin();
+  }, [navigate, oauthCallbackProcessed]);
 
   const withTimeout = <T,>(promise: Promise<T>, ms: number) =>
     new Promise<T>((resolve, reject) => {
