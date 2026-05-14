@@ -356,11 +356,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const resetPassword = async (email: string) => {
     try {
-      const remaining = getEmailCooldownRemaining('reset', email);
-      if (remaining > 0) {
-        throw new Error('A password reset email was just sent for this address. Please wait a minute before trying again.');
-      }
-
       const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/dashboard/reset-password`
       });
@@ -368,8 +363,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         handleEmailRateLimit('reset', email, resetError.message);
         throw resetError;
       }
-
-      setEmailCooldown('reset', email);
     } catch (error: any) {
       console.error('Password reset error:', error);
       throw new Error(error.message || 'Failed to send password reset email');
