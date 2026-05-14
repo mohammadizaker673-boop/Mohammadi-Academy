@@ -24,6 +24,11 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { supabase } from '../../../services/supabase';
+import {
+  getSignupApprovalRequests,
+  SignupApprovalRequest,
+  updateSignupApprovalStatus,
+} from '../../../services/db';
 import BackButton from '../../../components/BackButton';
 import LogoLink from '../../../components/LogoLink';
 import LanguageSelector from '../../../components/LanguageSelector';
@@ -69,6 +74,9 @@ const SettingsDashboard: React.FC = () => {
     confirmPassword: ''
   });
   const [passwordSaving, setPasswordSaving] = useState(false);
+  const [signupRequests, setSignupRequests] = useState<SignupApprovalRequest[]>([]);
+  const [signupLoading, setSignupLoading] = useState(false);
+  const [signupProcessingId, setSignupProcessingId] = useState<string | null>(null);
 
   useEffect(() => {
     const loadSettings = async () => {
@@ -85,6 +93,12 @@ const SettingsDashboard: React.FC = () => {
 
     loadSettings();
   }, []);
+
+  useEffect(() => {
+    if (activeTab === 'users') {
+      loadSignupRequests();
+    }
+  }, [activeTab]);
 
   const handleSettingsChange = (newSettings: SystemSettings) => {
     setSettings(newSettings);
@@ -134,6 +148,39 @@ const SettingsDashboard: React.FC = () => {
     link.download = `settings-backup-${new Date().toISOString().split('T')[0]}.json`;
     link.click();
     URL.revokeObjectURL(url);
+  };
+
+  const loadSignupRequests = async () => {
+    try {
+      setSignupLoading(true);
+      const requests = await getSignupApprovalRequests();
+      setSignupRequests(requests);
+    } catch (error) {
+      console.error('Error loading signup requests:', error);
+      setGlobalMessage({ type: 'error', text: 'Failed to load signup requests.' });
+    } finally {
+      setSignupLoading(false);
+    }
+  };
+
+  const handleSignupDecision = async (
+    request: SignupApprovalRequest,
+    status: 'approved' | 'rejected'
+  ) => {
+    try {
+      setSignupProcessingId(request.id);
+      await updateSignupApprovalStatus(request.id, status);
+      setGlobalMessage({
+        type: 'success',
+        text: `${request.fullName} was ${status === 'approved' ? 'approved' : 'rejected'} successfully.`
+      });
+      await loadSignupRequests();
+    } catch (error) {
+      console.error('Error updating signup status:', error);
+      setGlobalMessage({ type: 'error', text: 'Failed to update signup request status.' });
+    } finally {
+      setSignupProcessingId(null);
+    }
   };
 
   const handleChangePassword = async (e: React.FormEvent) => {
@@ -358,7 +405,100 @@ const SettingsDashboard: React.FC = () => {
                 </form>
               </div>
             )}
-            {['financial', 'users', 'communication'].includes(activeTab) && (
+            {activeTab === 'users' && (
+              <div className="space-y-6">
+                <div className="bg-slate-900/50 border border-slate-700 rounded-xl p-6 sm:p-8">
+                  <h2 className="text-2xl font-bold text-white mb-2">Your Account</h2>
+                  <p className="text-slate-400 mb-6">Use this section to find your username and account identity.</p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-slate-800/70 border border-slate-600 rounded-lg p-4">
+                      <p className="text-xs uppercase tracking-wide text-slate-400 mb-2">Username</p>
+                      <p className="text-white font-semibold break-all">{user?.displayName || 'Not set'}</p>
+                    </div>
+                    <div className="bg-slate-800/70 border border-slate-600 rounded-lg p-4">
+                      <p className="text-xs uppercase tracking-wide text-slate-400 mb-2">Email</p>
+                      <p className="text-white font-semibold break-all">{user?.email || 'Not set'}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-slate-900/50 border border-slate-700 rounded-xl p-6 sm:p-8">
+                  <h2 className="text-2xl font-bold text-white mb-2">New Registration Approvals</h2>
+                  <p className="text-slate-400 mb-6">Approve or reject newly registered users from here.</p>
+
+                  {signupLoading ? (
+                    <div className="flex items-center justify-center py-8">
+                      <div className="animate-spin rounded-full h-8 w-8 border-4 border-primary-500 border-t-transparent"></div>
+                    </div>
+                  ) : (
+                    <div className="overflow-x-auto rounded-lg border border-slate-700">
+                      <table className="w-full">
+                        <thead className="bg-slate-800/60 border-b border-slate-700">
+                          <tr>
+                            <th className="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase">Name</th>
+                            <th className="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase">Email</th>
+                            <th className="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase">Role</th>
+                            <th className="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase">Status</th>
+                            <th className="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {signupRequests.length === 0 ? (
+                            <tr>
+                              <td colSpan={5} className="px-4 py-8 text-center text-slate-400">
+                                No signup requests found.
+                              </td>
+                            </tr>
+                          ) : (
+                            signupRequests.map((request) => (
+                              <tr key={request.id} className="border-b border-slate-700/60">
+                                <td className="px-4 py-3 text-white">{request.fullName}</td>
+                                <td className="px-4 py-3 text-slate-300">{request.email}</td>
+                                <td className="px-4 py-3 text-slate-300 capitalize">{request.role}</td>
+                                <td className="px-4 py-3">
+                                  <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${
+                                    request.status === 'approved'
+                                      ? 'bg-green-500/20 text-green-300'
+                                      : request.status === 'rejected'
+                                        ? 'bg-red-500/20 text-red-300'
+                                        : 'bg-yellow-500/20 text-yellow-300'
+                                  }`}>
+                                    {request.status}
+                                  </span>
+                                </td>
+                                <td className="px-4 py-3">
+                                  {request.status === 'pending' ? (
+                                    <div className="flex gap-2">
+                                      <button
+                                        onClick={() => handleSignupDecision(request, 'approved')}
+                                        disabled={signupProcessingId === request.id}
+                                        className="px-3 py-1.5 bg-green-600 hover:bg-green-500 text-white rounded-lg text-xs font-semibold disabled:opacity-50"
+                                      >
+                                        Approve
+                                      </button>
+                                      <button
+                                        onClick={() => handleSignupDecision(request, 'rejected')}
+                                        disabled={signupProcessingId === request.id}
+                                        className="px-3 py-1.5 bg-red-600 hover:bg-red-500 text-white rounded-lg text-xs font-semibold disabled:opacity-50"
+                                      >
+                                        Reject
+                                      </button>
+                                    </div>
+                                  ) : (
+                                    <span className="text-slate-400 text-xs">Processed</span>
+                                  )}
+                                </td>
+                              </tr>
+                            ))
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+            {['financial', 'communication'].includes(activeTab) && (
               <div className="bg-slate-900/50 border border-slate-700 rounded-xl p-12 text-center">
                 <Settings className="mx-auto text-slate-400 mb-4" size={48} />
                 <h2 className="text-2xl font-bold text-white mb-2">Coming Soon</h2>
