@@ -362,7 +362,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
 
       const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/login`
+        redirectTo: `${window.location.origin}/dashboard/reset-password`
       });
       if (resetError) {
         handleEmailRateLimit('reset', email, resetError.message);
