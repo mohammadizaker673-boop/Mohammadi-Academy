@@ -43,6 +43,8 @@ const KnowledgeStoreHome = React.lazy(() => import('./pages/store/KnowledgeStore
 const KnowledgeStoreCategory = React.lazy(() => import('./pages/store/KnowledgeStoreCategory'));
 const KnowledgeStoreProduct = React.lazy(() => import('./pages/store/KnowledgeStoreProduct'));
 const KnowledgeStoreDashboard = React.lazy(() => import('./pages/store/KnowledgeStoreDashboard'));
+const MeetingsHubPage = React.lazy(() => import('./pages/MeetingsHubPage'));
+const InAppMeetingPage = React.lazy(() => import('./pages/InAppMeetingPage'));
 
 // Hifz Qur'an Memorization System
 const HifzCoursePage = React.lazy(() => import('./pages/HifzCoursePage'));
@@ -214,6 +216,8 @@ const App: React.FC = () => {
             <Route path="/store/category/:categoryId" element={<KnowledgeStoreCategory />} />
             <Route path="/store/product/:productId" element={<KnowledgeStoreProduct />} />
             <Route path="/store/dashboard" element={<KnowledgeStoreDashboard />} />
+            <Route path="/meetings" element={<MeetingsHubPage />} />
+            <Route path="/meeting/:roomId" element={<InAppMeetingPage />} />
             
             {/* Arabic Learning Platform */}
             <Route path="/learn-arabic" element={<ArabicLearningPlatform />} />

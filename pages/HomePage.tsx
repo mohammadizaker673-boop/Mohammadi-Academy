@@ -246,6 +246,12 @@ const HomePage: React.FC = () => {
             >
               {t.nav.knowledgeStore}
             </Link>
+            <Link
+              to="/meetings"
+              className="hidden lg:block text-slate-300 hover:text-primary-400 transition-colors text-[11px] font-black uppercase tracking-[0.2em]"
+            >
+              Meetings
+            </Link>
           </div>
 
           {/* Center: Search - desktop only */}
@@ -388,6 +394,7 @@ const HomePage: React.FC = () => {
                 <Link to="/start" onClick={() => setMobileMenuOpen(false)} className="px-4 py-3 text-slate-200 hover:bg-white/5 rounded-lg text-sm font-semibold transition-colors">{t.nav.startLearning}</Link>
                 <Link to="/ai-tutor" onClick={() => setMobileMenuOpen(false)} className="px-4 py-3 text-slate-200 hover:bg-white/5 rounded-lg text-sm font-semibold transition-colors">AI Teachers</Link>
                 <Link to="/store" onClick={() => setMobileMenuOpen(false)} className="px-4 py-3 text-slate-200 hover:bg-white/5 rounded-lg text-sm font-semibold transition-colors">{t.nav.knowledgeStore}</Link>
+                <Link to="/meetings" onClick={() => setMobileMenuOpen(false)} className="px-4 py-3 text-slate-200 hover:bg-white/5 rounded-lg text-sm font-semibold transition-colors">Meetings</Link>
                 <Link to="/about" onClick={() => setMobileMenuOpen(false)} className="px-4 py-3 text-slate-200 hover:bg-white/5 rounded-lg text-sm font-semibold transition-colors">{t.footerExtra?.aboutUs || 'About Us'}</Link>
                 <Link to="/faq" onClick={() => setMobileMenuOpen(false)} className="px-4 py-3 text-slate-200 hover:bg-white/5 rounded-lg text-sm font-semibold transition-colors">FAQ</Link>
                 <Link to="/contact" onClick={() => setMobileMenuOpen(false)} className="px-4 py-3 text-slate-200 hover:bg-white/5 rounded-lg text-sm font-semibold transition-colors">{t.footerExtra?.contactUs || 'Contact Us'}</Link>
