@@ -17,7 +17,6 @@ import {
   Zap,
   RotateCcw,
   Download,
-  Upload,
   Menu,
   X,
   ChevronRight
@@ -78,6 +77,17 @@ const SettingsDashboard: React.FC = () => {
   const [signupLoading, setSignupLoading] = useState(false);
   const [signupProcessingId, setSignupProcessingId] = useState<string | null>(null);
 
+  const persistSettings = async (nextSettings: SystemSettings, action: string, successText: string) => {
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
+
+    await updateSystemSettings(nextSettings, user.uid, user.email || '', action);
+    setSettings(nextSettings);
+    setGlobalMessage({ type: 'success', text: successText });
+    setTimeout(() => setGlobalMessage(null), 3000);
+  };
+
   useEffect(() => {
     const loadSettings = async () => {
       try {
@@ -105,12 +115,13 @@ const SettingsDashboard: React.FC = () => {
   };
 
   const handleSave = async () => {
-    setIsSaving(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500)); // Simulate save delay
-      setIsSaving(false);
+      setIsSaving(true);
+      await persistSettings(settings, 'Saved system settings', 'Settings saved successfully.');
     } catch (error) {
       console.error('Error saving:', error);
+      setGlobalMessage({ type: 'error', text: 'Failed to save settings' });
+    } finally {
       setIsSaving(false);
     }
   };
@@ -180,6 +191,30 @@ const SettingsDashboard: React.FC = () => {
       setGlobalMessage({ type: 'error', text: 'Failed to update signup request status.' });
     } finally {
       setSignupProcessingId(null);
+    }
+  };
+
+  const handleFinancialSave = async () => {
+    try {
+      setIsSaving(true);
+      await persistSettings(settings, 'Updated financial settings', 'Financial settings saved successfully.');
+    } catch (error: any) {
+      console.error('Error saving financial settings:', error);
+      setGlobalMessage({ type: 'error', text: error?.message || 'Failed to save financial settings.' });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleCommunicationSave = async () => {
+    try {
+      setIsSaving(true);
+      await persistSettings(settings, 'Updated communication settings', 'Communication settings saved successfully.');
+    } catch (error: any) {
+      console.error('Error saving communication settings:', error);
+      setGlobalMessage({ type: 'error', text: error?.message || 'Failed to save communication settings.' });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -405,6 +440,127 @@ const SettingsDashboard: React.FC = () => {
                 </form>
               </div>
             )}
+            {activeTab === 'financial' && (
+              <div className="bg-slate-900/50 border border-slate-700 rounded-xl p-6 sm:p-8 space-y-6">
+                <div>
+                  <h2 className="text-2xl font-bold text-white mb-2">Financial Settings</h2>
+                  <p className="text-slate-400">Configure payments, taxes, refunds, and default billing options.</p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm text-slate-300 mb-2">Currency</label>
+                    <input
+                      type="text"
+                      value={settings.payment.currency}
+                      onChange={(e) => setSettings((prev) => ({ ...prev, payment: { ...prev.payment, currency: e.target.value } }))}
+                      className="w-full px-4 py-2.5 bg-slate-800 border border-slate-600 rounded-lg text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-slate-300 mb-2">Currency Symbol</label>
+                    <input
+                      type="text"
+                      value={settings.payment.currencySymbol}
+                      onChange={(e) => setSettings((prev) => ({ ...prev, payment: { ...prev.payment, currencySymbol: e.target.value } }))}
+                      className="w-full px-4 py-2.5 bg-slate-800 border border-slate-600 rounded-lg text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-slate-300 mb-2">Payment Gateway</label>
+                    <select
+                      value={settings.payment.paymentGateway}
+                      onChange={(e) => setSettings((prev) => ({
+                        ...prev,
+                        payment: { ...prev.payment, paymentGateway: e.target.value as 'stripe' | 'paypal' | 'none' }
+                      }))}
+                      className="w-full px-4 py-2.5 bg-slate-800 border border-slate-600 rounded-lg text-white"
+                    >
+                      <option value="none">None</option>
+                      <option value="stripe">Stripe</option>
+                      <option value="paypal">PayPal</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm text-slate-300 mb-2">Tax Rate (%)</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={settings.payment.taxRate}
+                      onChange={(e) => setSettings((prev) => ({ ...prev, payment: { ...prev.payment, taxRate: Number(e.target.value) } }))}
+                      className="w-full px-4 py-2.5 bg-slate-800 border border-slate-600 rounded-lg text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-slate-300 mb-2">Enrollment Service Fee</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={settings.payment.enrollmentServiceFee}
+                      onChange={(e) => setSettings((prev) => ({ ...prev, payment: { ...prev.payment, enrollmentServiceFee: Number(e.target.value) } }))}
+                      className="w-full px-4 py-2.5 bg-slate-800 border border-slate-600 rounded-lg text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-slate-300 mb-2">Refund Window (days)</label>
+                    <input
+                      type="number"
+                      value={settings.payment.refundWindowDays}
+                      onChange={(e) => setSettings((prev) => ({ ...prev, payment: { ...prev.payment, refundWindowDays: Number(e.target.value) } }))}
+                      className="w-full px-4 py-2.5 bg-slate-800 border border-slate-600 rounded-lg text-white"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <label className="flex items-center gap-3 text-slate-300">
+                    <input
+                      type="checkbox"
+                      checked={settings.payment.enablePayments}
+                      onChange={(e) => setSettings((prev) => ({ ...prev, payment: { ...prev.payment, enablePayments: e.target.checked } }))}
+                      className="w-5 h-5"
+                    />
+                    Enable Payments
+                  </label>
+                  <label className="flex items-center gap-3 text-slate-300">
+                    <input
+                      type="checkbox"
+                      checked={settings.payment.enableInstallments}
+                      onChange={(e) => setSettings((prev) => ({ ...prev, payment: { ...prev.payment, enableInstallments: e.target.checked } }))}
+                      className="w-5 h-5"
+                    />
+                    Enable Installments
+                  </label>
+                  <label className="flex items-center gap-3 text-slate-300">
+                    <input
+                      type="checkbox"
+                      checked={settings.payment.enableRefunds}
+                      onChange={(e) => setSettings((prev) => ({ ...prev, payment: { ...prev.payment, enableRefunds: e.target.checked } }))}
+                      className="w-5 h-5"
+                    />
+                    Enable Refunds
+                  </label>
+                </div>
+
+                <div>
+                  <label className="block text-sm text-slate-300 mb-2">Refund Policy Text</label>
+                  <textarea
+                    rows={4}
+                    value={settings.payment.refundPolicyText}
+                    onChange={(e) => setSettings((prev) => ({ ...prev, payment: { ...prev.payment, refundPolicyText: e.target.value } }))}
+                    className="w-full px-4 py-2.5 bg-slate-800 border border-slate-600 rounded-lg text-white"
+                  />
+                </div>
+
+                <button
+                  onClick={handleFinancialSave}
+                  disabled={isSaving}
+                  className="px-5 py-3 bg-primary-600 hover:bg-primary-500 text-white font-semibold rounded-lg disabled:opacity-50"
+                >
+                  {isSaving ? 'Saving...' : 'Save Financial Settings'}
+                </button>
+              </div>
+            )}
             {activeTab === 'users' && (
               <div className="space-y-6">
                 <div className="bg-slate-900/50 border border-slate-700 rounded-xl p-6 sm:p-8">
@@ -498,14 +654,134 @@ const SettingsDashboard: React.FC = () => {
                 </div>
               </div>
             )}
-            {['financial', 'communication'].includes(activeTab) && (
-              <div className="bg-slate-900/50 border border-slate-700 rounded-xl p-12 text-center">
-                <Settings className="mx-auto text-slate-400 mb-4" size={48} />
-                <h2 className="text-2xl font-bold text-white mb-2">Coming Soon</h2>
-                <p className="text-slate-400">
-                  {SETTINGS_TABS.find((tab) => tab.id === activeTab)?.label} settings will be available in the next
-                  update.
-                </p>
+            {activeTab === 'communication' && (
+              <div className="bg-slate-900/50 border border-slate-700 rounded-xl p-6 sm:p-8 space-y-6">
+                <div>
+                  <h2 className="text-2xl font-bold text-white mb-2">Communication Settings</h2>
+                  <p className="text-slate-400">Configure emails, notifications, and announcements behavior.</p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm text-slate-300 mb-2">Sender Name</label>
+                    <input
+                      type="text"
+                      value={settings.email.senderName}
+                      onChange={(e) => setSettings((prev) => ({ ...prev, email: { ...prev.email, senderName: e.target.value } }))}
+                      className="w-full px-4 py-2.5 bg-slate-800 border border-slate-600 rounded-lg text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-slate-300 mb-2">Sender Email</label>
+                    <input
+                      type="email"
+                      value={settings.email.senderEmail}
+                      onChange={(e) => setSettings((prev) => ({ ...prev, email: { ...prev.email, senderEmail: e.target.value } }))}
+                      className="w-full px-4 py-2.5 bg-slate-800 border border-slate-600 rounded-lg text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-slate-300 mb-2">Email Frequency</label>
+                    <select
+                      value={settings.email.emailFrequency}
+                      onChange={(e) => setSettings((prev) => ({
+                        ...prev,
+                        email: { ...prev.email, emailFrequency: e.target.value as 'daily' | 'weekly' | 'monthly' }
+                      }))}
+                      className="w-full px-4 py-2.5 bg-slate-800 border border-slate-600 rounded-lg text-white"
+                    >
+                      <option value="daily">Daily</option>
+                      <option value="weekly">Weekly</option>
+                      <option value="monthly">Monthly</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <label className="flex items-center gap-3 text-slate-300">
+                    <input
+                      type="checkbox"
+                      checked={settings.email.enableWelcomeEmail}
+                      onChange={(e) => setSettings((prev) => ({ ...prev, email: { ...prev.email, enableWelcomeEmail: e.target.checked } }))}
+                      className="w-5 h-5"
+                    />
+                    Enable Welcome Email
+                  </label>
+                  <label className="flex items-center gap-3 text-slate-300">
+                    <input
+                      type="checkbox"
+                      checked={settings.email.enablePasswordResetEmail}
+                      onChange={(e) => setSettings((prev) => ({ ...prev, email: { ...prev.email, enablePasswordResetEmail: e.target.checked } }))}
+                      className="w-5 h-5"
+                    />
+                    Enable Password Reset Email
+                  </label>
+                  <label className="flex items-center gap-3 text-slate-300">
+                    <input
+                      type="checkbox"
+                      checked={settings.notification.enableInAppNotifications}
+                      onChange={(e) => setSettings((prev) => ({
+                        ...prev,
+                        notification: { ...prev.notification, enableInAppNotifications: e.target.checked }
+                      }))}
+                      className="w-5 h-5"
+                    />
+                    Enable In-App Notifications
+                  </label>
+                  <label className="flex items-center gap-3 text-slate-300">
+                    <input
+                      type="checkbox"
+                      checked={settings.announcement.enableAnnouncements}
+                      onChange={(e) => setSettings((prev) => ({
+                        ...prev,
+                        announcement: { ...prev.announcement, enableAnnouncements: e.target.checked }
+                      }))}
+                      className="w-5 h-5"
+                    />
+                    Enable Announcements
+                  </label>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm text-slate-300 mb-2">Announcement Display Location</label>
+                    <select
+                      value={settings.announcement.displayLocation}
+                      onChange={(e) => setSettings((prev) => ({
+                        ...prev,
+                        announcement: {
+                          ...prev.announcement,
+                          displayLocation: e.target.value as 'homepage' | 'academy-home' | 'both'
+                        }
+                      }))}
+                      className="w-full px-4 py-2.5 bg-slate-800 border border-slate-600 rounded-lg text-white"
+                    >
+                      <option value="homepage">Homepage</option>
+                      <option value="academy-home">Academy Home</option>
+                      <option value="both">Both</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm text-slate-300 mb-2">Auto Archive Announcements (days)</label>
+                    <input
+                      type="number"
+                      value={settings.announcement.autoArchiveAfterDays}
+                      onChange={(e) => setSettings((prev) => ({
+                        ...prev,
+                        announcement: { ...prev.announcement, autoArchiveAfterDays: Number(e.target.value) }
+                      }))}
+                      className="w-full px-4 py-2.5 bg-slate-800 border border-slate-600 rounded-lg text-white"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleCommunicationSave}
+                  disabled={isSaving}
+                  className="px-5 py-3 bg-primary-600 hover:bg-primary-500 text-white font-semibold rounded-lg disabled:opacity-50"
+                >
+                  {isSaving ? 'Saving...' : 'Save Communication Settings'}
+                </button>
               </div>
             )}
           </div>

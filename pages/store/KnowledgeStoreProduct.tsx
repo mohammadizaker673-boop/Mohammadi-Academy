@@ -123,12 +123,18 @@ const KnowledgeStoreProduct: React.FC = () => {
                   placeholder="Discount code"
                   className="w-full px-4 py-3 bg-slate-900/70 border border-white/10 rounded-xl text-white"
                 />
-                <button className="w-full px-4 py-3 bg-gradient-to-r from-primary-500 to-accent-500 text-white rounded-xl font-bold">
-                  Pay with Stripe (coming soon)
-                </button>
-                <button className="w-full px-4 py-3 border border-white/10 text-white rounded-xl font-bold hover:bg-white/10 transition">
-                  Pay with PayPal (coming soon)
-                </button>
+                <Link
+                  to={`/contact?product=${encodeURIComponent(product.title)}&price=${encodeURIComponent(String(product.price))}`}
+                  className="block w-full px-4 py-3 bg-gradient-to-r from-primary-500 to-accent-500 text-white rounded-xl font-bold text-center"
+                >
+                  Continue to Purchase Request
+                </Link>
+                <Link
+                  to={`/contact?product=${encodeURIComponent(product.title)}&price=${encodeURIComponent(String(product.price))}`}
+                  className="block w-full px-4 py-3 border border-white/10 text-white rounded-xl font-bold hover:bg-white/10 transition text-center"
+                >
+                  Contact Sales for Checkout
+                </Link>
               </div>
               <p className="text-xs text-slate-400 mt-4">
                 Purchase confirmations are emailed instantly. Download access requires verified purchase.

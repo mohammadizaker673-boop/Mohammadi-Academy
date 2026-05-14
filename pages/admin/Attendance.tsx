@@ -210,8 +210,51 @@ export default function Attendance() {
   };
 
   const handleExportToExcel = () => {
-    alert('Export to Excel feature - Coming soon!');
-    // TODO: Implement CSV/Excel export
+    const rows = filteredStudents.map((student) => {
+      const record = attendance[student.id] as { status?: string; notes?: string } | undefined;
+      return {
+        date: classInfo.date,
+        course: classInfo.courseName,
+        subject: classInfo.subject,
+        studentName: student.fullName,
+        rollNumber: student.rollNumber || '',
+        email: student.email,
+        status: record?.status || 'absent',
+        notes: record?.notes || ''
+      };
+    });
+
+    if (rows.length === 0) {
+      alert('No attendance rows available to export.');
+      return;
+    }
+
+    const escapeCsv = (value: string) => `"${String(value).replace(/"/g, '""')}"`;
+    const header = ['Date', 'Course', 'Subject', 'Student Name', 'Roll Number', 'Email', 'Status', 'Notes'];
+    const csvLines = [
+      header.join(','),
+      ...rows.map((row) => [
+        row.date,
+        row.course,
+        row.subject,
+        row.studentName,
+        row.rollNumber,
+        row.email,
+        row.status,
+        row.notes,
+      ].map(escapeCsv).join(','))
+    ];
+
+    const csvContent = csvLines.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `attendance-${classInfo.date || 'export'}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   const filteredStudents = students.filter(student => {
