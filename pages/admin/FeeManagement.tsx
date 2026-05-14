@@ -77,7 +77,6 @@ const FeeManagement: React.FC = () => {
         newAmountPaid >= selectedFee.amount ? 'paid' :
         newAmountPaid > 0 ? 'partial' : 'pending';
 
-      await updateDoc(doc(db, 'fees', selectedFee.id), {
       await updateFee(selectedFee.id, {
         amountPaid: newAmountPaid,
         status: newStatus,
