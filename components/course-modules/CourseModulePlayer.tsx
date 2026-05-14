@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 import {
   CourseModuleEarnedMilestone,
   CourseModuleLesson,
@@ -37,6 +38,47 @@ const QuizPanel: React.FC<{
   onClose: () => void;
   onResult: (score: number, passed: boolean) => void;
 }> = ({ lesson, onClose, onResult }) => {
+  const { language } = useLanguage();
+  const labelsByLang: Record<string, Record<string, string>> = {
+    en: {
+      closeQuiz: 'Close Quiz',
+      question: 'Question',
+      quizScore: 'Quiz Score',
+      passedMsg: 'You passed this check-in and can continue with confidence.',
+      failedMsgPrefix: 'You need',
+      failedMsgSuffix: 'to pass. Review the lesson highlights and try again.',
+      submitQuiz: 'Submit Quiz'
+    },
+    ar: {
+      closeQuiz: 'إغلاق الاختبار',
+      question: 'سؤال',
+      quizScore: 'نتيجة الاختبار',
+      passedMsg: 'لقد اجتزت هذا الاختبار ويمكنك المتابعة بثقة.',
+      failedMsgPrefix: 'تحتاج إلى',
+      failedMsgSuffix: 'للاجتياز. راجع أهم النقاط وحاول مرة أخرى.',
+      submitQuiz: 'إرسال الاختبار'
+    },
+    fa: {
+      closeQuiz: 'بستن آزمون',
+      question: 'سوال',
+      quizScore: 'نتیجه آزمون',
+      passedMsg: 'شما این مرحله را با موفقیت گذراندید و می توانید ادامه دهید.',
+      failedMsgPrefix: 'شما به',
+      failedMsgSuffix: 'برای قبولی نیاز دارید. نکات درس را مرور کنید و دوباره تلاش کنید.',
+      submitQuiz: 'ارسال آزمون'
+    },
+    ps: {
+      closeQuiz: 'ازموینه بنده کړئ',
+      question: 'پوښتنه',
+      quizScore: 'د ازموينې نمره',
+      passedMsg: 'تاسو دا ازموينه بريالۍ بشپړه کړه او اوس دوام کولی شئ.',
+      failedMsgPrefix: 'تاسو ته',
+      failedMsgSuffix: 'د بريا لپاره اړتيا ده. درس بيا وګورئ او هڅه وکړئ.',
+      submitQuiz: 'ازموينه وسپارئ'
+    }
+  };
+  const ui = labelsByLang[language] || labelsByLang.en;
+
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [result, setResult] = useState<{ score: number; passed: boolean } | null>(null);
 
@@ -67,7 +109,7 @@ const QuizPanel: React.FC<{
           onClick={onClose}
           className="px-3 py-2 rounded-lg bg-white/10 text-slate-200 hover:bg-white/15 transition"
         >
-          Close Quiz
+          {ui.closeQuiz}
         </button>
       </div>
 
@@ -75,7 +117,7 @@ const QuizPanel: React.FC<{
         {lesson.quiz.questions.map((question, index) => (
           <div key={question.id} className="bg-slate-950/30 border border-white/5 rounded-xl p-4">
             <p className="text-sm uppercase tracking-[0.2em] text-primary-300 font-black mb-2">
-              Question {index + 1}
+              {ui.question} {index + 1}
             </p>
             <p className="text-white font-semibold mb-4">{question.question}</p>
             <div className="space-y-2">
@@ -106,11 +148,11 @@ const QuizPanel: React.FC<{
 
       {result ? (
         <div className={`rounded-2xl border p-4 ${result.passed ? 'border-green-500/40 bg-green-500/10' : 'border-yellow-500/40 bg-yellow-500/10'}`}>
-          <p className="text-white font-black text-lg">Quiz Score: {result.score}%</p>
+          <p className="text-white font-black text-lg">{ui.quizScore}: {result.score}%</p>
           <p className="text-sm text-slate-200 mt-1">
             {result.passed
-              ? 'You passed this check-in and can continue with confidence.'
-              : `You need ${lesson.quiz.passingScore}% to pass. Review the lesson highlights and try again.`}
+              ? ui.passedMsg
+              : `${ui.failedMsgPrefix} ${lesson.quiz.passingScore}% ${ui.failedMsgSuffix}`}
           </p>
         </div>
       ) : null}
@@ -121,7 +163,7 @@ const QuizPanel: React.FC<{
           onClick={handleSubmit}
           className="px-5 py-3 rounded-xl bg-gradient-to-r from-primary-500 to-accent-500 text-white font-bold hover:from-primary-400 hover:to-accent-400 transition"
         >
-          Submit Quiz
+          {ui.submitQuiz}
         </button>
       </div>
     </div>

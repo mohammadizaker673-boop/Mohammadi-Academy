@@ -12,10 +12,14 @@ interface ProtectedRouteProps {
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
   children, 
   allowedRoles,
-  redirectTo = '/login'
+  redirectTo
 }) => {
   const { user, loading, needsProfileCompletion } = useAuth();
   const location = useLocation();
+
+  // Determine the right login page based on the route being accessed
+  const isAdminRoute = allowedRoles?.includes('admin') && allowedRoles.length === 1;
+  const defaultRedirect = isAdminRoute ? '/dashboard' : '/login';
 
   if (loading) {
     return (
@@ -29,7 +33,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
 
   if (!user) {
-    return <Navigate to={redirectTo} state={{ from: location }} replace />;
+    return <Navigate to={redirectTo ?? defaultRedirect} state={{ from: location }} replace />;
   }
 
   if (needsProfileCompletion && location.pathname !== '/complete-profile') {

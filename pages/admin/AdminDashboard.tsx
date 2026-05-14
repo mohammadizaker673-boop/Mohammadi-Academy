@@ -1,7 +1,6 @@
 ﻿import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { collection, query, getDocs, where } from 'firebase/firestore';
-import { db } from '../../services/firebase';
+import { getDashboardStats } from '../../services/db';
 import { TRANSLATIONS } from '../../constants';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { Users, GraduationCap, Calendar, DollarSign, TrendingUp, AlertCircle } from 'lucide-react';
@@ -35,49 +34,19 @@ const AdminDashboard: React.FC = () => {
   }, [language]);
 
   useEffect(() => {
-    // Set instant mock stats
-    setStats({
-      totalStudents: 0,
-      activeStudents: 0,
-      totalTeachers: 0,
-      activeTeachers: 0,
-      onlineStudents: 0,
-      offlineStudents: 0,
-    });
-    
-    // Fetch real data in background
     fetchDashboardStats().catch(error => console.error('Error fetching stats:', error));
   }, []);
 
   const fetchDashboardStats = async () => {
     try {
-      const studentsRef = collection(db, 'students');
-      const teachersRef = collection(db, 'teachers');
-
-      // Execute all queries in parallel
-      const [
-        allStudentsSnap,
-        activeStudentsSnap,
-        onlineStudentsSnap,
-        offlineStudentsSnap,
-        allTeachersSnap,
-        activeTeachersSnap
-      ] = await Promise.all([
-        getDocs(query(studentsRef)),
-        getDocs(query(studentsRef, where('status', '==', 'active'))),
-        getDocs(query(studentsRef, where('studentType', '==', 'online'))),
-        getDocs(query(studentsRef, where('studentType', '==', 'offline'))),
-        getDocs(query(teachersRef)),
-        getDocs(query(teachersRef, where('status', '==', 'active')))
-      ]);
-
+      const data = await getDashboardStats();
       setStats({
-        totalStudents: allStudentsSnap.size,
-        activeStudents: activeStudentsSnap.size,
-        totalTeachers: allTeachersSnap.size,
-        activeTeachers: activeTeachersSnap.size,
-        onlineStudents: onlineStudentsSnap.size,
-        offlineStudents: offlineStudentsSnap.size,
+        totalStudents: data.totalStudents,
+        activeStudents: data.activeStudents,
+        totalTeachers: data.totalTeachers,
+        activeTeachers: data.activeTeachers,
+        onlineStudents: data.onlineStudents,
+        offlineStudents: data.offlineStudents,
       });
     } catch (error) {
       console.error('Error fetching dashboard stats:', error);

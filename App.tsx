@@ -12,6 +12,7 @@ import ScrollRevealInit from './components/motion/ScrollRevealInit';
 
 const HomePage = React.lazy(() => import('./pages/HomePage'));
 const LoginPage = React.lazy(() => import('./pages/auth/LoginPage'));
+const AdminLoginPage = React.lazy(() => import('./pages/auth/AdminLoginPage'));
 const CompleteProfilePage = React.lazy(() => import('./pages/auth/CompleteProfilePage'));
 const QuickStudentLogin = React.lazy(() => import('./pages/auth/QuickStudentLogin'));
 const QuickTeacherLogin = React.lazy(() => import('./pages/auth/QuickTeacherLogin'));
@@ -179,9 +180,10 @@ const App: React.FC = () => {
             {/* Public Routes */}
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/dashboard" element={<AdminLoginPage />} />
             <Route path="/complete-profile" element={<CompleteProfilePage />} />
-            <Route path="/quick-admin" element={<Navigate to="/login" replace />} />
-            <Route path="/quick-admin-login" element={<Navigate to="/login" replace />} />
+            <Route path="/quick-admin" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/quick-admin-login" element={<Navigate to="/dashboard" replace />} />
             <Route path="/quick-student" element={<QuickStudentLogin />} />
             <Route path="/quick-student-login" element={<QuickStudentLogin />} />
             <Route path="/quick-teacher" element={<QuickTeacherLogin />} />

@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
-import { db } from '../../services/firebase';
+import { getTeacherByUserId, getStudents, getAttendanceByStudentId } from '../../services/db';
 import { useAuth } from '../../contexts/AuthContext';
 import { Users, Search, BookOpen, TrendingUp, Calendar, Mail, Phone } from 'lucide-react';
 import BackButton from '../../components/BackButton';
@@ -50,35 +49,17 @@ const MyStudents = () => {
 
   const fetchTeacherAndStudents = async () => {
     try {
-      // Fetch teacher data
-      const teachersQuery = query(
-        collection(db, 'teachers'),
-        where('email', '==', user?.email)
-      );
-      const teachersSnap = await getDocs(teachersQuery);
-      
-      if (!teachersSnap.empty) {
-        const teacher = { id: teachersSnap.docs[0].id, ...teachersSnap.docs[0].data() };
+      const teacher = await getTeacherByUserId(user!.uid);
+      if (teacher) {
         setTeacherData(teacher);
-
-        // Fetch students assigned to this teacher
-        const studentsQuery = query(
-          collection(db, 'students'),
-          where('teacherId', '==', teacher.id),
-          orderBy('fullName', 'asc')
-        );
-        const studentsSnap = await getDocs(studentsQuery);
-        const studentsList: Student[] = studentsSnap.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        } as Student));
-        
-        setStudents(studentsList);
-        setFilteredStudents(studentsList);
-
-        // Fetch progress data for each student
+        // Load all students then filter by assignedTeacherId
+        const allStudents = await getStudents();
+        const myStudents = allStudents.filter(s => s.assignedTeacherId === teacher.id) as unknown as Student[];
+        setStudents(myStudents);
+        setFilteredStudents(myStudents);
+        // Fetch attendance-based progress for each student
         const progressMap = new Map<string, StudentProgress>();
-        for (const student of studentsList) {
+        for (const student of myStudents) {
           const progress = await fetchStudentProgress(student.id);
           progressMap.set(student.id, progress);
         }
@@ -93,36 +74,10 @@ const MyStudents = () => {
 
   const fetchStudentProgress = async (studentId: string): Promise<StudentProgress> => {
     try {
-      // Fetch attendance
-      const attendanceQuery = query(
-        collection(db, 'attendance'),
-        where('studentId', '==', studentId)
-      );
-      const attendanceSnap = await getDocs(attendanceQuery);
-      const attendanceRecords = attendanceSnap.docs.map(doc => doc.data());
-      const presentCount = attendanceRecords.filter(r => r.status === 'present').length;
-      const attendanceRate = attendanceRecords.length > 0
-        ? (presentCount / attendanceRecords.length) * 100
-        : 0;
-
-      // Fetch exam results
-      const resultsQuery = query(
-        collection(db, 'results'),
-        where('studentId', '==', studentId)
-      );
-      const resultsSnap = await getDocs(resultsQuery);
-      const results = resultsSnap.docs.map(doc => doc.data());
-      const totalLessons = results.length;
-      const averageScore = totalLessons > 0
-        ? results.reduce((sum, r) => sum + (r.percentage || 0), 0) / totalLessons
-        : 0;
-
-      return {
-        studentId,
-        attendanceRate: Math.round(attendanceRate),
-        averageScore: Math.round(averageScore),
-        totalLessons,
-      };
+      const records = await getAttendanceByStudentId(studentId);
+      const presentCount = records.filter(r => r.status === 'present').length;
+      const attendanceRate = records.length > 0 ? (presentCount / records.length) * 100 : 0;
+      return { studentId, attendanceRate: Math.round(attendanceRate), averageScore: 0, totalLessons: records.length };
     } catch (error) {
       console.error('Error fetching student progress:', error);
       return {

@@ -137,6 +137,18 @@ const HomePage: React.FC = () => {
       {/* Noor Divine Light Animation */}
       <NoorBackground />
 
+      {/* Admin floating badge — only visible to admins */}
+      {user?.role === 'admin' && (
+        <a
+          href="/admin"
+          className="fixed bottom-6 right-6 z-[9999] flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-500 hover:to-orange-400 text-white text-sm font-black rounded-2xl shadow-2xl shadow-red-900/50 transition-all hover:scale-105"
+          title="Admin Dashboard"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Admin Dashboard
+        </a>
+      )}
+
       {/* Background Decorative Mandala — subtle */}
       <div className="fixed inset-0 pointer-events-none opacity-[0.03] z-0 overflow-hidden flex items-center justify-center">
          <div className="w-[120vw] h-[120vw] border-[1px] border-white/40 rounded-full flex items-center justify-center">

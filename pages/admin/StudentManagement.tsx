@@ -1,6 +1,5 @@
 ﻿import React, { useEffect, useState } from 'react';
-import { collection, query, getDocs, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
-import { db } from '../../services/firebase';
+import { getStudents, createStudent, updateStudent, deleteStudent } from '../../services/db';
 import { Student, StudentFormData } from '../../types/student.types';
 import { Plus, Search, Edit2, Trash2, X, Check, Globe, Building } from 'lucide-react';
 import BackButton from '../../components/BackButton';
@@ -44,14 +43,9 @@ const StudentManagement: React.FC = () => {
 
   const fetchStudents = async () => {
     try {
-      const studentsQuery = query(collection(db, 'students'));
-      const snapshot = await getDocs(studentsQuery);
-      const studentsData = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as (Student & { id: string })[];
-      setStudents(studentsData);
-      setFilteredStudents(studentsData);
+      const data = await getStudents();
+      setStudents(data);
+      setFilteredStudents(data);
     } catch (error) {
       console.error('Error fetching students:', error);
     } finally {
@@ -84,18 +78,9 @@ const StudentManagement: React.FC = () => {
       };
 
       if (editingStudent) {
-        await updateDoc(doc(db, 'students', editingStudent.id), {
-          ...studentData,
-          updatedAt: new Date().toISOString(),
-        });
+        await updateStudent(editingStudent.id, studentData);
       } else {
-        await addDoc(collection(db, 'students'), {
-          ...studentData,
-          userId: null,
-          enrollmentDate: new Date().toISOString(),
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        });
+        await createStudent({ ...studentData, userId: null });
       }
 
       resetForm();
@@ -130,7 +115,7 @@ const StudentManagement: React.FC = () => {
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this student?')) return;
     try {
-      await deleteDoc(doc(db, 'students', id));
+      await deleteStudent(id);
       fetchStudents();
     } catch (error) {
       console.error('Error deleting student:', error);

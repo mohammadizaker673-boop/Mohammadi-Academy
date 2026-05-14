@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
-import { db } from '../../services/firebase';
+import { getStudentByUserId, getFeesByStudentId } from '../../services/db';
 import { useAuth } from '../../contexts/AuthContext';
 import { FeeRecord } from '../../types/fee.types';
 import { DollarSign, CheckCircle, Clock, AlertCircle, Receipt } from 'lucide-react';
@@ -24,179 +23,14 @@ const StudentFees: React.FC = () => {
     }
 
     try {
-      // Fetch student profile to get student ID
-      const studentsQuery = query(collection(db, 'students'), where('userId', '==', user.uid));
-      const studentSnapshot = await getDocs(studentsQuery);
-      
-      if (!studentSnapshot.empty) {
-        const studentDoc = studentSnapshot.docs[0];
-        const studentDocId = studentDoc.id;
-        setStudentId(studentDocId);
-
-        // Fetch fee records
-        const feesQuery = query(
-          collection(db, 'fees'),
-          where('studentId', '==', studentDocId),
-          orderBy('month', 'desc')
-        );
-        const feesSnapshot = await getDocs(feesQuery);
-        
-        if (!feesSnapshot.empty) {
-          const records = feesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as FeeRecord));
-          setFees(records);
-        } else {
-          // Create mock fee records if not found
-          const now = new Date().toISOString();
-          const mockFees: FeeRecord[] = [
-            {
-              id: '1',
-              studentId: studentDocId,
-              studentName: user.email?.split('@')[0] || 'Student',
-              month: 'January 2024',
-              amount: 50,
-              amountPaid: 50,
-              status: 'paid',
-              dueDate: '2024-01-15',
-              paidDate: '2024-01-10',
-              paymentMethod: 'card',
-              receiptNumber: 'REC-001',
-              createdAt: now,
-              updatedAt: now
-            },
-            {
-              id: '2',
-              studentId: studentDocId,
-              studentName: user.email?.split('@')[0] || 'Student',
-              month: 'February 2024',
-              amount: 50,
-              amountPaid: 50,
-              status: 'paid',
-              dueDate: '2024-02-15',
-              paidDate: '2024-02-12',
-              paymentMethod: 'card',
-              receiptNumber: 'REC-002',
-              createdAt: now,
-              updatedAt: now
-            },
-            {
-              id: '3',
-              studentId: studentDocId,
-              studentName: user.email?.split('@')[0] || 'Student',
-              month: 'March 2024',
-              amount: 50,
-              amountPaid: 25,
-              status: 'partial',
-              dueDate: '2024-03-15',
-              paidDate: '2024-03-10',
-              paymentMethod: 'card',
-              receiptNumber: 'REC-003',
-              createdAt: now,
-              updatedAt: now
-            },
-            {
-              id: '4',
-              studentId: studentDocId,
-              studentName: user.email?.split('@')[0] || 'Student',
-              month: 'April 2024',
-              amount: 50,
-              amountPaid: 0,
-              status: 'pending',
-              dueDate: '2024-04-15',
-              createdAt: now,
-              updatedAt: now
-            }
-          ];
-          setFees(mockFees);
-        }
-      } else {
-        // Create mock fee records if student not found
-        const now = new Date().toISOString();
-        const mockFees: FeeRecord[] = [
-          {
-            id: '1',
-            studentId: user.uid,
-            studentName: user.email?.split('@')[0] || 'Student',
-            month: 'January 2024',
-            amount: 50,
-            amountPaid: 50,
-            status: 'paid',
-            dueDate: '2024-01-15',
-            paidDate: '2024-01-10',
-            paymentMethod: 'card',
-            receiptNumber: 'REC-001',
-            createdAt: now,
-            updatedAt: now
-          },
-          {
-            id: '2',
-            studentId: user.uid,
-            studentName: user.email?.split('@')[0] || 'Student',
-            month: 'February 2024',
-            amount: 50,
-            amountPaid: 50,
-            status: 'paid',
-            dueDate: '2024-02-15',
-            paidDate: '2024-02-12',
-            paymentMethod: 'card',
-            receiptNumber: 'REC-002',
-            createdAt: now,
-            updatedAt: now
-          },
-          {
-            id: '3',
-            studentId: user.uid,
-            studentName: user.email?.split('@')[0] || 'Student',
-            month: 'March 2024',
-            amount: 50,
-            amountPaid: 25,
-            status: 'partial',
-            dueDate: '2024-03-15',
-            paidDate: '2024-03-10',
-            paymentMethod: 'card',
-            receiptNumber: 'REC-003',
-            createdAt: now,
-            updatedAt: now
-          }
-        ];
-        setFees(mockFees);
+      const studentRecord = await getStudentByUserId(user.uid);
+      if (studentRecord) {
+        setStudentId(studentRecord.id);
+        const records = await getFeesByStudentId(studentRecord.id);
+        setFees(records);
       }
     } catch (error) {
       console.error('Error fetching fees:', error);
-      // Create mock fee records as fallback
-      const now = new Date().toISOString();
-      const mockFees: FeeRecord[] = [
-        {
-          id: '1',
-          studentId: user.uid,
-          studentName: user.email?.split('@')[0] || 'Student',
-          month: 'January 2024',
-          amount: 50,
-          amountPaid: 50,
-          status: 'paid',
-          dueDate: '2024-01-15',
-          paidDate: '2024-01-10',
-          paymentMethod: 'card',
-          receiptNumber: 'REC-001',
-          createdAt: now,
-          updatedAt: now
-        },
-        {
-          id: '2',
-          studentId: user.uid,
-          studentName: user.email?.split('@')[0] || 'Student',
-          month: 'February 2024',
-          amount: 50,
-          amountPaid: 50,
-          status: 'paid',
-          dueDate: '2024-02-15',
-          paidDate: '2024-02-12',
-          paymentMethod: 'card',
-          receiptNumber: 'REC-002',
-          createdAt: now,
-          updatedAt: now
-        }
-      ];
-      setFees(mockFees);
     } finally {
       setLoading(false);
     }

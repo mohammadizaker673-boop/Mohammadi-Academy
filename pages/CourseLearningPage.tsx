@@ -10,6 +10,7 @@ import { courses } from '../data/courses';
 import { generateAIText, hasOpenRouterApiKey } from '../services/aiService';
 import LogoLink from '../components/LogoLink';
 import BackButton from '../components/BackButton';
+import { useLanguage } from '../contexts/LanguageContext';
 
 // ─── Types ───────────────────────────────────────────────────────
 interface LessonContent {
@@ -102,9 +103,11 @@ const loadCourseProgress = (courseId: string) => {
 };
 
 // ─── AI Content Generation ────────────────────────────────────────
-const generateLessonContent = async (courseTitle: string, weekTitle: string, lessonTopic: string, lessonIndex: number): Promise<LessonContent> => {
+const generateLessonContent = async (courseTitle: string, weekTitle: string, lessonTopic: string, lessonIndex: number, language: string): Promise<LessonContent> => {
+  const outputLanguage = language === 'ar' ? 'Arabic' : language === 'fa' ? 'Farsi' : language === 'ps' ? 'Pashto' : 'English';
   const prompt = `You are writing a lesson for the course "${courseTitle}".
 Week: "${weekTitle}", Lesson ${lessonIndex + 1}: "${lessonTopic}".
+Output language: ${outputLanguage}.
 
 Write this lesson like a chapter in a world-class textbook — structured, engaging, rich with examples, sources, and practical knowledge. The student should LEARN deeply, not just skim text.
 
@@ -127,7 +130,7 @@ Return ONLY valid JSON with these keys:
   "summary": "A concise 2-3 sentence summary of the entire lesson — what was taught and what the student should now understand"
 }
 
-IMPORTANT: Generate 3-5 sections. Each section body should be 2-4 substantive paragraphs. Be thorough — this is a real lesson, not a summary. Write at a level appropriate for pre-teens to adults.`;
+IMPORTANT: Generate 3-5 sections. Each section body should be 2-4 substantive paragraphs. Be thorough — this is a real lesson, not a summary. Write at a level appropriate for pre-teens to adults. Keep all returned text in ${outputLanguage}.`;
 
   const raw = await generateAIText({
     messages: [
@@ -142,11 +145,12 @@ IMPORTANT: Generate 3-5 sections. Each section body should be 2-4 substantive pa
   return JSON.parse(raw.replace(/```json?/gi, '').replace(/```/g, '').trim());
 };
 
-const generateFlashcards = async (courseTitle: string, lessonTopic: string): Promise<FlashCard[]> => {
+const generateFlashcards = async (courseTitle: string, lessonTopic: string, language: string): Promise<FlashCard[]> => {
+  const outputLanguage = language === 'ar' ? 'Arabic' : language === 'fa' ? 'Farsi' : language === 'ps' ? 'Pashto' : 'English';
   const raw = await generateAIText({
     messages: [
       { role: 'system', content: 'You are an educational content creator. Return ONLY valid JSON array, no markdown fences.' },
-      { role: 'user', content: `Create 6 flashcards for the topic "${lessonTopic}" in the course "${courseTitle}". Return JSON array: [{"id":"1","front":"question/term","back":"answer/definition"}]. Make them clear and educational.` }
+      { role: 'user', content: `Create 6 flashcards for the topic "${lessonTopic}" in the course "${courseTitle}". All text must be in ${outputLanguage}. Return JSON array: [{"id":"1","front":"question/term","back":"answer/definition"}]. Make them clear and educational.` }
     ],
     maxTokens: 800,
     temperature: 0.3,
@@ -157,11 +161,12 @@ const generateFlashcards = async (courseTitle: string, lessonTopic: string): Pro
   return Array.isArray(parsed) ? parsed : parsed.flashcards || parsed.cards || [];
 };
 
-const generateExercises = async (courseTitle: string, lessonTopic: string): Promise<ExerciseItem[]> => {
+const generateExercises = async (courseTitle: string, lessonTopic: string, language: string): Promise<ExerciseItem[]> => {
+  const outputLanguage = language === 'ar' ? 'Arabic' : language === 'fa' ? 'Farsi' : language === 'ps' ? 'Pashto' : 'English';
   const raw = await generateAIText({
     messages: [
       { role: 'system', content: 'You are an educational content creator. Return ONLY valid JSON array, no markdown fences.' },
-      { role: 'user', content: `Create 5 interactive exercises for "${lessonTopic}" in "${courseTitle}". Return JSON array: [{"id":"1","type":"fill-blank","question":"The ___ is...","answer":"correct answer","explanation":"Why this is correct"}]. Mix types: fill-blank, true-false. Make them test understanding, not just memorization.` }
+      { role: 'user', content: `Create 5 interactive exercises for "${lessonTopic}" in "${courseTitle}". All text must be in ${outputLanguage}. Return JSON array: [{"id":"1","type":"fill-blank","question":"The ___ is...","answer":"correct answer","explanation":"Why this is correct"}]. Mix types: fill-blank, true-false. Make them test understanding, not just memorization.` }
     ],
     maxTokens: 800,
     temperature: 0.3,
@@ -172,11 +177,12 @@ const generateExercises = async (courseTitle: string, lessonTopic: string): Prom
   return Array.isArray(parsed) ? parsed : parsed.exercises || [];
 };
 
-const generateMiniQuiz = async (courseTitle: string, lessonTopic: string): Promise<QuizQuestion[]> => {
+const generateMiniQuiz = async (courseTitle: string, lessonTopic: string, language: string): Promise<QuizQuestion[]> => {
+  const outputLanguage = language === 'ar' ? 'Arabic' : language === 'fa' ? 'Farsi' : language === 'ps' ? 'Pashto' : 'English';
   const raw = await generateAIText({
     messages: [
       { role: 'system', content: 'You are an educational quiz creator. Return ONLY valid JSON array, no markdown fences.' },
-      { role: 'user', content: `Create 4 multiple-choice quiz questions for "${lessonTopic}" in "${courseTitle}". Return JSON array: [{"id":"1","question":"...","options":["A","B","C","D"],"correctIndex":0,"explanation":"Why A is correct"}]. Test real understanding.` }
+      { role: 'user', content: `Create 4 multiple-choice quiz questions for "${lessonTopic}" in "${courseTitle}". All text must be in ${outputLanguage}. Return JSON array: [{"id":"1","question":"...","options":["A","B","C","D"],"correctIndex":0,"explanation":"Why A is correct"}]. Test real understanding.` }
     ],
     maxTokens: 800,
     temperature: 0.3,
@@ -187,11 +193,12 @@ const generateMiniQuiz = async (courseTitle: string, lessonTopic: string): Promi
   return Array.isArray(parsed) ? parsed : parsed.questions || [];
 };
 
-const generateWeeklyTest = async (courseTitle: string, weekTitle: string, topics: string[]): Promise<QuizQuestion[]> => {
+const generateWeeklyTest = async (courseTitle: string, weekTitle: string, topics: string[], language: string): Promise<QuizQuestion[]> => {
+  const outputLanguage = language === 'ar' ? 'Arabic' : language === 'fa' ? 'Farsi' : language === 'ps' ? 'Pashto' : 'English';
   const raw = await generateAIText({
     messages: [
       { role: 'system', content: 'You are an educational assessment creator. Return ONLY valid JSON array, no markdown fences.' },
-      { role: 'user', content: `Create a 10-question weekly test for Week: "${weekTitle}" in course "${courseTitle}". Topics covered: ${topics.join(', ')}. Return JSON array: [{"id":"1","question":"...","options":["A","B","C","D"],"correctIndex":0,"explanation":"Why this is correct"}]. Test comprehension across all topics.` }
+      { role: 'user', content: `Create a 10-question weekly test for Week: "${weekTitle}" in course "${courseTitle}". Topics covered: ${topics.join(', ')}. All text must be in ${outputLanguage}. Return JSON array: [{"id":"1","question":"...","options":["A","B","C","D"],"correctIndex":0,"explanation":"Why this is correct"}]. Test comprehension across all topics.` }
     ],
     maxTokens: 1500,
     temperature: 0.3,
@@ -595,6 +602,7 @@ const InlineAITutor: React.FC<{ courseTitle: string; lessonTopic: string }> = ({
 
 // ─── Main Page ────────────────────────────────────────────────────
 const CourseLearningPage: React.FC = () => {
+  const { language } = useLanguage();
   const { courseId } = useParams<{ courseId: string }>();
   const navigate = useNavigate();
   const course = courses.find(c => c.id === courseId);
@@ -728,10 +736,10 @@ const CourseLearningPage: React.FC = () => {
       const courseTitle = activeCourse.title || customCourse?.title || 'Course';
       const weekTitle = currentWeek?.title || `Week ${currentWeekIdx + 1}`;
       const [content, flashcards, exercises, miniQuiz] = await Promise.all([
-        generateLessonContent(courseTitle, weekTitle, currentLesson.topic, currentLessonIdx),
-        generateFlashcards(courseTitle, currentLesson.topic),
-        generateExercises(courseTitle, currentLesson.topic),
-        generateMiniQuiz(courseTitle, currentLesson.topic),
+        generateLessonContent(courseTitle, weekTitle, currentLesson.topic, currentLessonIdx, language),
+        generateFlashcards(courseTitle, currentLesson.topic, language),
+        generateExercises(courseTitle, currentLesson.topic, language),
+        generateMiniQuiz(courseTitle, currentLesson.topic, language),
       ]);
 
       setWeeks(prev => {
@@ -752,7 +760,7 @@ const CourseLearningPage: React.FC = () => {
       setLoading(false);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentLesson?.id, currentWeekIdx, currentLessonIdx, hasApiKey, activeCourse, weeks.length]);
+  }, [currentLesson?.id, currentWeekIdx, currentLessonIdx, hasApiKey, activeCourse, weeks.length, language]);
 
   useEffect(() => {
     loadLessonContent();
@@ -836,7 +844,7 @@ const CourseLearningPage: React.FC = () => {
     if (currentWeek.test.length === 0) {
       setLoading(true);
       try {
-        const test = await generateWeeklyTest(activeCourse.title || customCourse?.title, currentWeek.title, currentWeek.topics);
+        const test = await generateWeeklyTest(activeCourse.title || customCourse?.title, currentWeek.title, currentWeek.topics, language);
         setWeeks(prev => {
           const updated = [...prev];
           updated[currentWeekIdx].test = test;

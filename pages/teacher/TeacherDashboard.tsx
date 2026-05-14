@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { collection, query, getDocs, where, doc, getDoc } from 'firebase/firestore';
-import { db } from '../../services/firebase';
+import { getTeacherByUserId, getStudentById } from '../../services/db';
 import { TRANSLATIONS } from '../../constants';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useAuth } from '../../contexts/AuthContext';
@@ -45,19 +44,6 @@ const TeacherDashboard: React.FC = () => {
   useEffect(() => {
     if (!user) return;
     
-    // Set instant mock teacher data
-    setTeacher({
-      id: user.uid,
-      fullName: user.email?.split('@')[0] || 'Teacher',
-      email: user.email || '',
-      maxStudents: 10,
-      currentStudents: 0,
-      assignedStudentIds: []
-    });
-    setStudents([]);
-    setPremiumCourses([]);
-    
-    // Fetch real data in background
     Promise.all([
       fetchTeacherData(),
       loadPremiumCourses()
@@ -82,30 +68,14 @@ const TeacherDashboard: React.FC = () => {
     if (!user) return;
 
     try {
-      const teachersQuery = query(collection(db, 'teachers'), where('userId', '==', user.uid));
-      const teacherSnapshot = await getDocs(teachersQuery);
-      
-      if (!teacherSnapshot.empty) {
-        const teacherDoc = teacherSnapshot.docs[0];
-        const teacherData = { id: teacherDoc.id, ...teacherDoc.data() } as TeacherData;
-        setTeacher(teacherData);
-
-        // Lazy load only first 3 students for performance
-        if (teacherData.assignedStudentIds && teacherData.assignedStudentIds.length > 0) {
-          const studentPromises = teacherData.assignedStudentIds.slice(0, 3).map(async (studentId) => {
-            try {
-              const studentDoc = await getDoc(doc(db, 'students', studentId));
-              if (studentDoc.exists()) {
-                return { id: studentDoc.id, ...studentDoc.data() } as StudentData;
-              }
-              return null;
-            } catch (error) {
-              console.error(`Failed to load student ${studentId}:`, error);
-              return null;
-            }
-          });
-          
-          const assignedStudents = (await Promise.all(studentPromises)).filter(s => s !== null) as StudentData[];
+      const teacherRecord = await getTeacherByUserId(user.uid);
+      if (teacherRecord) {
+        setTeacher(teacherRecord as unknown as TeacherData);
+        if (teacherRecord.assignedStudentIds?.length) {
+          const studentPromises = teacherRecord.assignedStudentIds.slice(0, 3).map(id =>
+            getStudentById(id).catch(() => null)
+          );
+          const assignedStudents = (await Promise.all(studentPromises)).filter(Boolean) as StudentData[];
           setStudents(assignedStudents);
         }
       }

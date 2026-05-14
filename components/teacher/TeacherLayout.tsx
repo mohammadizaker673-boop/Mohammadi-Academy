@@ -78,6 +78,12 @@ const TeacherLayout: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#050a12]">
+      {/* Global dashboard controls (always visible) */}
+      <div className="fixed top-4 right-4 z-[60] flex items-center gap-2 rounded-xl bg-black/40 border border-white/10 backdrop-blur-xl p-2">
+        <ThemeToggle />
+        <LanguageSelector />
+      </div>
+
       {/* Sidebar */}
       <aside
         className={`fixed top-0 left-0 h-full bg-[#080e1e]/95 backdrop-blur-xl border-r border-white/5 transition-all duration-300 z-50 ${
@@ -170,7 +176,7 @@ const TeacherLayout: React.FC = () => {
           sidebarOpen ? 'ml-64' : 'ml-20'
         }`}
       >
-        <div className="p-8">
+        <div className="p-8 pt-24">
           <Outlet />
         </div>
       </main>

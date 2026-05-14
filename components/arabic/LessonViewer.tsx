@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ArabicLesson, Exercise, LessonResult } from '../../types/arabic-learning.types';
 import { CheckCircle, XCircle, Lightbulb, ArrowRight, Volume2 } from 'lucide-react';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 interface LessonViewerProps {
   lesson: ArabicLesson;
@@ -9,6 +10,67 @@ interface LessonViewerProps {
 }
 
 const LessonViewer: React.FC<LessonViewerProps> = ({ lesson, onComplete, onExit }) => {
+  const { language } = useLanguage();
+  const labelsByLang: Record<string, Record<string, string>> = {
+    en: {
+      vocabulary: 'Vocabulary',
+      example: 'Example',
+      grammarRules: 'Grammar Rules',
+      examples: 'Examples',
+      startExercises: 'Start Exercises',
+      noExercises: 'No exercises for this lesson yet.',
+      backToLessons: 'Back to Lessons',
+      question: 'Question',
+      of: 'of',
+      hint: 'Hint',
+      typeAnswer: 'Type your answer...',
+      submitAnswer: 'Submit Answer'
+    },
+    ar: {
+      vocabulary: 'المفردات',
+      example: 'مثال',
+      grammarRules: 'قواعد النحو',
+      examples: 'أمثلة',
+      startExercises: 'ابدأ التمارين',
+      noExercises: 'لا توجد تمارين لهذا الدرس حاليا.',
+      backToLessons: 'العودة إلى الدروس',
+      question: 'سؤال',
+      of: 'من',
+      hint: 'تلميح',
+      typeAnswer: 'اكتب إجابتك...',
+      submitAnswer: 'إرسال الإجابة'
+    },
+    fa: {
+      vocabulary: 'واژگان',
+      example: 'مثال',
+      grammarRules: 'قواعد دستور',
+      examples: 'نمونه ها',
+      startExercises: 'شروع تمرین ها',
+      noExercises: 'برای این درس هنوز تمرینی وجود ندارد.',
+      backToLessons: 'بازگشت به درس ها',
+      question: 'سوال',
+      of: 'از',
+      hint: 'راهنما',
+      typeAnswer: 'پاسخ خود را بنویسید...',
+      submitAnswer: 'ارسال پاسخ'
+    },
+    ps: {
+      vocabulary: 'لغتونه',
+      example: 'بېلګه',
+      grammarRules: 'ګرامر قواعد',
+      examples: 'بېلګې',
+      startExercises: 'تمرينونه پيل کړئ',
+      noExercises: 'د دې درس لپاره تمرينونه نشته.',
+      backToLessons: 'درسونو ته بېرته',
+      question: 'پوښتنه',
+      of: 'له',
+      hint: 'اشاره',
+      typeAnswer: 'خپل ځواب وليکئ...',
+      submitAnswer: 'ځواب وسپارئ'
+    }
+  };
+  const ui = labelsByLang[language] || labelsByLang.en;
+
   const [currentSection, setCurrentSection] = useState<'content' | 'exercises'>('content');
   const [currentExercise, setCurrentExercise] = useState(0);
   const [userAnswers, setUserAnswers] = useState<Record<string, string>>({});
@@ -57,7 +119,7 @@ const LessonViewer: React.FC<LessonViewerProps> = ({ lesson, onComplete, onExit 
       {lesson.vocabulary.length > 0 && (
         <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
           <h3 className="text-2xl font-black text-white mb-4 flex items-center gap-2">
-            📚 Vocabulary
+            📚 {ui.vocabulary}
           </h3>
           <div className="space-y-4">
             {lesson.vocabulary.map(word => (
@@ -74,7 +136,7 @@ const LessonViewer: React.FC<LessonViewerProps> = ({ lesson, onComplete, onExit 
                 </div>
                 <div className="mt-3 pt-3 border-t border-white/10">
                   <p className="text-sm text-slate-300">
-                    <span className="font-bold">Example:</span> {word.exampleSentence}
+                    <span className="font-bold">{ui.example}:</span> {word.exampleSentence}
                   </p>
                 </div>
               </div>
@@ -87,7 +149,7 @@ const LessonViewer: React.FC<LessonViewerProps> = ({ lesson, onComplete, onExit 
       {lesson.grammarRules.length > 0 && (
         <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
           <h3 className="text-2xl font-black text-white mb-4 flex items-center gap-2">
-            📖 Grammar Rules
+            📖 {ui.grammarRules}
           </h3>
           <div className="space-y-6">
             {lesson.grammarRules.map(rule => (
@@ -96,6 +158,7 @@ const LessonViewer: React.FC<LessonViewerProps> = ({ lesson, onComplete, onExit 
                 <p className="text-slate-300 mb-4">{rule.explanation}</p>
                 <div className="space-y-3">
                   <p className="text-sm font-bold text-white">Examples:</p>
+                  <p className="text-sm font-bold text-white">{ui.examples}:</p>
                   {rule.examples.map((ex, idx) => (
                     <div key={idx} className="bg-white/5 rounded-lg p-3">
                       <div className="text-xl font-bold text-white mb-1">{ex.arabic}</div>
@@ -114,7 +177,7 @@ const LessonViewer: React.FC<LessonViewerProps> = ({ lesson, onComplete, onExit 
         onClick={() => setCurrentSection('exercises')}
         className="w-full py-4 bg-gradient-to-r from-primary-500 to-blue-500 text-white font-black text-lg rounded-xl hover:from-primary-600 hover:to-blue-600 transition-all flex items-center justify-center gap-2"
       >
-        Start Exercises <ArrowRight size={20} />
+        {ui.startExercises} <ArrowRight size={20} />
       </button>
     </div>
   );
@@ -123,12 +186,12 @@ const LessonViewer: React.FC<LessonViewerProps> = ({ lesson, onComplete, onExit 
     if (lesson.exercises.length === 0) {
       return (
         <div className="text-center py-12">
-          <p className="text-slate-300 mb-6">No exercises for this lesson yet.</p>
+          <p className="text-slate-300 mb-6">{ui.noExercises}</p>
           <button
             onClick={onExit}
             className="px-6 py-3 bg-primary-500 text-white font-bold rounded-lg"
           >
-            Back to Lessons
+            {ui.backToLessons}
           </button>
         </div>
       );
@@ -143,7 +206,7 @@ const LessonViewer: React.FC<LessonViewerProps> = ({ lesson, onComplete, onExit 
         {/* Progress Bar */}
         <div className="flex items-center justify-between mb-4">
           <span className="text-sm font-bold text-slate-300">
-            Question {currentExercise + 1} of {lesson.exercises.length}
+            {ui.question} {currentExercise + 1} {ui.of} {lesson.exercises.length}
           </span>
           <div className="flex-1 mx-4 h-2 bg-white/10 rounded-full overflow-hidden">
             <div
@@ -177,7 +240,7 @@ const LessonViewer: React.FC<LessonViewerProps> = ({ lesson, onComplete, onExit 
 
           {showHint && exercise.hint && (
             <div className="mb-4 p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
-              <p className="text-sm text-yellow-300">💡 Hint: {exercise.hint}</p>
+              <p className="text-sm text-yellow-300">💡 {ui.hint}: {exercise.hint}</p>
             </div>
           )}
 
@@ -222,7 +285,7 @@ const LessonViewer: React.FC<LessonViewerProps> = ({ lesson, onComplete, onExit 
                 value={userAnswer || ''}
                 onChange={(e) => setUserAnswers(prev => ({ ...prev, [exercise.id]: e.target.value }))}
                 disabled={showFeedback}
-                placeholder="Type your answer..."
+                placeholder={ui.typeAnswer}
                 className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg text-white placeholder-slate-400 focus:border-primary-400 focus:outline-none"
               />
               {!showFeedback && (
@@ -231,7 +294,7 @@ const LessonViewer: React.FC<LessonViewerProps> = ({ lesson, onComplete, onExit 
                   disabled={!userAnswer}
                   className="px-6 py-2 bg-primary-500 text-white font-bold rounded-lg hover:bg-primary-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Submit Answer
+                  {ui.submitAnswer}
                 </button>
               )}
             </div>

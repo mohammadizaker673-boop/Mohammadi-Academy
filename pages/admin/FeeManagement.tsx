@@ -1,6 +1,5 @@
 ﻿import React, { useEffect, useState } from 'react';
-import { collection, query, getDocs, addDoc, updateDoc, doc, orderBy, where } from 'firebase/firestore';
-import { db } from '../../services/firebase';
+import { getAllFees, updateFee } from '../../services/db';
 import { FeeRecord, PaymentStatus, PaymentMethod } from '../../types/fee.types';
 import { DollarSign, Search, CheckCircle, Clock, AlertTriangle, X } from 'lucide-react';
 import BackButton from '../../components/BackButton';
@@ -31,12 +30,7 @@ const FeeManagement: React.FC = () => {
 
   const fetchFees = async () => {
     try {
-      const feesQuery = query(collection(db, 'fees'), orderBy('month', 'desc'));
-      const snapshot = await getDocs(feesQuery);
-      const feesData = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as FeeRecord[];
+      const feesData = await getAllFees();
       setFees(feesData);
       setFilteredFees(feesData);
     } catch (error) {
@@ -84,13 +78,13 @@ const FeeManagement: React.FC = () => {
         newAmountPaid > 0 ? 'partial' : 'pending';
 
       await updateDoc(doc(db, 'fees', selectedFee.id), {
+      await updateFee(selectedFee.id, {
         amountPaid: newAmountPaid,
         status: newStatus,
         paidDate: paymentData.paymentDate,
         paymentMethod: paymentData.paymentMethod,
         receiptNumber: paymentData.receiptNumber,
         notes: paymentData.notes,
-        updatedAt: new Date().toISOString(),
       });
 
       setShowPaymentModal(false);

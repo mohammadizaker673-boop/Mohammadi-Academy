@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { collection, query, getDocs, addDoc, where } from 'firebase/firestore';
-import { db } from '../../services/firebase';
+import { getTeacherByUserId, getStudents, createAttendanceRecords } from '../../services/db';
 import { useAuth } from '../../contexts/AuthContext';
 import { AttendanceStatus } from '../../types/attendance.types';
 import { Teacher } from '../../types/teacher.types';
@@ -38,33 +37,17 @@ const TeacherAttendance: React.FC = () => {
     if (!user) return;
 
     try {
-      // Fetch teacher profile
-      const teachersQuery = query(collection(db, 'teachers'), where('userId', '==', user.uid));
-      const teacherSnapshot = await getDocs(teachersQuery);
-      
-      if (!teacherSnapshot.empty) {
-        const teacherDoc = teacherSnapshot.docs[0];
-        const teacherData = { id: teacherDoc.id, ...teacherDoc.data() } as Teacher;
-        setTeacher(teacherData);
-
-        // Fetch assigned students
-        if (teacherData.assignedStudentIds && teacherData.assignedStudentIds.length > 0) {
-          const studentsQuery = query(collection(db, 'students'));
-          const studentsSnapshot = await getDocs(studentsQuery);
-          const assignedStudents = studentsSnapshot.docs
-            .map(doc => ({ id: doc.id, ...doc.data() } as Student))
-            .filter((student: any) => teacherData.assignedStudentIds.includes(student.id));
+      const teacherRecord = await getTeacherByUserId(user.uid);
+      if (teacherRecord) {
+        setTeacher(teacherRecord as unknown as Teacher);
+        if (teacherRecord.assignedStudentIds?.length) {
+          const allStudents = await getStudents();
+          const assignedStudents = allStudents
+            .filter(s => teacherRecord.assignedStudentIds.includes(s.id)) as unknown as Student[];
           setStudents(assignedStudents);
-
-          // Initialize attendance state
           const initialAttendance: Record<string, AttendanceEntry> = {};
           assignedStudents.forEach(student => {
-            initialAttendance[student.id] = {
-              studentId: student.id,
-              status: 'present',
-              lessonTopic: '',
-              notes: '',
-            };
+            initialAttendance[student.id] = { studentId: student.id, status: 'present', lessonTopic: '', notes: '' };
           });
           setAttendance(initialAttendance);
         }
@@ -91,25 +74,20 @@ const TeacherAttendance: React.FC = () => {
 
     setSubmitting(true);
     try {
-      const promises = Object.values(attendance).map((entry: AttendanceEntry) => {
+      const rows = Object.values(attendance).map((entry: AttendanceEntry) => {
         const student = students.find(s => s.id === entry.studentId);
-        if (!student) return null;
-
-        return addDoc(collection(db, 'attendance'), {
+        return {
           studentId: entry.studentId,
-          studentName: student.fullName,
-          teacherId: teacher.id,
-          teacherName: teacher.fullName,
+          studentName: student?.fullName ?? '',
+          teacherId: (teacher as any).id,
+          teacherName: (teacher as any).fullName,
           date: selectedDate,
-          status: entry.status,
-          lessonTopic: entry.lessonTopic || null,
-          notes: entry.notes || null,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        });
-      }).filter(Boolean);
-
-      await Promise.all(promises);
+          status: entry.status as 'present' | 'absent' | 'late' | 'excused' | 'leave',
+          lessonTopic: entry.lessonTopic || '',
+          notes: entry.notes || '',
+        };
+      });
+      await createAttendanceRecords(rows);
       alert('Attendance recorded successfully!');
     } catch (error) {
       console.error('Error submitting attendance:', error);

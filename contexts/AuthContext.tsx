@@ -9,6 +9,71 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [needsProfileCompletion, setNeedsProfileCompletion] = useState(false);
+  const emailCooldownMs = 60_000;
+
+  const upsertProfile = async (profile: {
+    id: string;
+    email: string;
+    display_name: string;
+    phone: string;
+    role: UserRole;
+    created_at?: string;
+    last_login: string;
+  }) => {
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .upsert(profile, { onConflict: 'id' });
+
+    if (profileError) {
+      console.warn('Profile sync skipped:', profileError.message);
+    }
+  };
+
+  const normalizeEmail = (value: string) => value.trim().toLowerCase();
+
+  const emailCooldownKey = (action: 'register' | 'reset', email: string) =>
+    `auth-email-cooldown:${action}:${normalizeEmail(email)}`;
+
+  const getEmailCooldownRemaining = (action: 'register' | 'reset', email: string) => {
+    if (typeof window === 'undefined') {
+      return 0;
+    }
+
+    const raw = window.localStorage.getItem(emailCooldownKey(action, email));
+    if (!raw) {
+      return 0;
+    }
+
+    const expiresAt = Number(raw);
+    if (!Number.isFinite(expiresAt)) {
+      window.localStorage.removeItem(emailCooldownKey(action, email));
+      return 0;
+    }
+
+    const remaining = expiresAt - Date.now();
+    if (remaining <= 0) {
+      window.localStorage.removeItem(emailCooldownKey(action, email));
+      return 0;
+    }
+
+    return remaining;
+  };
+
+  const setEmailCooldown = (action: 'register' | 'reset', email: string) => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    window.localStorage.setItem(emailCooldownKey(action, email), String(Date.now() + emailCooldownMs));
+  };
+
+  const handleEmailRateLimit = (action: 'register' | 'reset', email: string, message: string) => {
+    if (/rate limit|too many/i.test(message)) {
+      setEmailCooldown(action, email);
+      const waitSeconds = Math.max(1, Math.ceil(emailCooldownMs / 1000));
+      throw new Error(`Too many email attempts for this address. Please wait about ${waitSeconds} seconds and try again.`);
+    }
+  };
 
   const normalizeRole = (value: unknown): UserRole => {
     if (value === 'admin' || value === 'teacher' || value === 'student') {
@@ -116,6 +181,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         throw new Error('Admin account registration is disabled from public signup.');
       }
 
+      const remaining = getEmailCooldownRemaining('register', data.email);
+      if (remaining > 0) {
+        throw new Error('A registration email was just sent for this address. Please wait a minute before trying again.');
+      }
+
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
@@ -142,26 +212,27 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           }
         });
 
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .upsert(
-            {
-              id: authData.user.id,
-              email: data.email,
-              display_name: data.displayName,
-              phone: data.phone,
-              role: data.role,
-              created_at: new Date().toISOString(),
-              last_login: new Date().toISOString()
-            },
-            { onConflict: 'id' }
-          );
+        setEmailCooldown('register', data.email);
 
-        if (profileError) {
-          throw profileError;
-        }
+        await upsertProfile({
+          id: authData.user.id,
+          email: data.email,
+          display_name: data.displayName,
+          phone: data.phone,
+          role: data.role,
+          created_at: new Date().toISOString(),
+          last_login: new Date().toISOString()
+        });
       }
     } catch (error: any) {
+      if (error?.message) {
+        try {
+          handleEmailRateLimit('register', data.email, error.message);
+        } catch (rateLimitError) {
+          throw rateLimitError;
+        }
+      }
+
       console.error('Registration error:', error);
       throw new Error(error.message || 'Failed to register');
     }
@@ -225,23 +296,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         throw new Error('No authenticated user found');
       }
 
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .upsert(
-          {
-            id: userData.user.id,
-            email: userData.user.email || '',
-            display_name: data.displayName,
-            phone: data.phone || '',
-            role: data.role,
-            last_login: new Date().toISOString()
-          },
-          { onConflict: 'id' }
-        );
-
-      if (profileError) {
-        throw profileError;
-      }
+      await upsertProfile({
+        id: userData.user.id,
+        email: userData.user.email || '',
+        display_name: data.displayName,
+        phone: data.phone || '',
+        role: data.role,
+        last_login: new Date().toISOString()
+      });
 
       const { data: updatedUserData, error: updateError } = await supabase.auth.updateUser({
         data: {
@@ -269,12 +331,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const resetPassword = async (email: string) => {
     try {
+      const remaining = getEmailCooldownRemaining('reset', email);
+      if (remaining > 0) {
+        throw new Error('A password reset email was just sent for this address. Please wait a minute before trying again.');
+      }
+
       const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/login`
       });
       if (resetError) {
+        handleEmailRateLimit('reset', email, resetError.message);
         throw resetError;
       }
+
+      setEmailCooldown('reset', email);
     } catch (error: any) {
       console.error('Password reset error:', error);
       throw new Error(error.message || 'Failed to send password reset email');

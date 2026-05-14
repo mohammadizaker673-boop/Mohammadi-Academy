@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { collection, getDocs, query, orderBy } from 'firebase/firestore';
-import { db } from '../../services/firebase';
+import { getAnnouncements } from '../../services/db';
 import { Bell, AlertCircle, Info, CheckCircle } from 'lucide-react';
 
 interface Announcement {
@@ -24,22 +23,8 @@ export default function TeacherAnnouncements() {
 
   const fetchAnnouncements = async () => {
     try {
-      const announcementsSnap = await getDocs(
-        query(collection(db, 'announcements'), orderBy('publishedAt', 'desc'))
-      );
-
-      const allAnnouncements = announcementsSnap.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-        publishedAt: doc.data().publishedAt?.toDate() || new Date(),
-      })) as Announcement[];
-
-      // Filter for teachers (targetAudience is 'all' or 'teachers')
-      const teacherAnnouncements = allAnnouncements.filter(
-        (ann) => ann.targetAudience === 'all' || ann.targetAudience === 'teachers'
-      );
-
-      setAnnouncements(teacherAnnouncements);
+      const data = await getAnnouncements('teachers');
+      setAnnouncements(data as unknown as Announcement[]);
     } catch (error) {
       console.error('Error fetching announcements:', error);
     } finally {

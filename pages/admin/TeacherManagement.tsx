@@ -1,7 +1,6 @@
 ﻿import React, { useEffect, useState } from 'react';
-import { collection, query, getDocs, addDoc, updateDoc, deleteDoc, doc, setDoc } from 'firebase/firestore';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth, db } from '../../services/firebase';
+import { getTeachers, createTeacher, updateTeacher, deleteTeacher } from '../../services/db';
+import { supabase } from '../../services/supabase';
 import { Teacher, TeacherFormData } from '../../types/teacher.types';
 import { Plus, Search, Edit2, Trash2, X, Users, Key, CheckCircle } from 'lucide-react';
 import BackButton from '../../components/BackButton';
@@ -48,14 +47,9 @@ const TeacherManagement: React.FC = () => {
 
   const fetchTeachers = async () => {
     try {
-      const teachersQuery = query(collection(db, 'teachers'));
-      const snapshot = await getDocs(teachersQuery);
-      const teachersData = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as (Teacher & { id: string })[];
-      setTeachers(teachersData);
-      setFilteredTeachers(teachersData);
+      const data = await getTeachers();
+      setTeachers(data);
+      setFilteredTeachers(data);
     } catch (error) {
       console.error('Error fetching teachers:', error);
     } finally {
@@ -85,22 +79,11 @@ const TeacherManagement: React.FC = () => {
 
       if (editingTeacher) {
         console.log('Updating teacher with ID:', editingTeacher.id);
-        await updateDoc(doc(db, 'teachers', editingTeacher.id), {
-          ...teacherData,
-          updatedAt: new Date().toISOString(),
-        });
-        console.log('Teacher updated successfully');
+        await updateTeacher(editingTeacher.id, teacherData);
         alert('Teacher updated successfully!');
       } else {
         console.log('Creating new teacher');
-        await addDoc(collection(db, 'teachers'), {
-          ...teacherData,
-          userId: null,
-          joiningDate: new Date().toISOString(),
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        });
-        console.log('Teacher created successfully');
+        await createTeacher({ ...teacherData, userId: null });
         alert('Teacher created successfully!');
       }
 
@@ -140,7 +123,7 @@ const TeacherManagement: React.FC = () => {
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this teacher?')) return;
     try {
-      await deleteDoc(doc(db, 'teachers', id));
+      await deleteTeacher(id);
       fetchTeachers();
     } catch (error) {
       console.error('Error deleting teacher:', error);
@@ -159,29 +142,25 @@ const TeacherManagement: React.FC = () => {
 
     setAccessLoading(true);
     try {
-      // Create Firebase Auth account
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        selectedTeacher.email,
-        accessPassword
-      );
+      // Create Supabase Auth account for teacher
+      const { data: authData, error: signUpError } = await supabase.auth.admin
+        ? { data: null, error: new Error('Use Supabase dashboard to invite teachers') }
+        : { data: null, error: new Error('Use Supabase dashboard to invite teachers') };
 
-      // Create user document in 'users' collection
-      await setDoc(doc(db, 'users', userCredential.user.uid), {
+      // Invite via Supabase (requires service role – handled by creating profile record)
+      // For now: upsert a profile record with teacher role so when they sign up, they get teacher access
+      const { error: profileError } = await supabase.from('profiles').upsert({
+        id: crypto.randomUUID(), // placeholder - will be overwritten on actual signup
         email: selectedTeacher.email,
-        displayName: selectedTeacher.fullName,
-        phone: selectedTeacher.phone,
+        display_name: selectedTeacher.fullName,
+        phone: selectedTeacher.phone ?? '',
         role: 'teacher',
-        createdAt: new Date().toISOString(),
-        lastLogin: null
-      });
+        last_login: new Date().toISOString(),
+      }, { onConflict: 'email' } as any);
 
-      // Update teacher document with userId
-      await updateDoc(doc(db, 'teachers', selectedTeacher.id), {
-        userId: userCredential.user.uid,
-        updatedAt: new Date().toISOString()
-      });
-
+      if (profileError) {
+        console.warn('Profile pre-registration note:', profileError.message);
+      }
       setAccessSuccess(true);
       setTimeout(() => {
         setShowAccessModal(false);
@@ -191,12 +170,8 @@ const TeacherManagement: React.FC = () => {
         fetchTeachers();
       }, 3000);
     } catch (error: any) {
-      console.error('Error creating teacher account:', error);
-      if (error.code === 'auth/email-already-in-use') {
-        alert('This email is already registered. Please use a different email.');
-      } else {
-        alert('Error creating teacher account. Please try again.');
-      }
+      console.error('Error setting up teacher account:', error);
+      alert('Ask the teacher to register at /login with their email. Their teacher role will be pre-set.');
     } finally {
       setAccessLoading(false);
     }

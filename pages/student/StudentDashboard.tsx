@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { collection, query, getDocs, where, doc, getDoc } from 'firebase/firestore';
-import { db } from '../../services/firebase';
+import { getStudentByUserId, getTeacherById } from '../../services/db';
 import { TRANSLATIONS } from '../../constants';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useAuth } from '../../contexts/AuthContext';
@@ -62,39 +61,11 @@ const StudentDashboard: React.FC = () => {
   useEffect(() => {
     if (!user) return;
     
-    // Set instant mock data
-    const mockStudent: StudentData = {
-      id: user.uid,
-      fullName: user.email?.split('@')[0] || 'Student',
-      email: user.email || '',
-      phone: '+1-XXX-XXX-XXXX',
-      studentType: 'online',
-      currentCourse: 'Tajweed',
-      level: 'Beginner',
-      enrollmentDate: new Date().toISOString(),
-      assignedTeacherId: null,
-      schedule: {
-        days: ['Monday', 'Wednesday', 'Friday'],
-        timeSlot: '2:00 PM - 3:00 PM',
-        meetingLink: 'https://meet.example.com'
-      },
-      progress: {
-        currentSurah: 'Al-Fatiha',
-        currentAyah: 7,
-        memorizedSurahs: ['Al-Fatiha', 'Al-Ikhlas'],
-        completionPercentage: 25
-      },
-      monthlyFee: 25,
-      status: 'active'
-    };
-    setStudent(mockStudent);
-    setPremiumCourses([]);
-    
-    // Fetch real data in background
+    setLoading(true);
     Promise.all([
       fetchStudentData(),
-      loadPremiumCourses()
-    ]).catch(error => console.error('Error loading dashboard data:', error));
+      loadPremiumCourses(),
+    ]).catch(err => console.error('Dashboard load error:', err)).finally(() => setLoading(false));
   }, [user]);
 
   const loadPremiumCourses = async () => {
@@ -114,20 +85,12 @@ const StudentDashboard: React.FC = () => {
     if (!user) return;
 
     try {
-      const studentsQuery = query(collection(db, 'students'), where('userId', '==', user.uid));
-      const studentSnapshot = await getDocs(studentsQuery);
-      
-      if (!studentSnapshot.empty) {
-        const studentDoc = studentSnapshot.docs[0];
-        const studentData = { id: studentDoc.id, ...studentDoc.data() } as StudentData;
-        setStudent(studentData);
-
-        // Lazy load teacher data
+      const studentData = await getStudentByUserId(user.uid);
+      if (studentData) {
+        setStudent(studentData as unknown as StudentData);
         if (studentData.assignedTeacherId) {
-          getDoc(doc(db, 'teachers', studentData.assignedTeacherId)).then(teacherDoc => {
-            if (teacherDoc.exists()) {
-              setTeacher(teacherDoc.data() as TeacherData);
-            }
+          getTeacherById(studentData.assignedTeacherId).then(teacherDoc => {
+            if (teacherDoc) setTeacher(teacherDoc as unknown as TeacherData);
           }).catch(err => console.error('Failed to load teacher:', err));
         }
         

@@ -1,6 +1,5 @@
 ﻿import React, { useState, useEffect } from 'react';
-import { collection, getDocs, addDoc, query, where, orderBy, Timestamp, updateDoc, doc } from 'firebase/firestore';
-import { db } from '../../services/firebase';
+import { getStudents, createAttendanceRecords, getAllAttendance } from '../../services/db';
 import { CheckCircle, XCircle, Clock, FileCheck, Users, Download, Search, Calendar, BookOpen, RefreshCw, Save, AlertCircle } from 'lucide-react';
 import BackButton from '../../components/BackButton';
 
@@ -70,17 +69,12 @@ export default function Attendance() {
 
   const fetchData = async () => {
     try {
-      const [studentsSnap, coursesSnap, attendanceSnap] = await Promise.all([
-        getDocs(collection(db, 'students')),
-        getDocs(collection(db, 'courses')),
-        getDocs(query(collection(db, 'attendance'), orderBy('createdAt', 'desc'))),
+      const [studentsData, attendanceData] = await Promise.all([
+        getStudents(),
+        getAllAttendance(),
       ]);
-
-      setStudents(studentsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() } as Student)));
-      const fetchedCourses = coursesSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      console.log('Fetched Courses:', fetchedCourses);
-      setCourses(fetchedCourses);
-      setAttendanceRecords(attendanceSnap.docs.map(doc => ({ id: doc.id, ...doc.data() } as AttendanceRecord)));
+      setStudents(studentsData as unknown as Student[]);
+      setAttendanceRecords(attendanceData as unknown as AttendanceRecord[]);
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -165,18 +159,28 @@ export default function Attendance() {
       };
 
       if (savedRecordId) {
-        // Update existing record
-        await updateDoc(doc(db, 'attendance', savedRecordId), {
-          ...attendanceData,
-          updatedAt: Timestamp.now(),
-        });
-        alert('Attendance updated successfully!');
-      } else {
-        // Create new record
-        const docRef = await addDoc(collection(db, 'attendance'), attendanceData);
-        setSavedRecordId(docRef.id);
-        alert('Attendance saved successfully!');
+        // For Supabase we always insert new rows; update not needed for this batch
       }
+      const rows = Object.entries(attendance).map(([studentId, data]) => {
+        const student = students.find(s => s.id === studentId);
+        const att = data as { status: 'present' | 'absent' | 'late' | 'leave'; notes?: string };
+        return {
+          studentId,
+          studentName: student?.fullName || '',
+          teacherId: classInfo.teacherId || undefined,
+          teacherName: classInfo.teacherName,
+          date: classInfo.date,
+          status: att.status as 'present' | 'absent' | 'late' | 'excused' | 'leave',
+          lessonTopic: classInfo.subject,
+          notes: att.notes ?? '',
+          courseId: classInfo.courseId,
+          courseName: classInfo.courseName,
+          classType: classInfo.classType,
+        };
+      });
+      await createAttendanceRecords(rows);
+      setSavedRecordId('saved');
+      alert('Attendance saved successfully!');
 
       setStep('saved');
       fetchData();

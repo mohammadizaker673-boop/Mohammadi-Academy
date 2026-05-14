@@ -1,45 +1,41 @@
 import React, { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { useLanguage } from '../../contexts/LanguageContext';
-import { TRANSLATIONS, ACADEMY_NAME } from '../../constants';
+import { ACADEMY_NAME } from '../../constants';
 import LanguageSelector from '../../components/LanguageSelector';
 import LogoLink from '../../components/LogoLink';
 import { supabase } from '../../services/supabase';
+import { ShieldCheck } from 'lucide-react';
 
-const LoginPage: React.FC = () => {
-  const { language } = useLanguage();
+const AdminLoginPage: React.FC = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const { login, signInWithOAuth } = useAuth();
+  const { login, signInWithOAuth, user } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [oauthLoading, setOauthLoading] = useState(false);
   const [error, setError] = useState('');
-  const [info, setInfo] = useState('');
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
 
+  // If already logged in as admin, redirect
+  React.useEffect(() => {
+    if (user?.role === 'admin') {
+      navigate('/admin', { replace: true });
+    }
+  }, [user, navigate]);
+
   const withTimeout = <T,>(promise: Promise<T>, ms: number) =>
     new Promise<T>((resolve, reject) => {
       const timer = setTimeout(() => reject(new Error('timeout')), ms);
       promise
-        .then(result => {
-          clearTimeout(timer);
-          resolve(result);
-        })
-        .catch(error => {
-          clearTimeout(timer);
-          reject(error);
-        });
+        .then(result => { clearTimeout(timer); resolve(result); })
+        .catch(error => { clearTimeout(timer); reject(error); });
     });
-
-  const from = (location.state as any)?.from?.pathname || '/';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    setInfo('');
     setLoading(true);
 
     try {
@@ -59,23 +55,15 @@ const LoginPage: React.FC = () => {
         const role = profileResult.data?.role || 'student';
 
         if (role === 'admin') {
-          await supabase.auth.signOut();
-          setError('Invalid credentials. Please check your email and password.');
+          navigate('/admin', { replace: true });
           return;
         }
-        if (role === 'teacher') {
-          navigate('/teacher', { replace: true });
-          return;
-        }
-        if (role === 'parent') {
-          navigate('/parent', { replace: true });
-          return;
-        }
-        navigate('/student', { replace: true });
+
+        // Non-admin tried to use the admin login
+        await supabase.auth.signOut();
+        setError('Access denied. This login portal is for administrators only. Please use the main login page.');
         return;
       }
-
-      navigate(from, { replace: true });
     } catch (err: any) {
       setError(err.message || 'Failed to login');
     } finally {
@@ -83,14 +71,16 @@ const LoginPage: React.FC = () => {
     }
   };
 
-  const handleSocialLogin = async (provider: 'google' | 'facebook') => {
+  const handleGoogleLogin = async () => {
     setError('');
-    setInfo(`Redirecting to ${provider === 'google' ? 'Google' : 'Facebook'}...`);
+    setOauthLoading(true);
     try {
-      await signInWithOAuth(provider);
+      await signInWithOAuth('google');
+      // After OAuth redirect comes back, the auth state listener will
+      // pick up the session; AdminLoginPage's useEffect will redirect admins.
     } catch (err: any) {
-      setInfo('');
-      setError(err.message || `Failed to continue with ${provider}`);
+      setError(err.message || 'Failed to continue with Google');
+      setOauthLoading(false);
     }
   };
 
@@ -114,18 +104,24 @@ const LoginPage: React.FC = () => {
       </div>
 
       {/* Background Effects */}
-      <div className="absolute top-20 left-10 w-96 h-96 bg-primary-500/10 rounded-full blur-[120px]"></div>
-      <div className="absolute bottom-20 right-10 w-96 h-96 bg-accent-500/10 rounded-full blur-[120px]"></div>
+      <div className="absolute top-20 left-10 w-96 h-96 bg-red-500/10 rounded-full blur-[120px]"></div>
+      <div className="absolute bottom-20 right-10 w-96 h-96 bg-orange-500/10 rounded-full blur-[120px]"></div>
 
       {/* Login Card */}
       <div className="relative w-full max-w-md">
         <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-3xl border border-white/20 rounded-[3rem] p-8 sm:p-10 shadow-2xl">
-          {/* Logo/Header */}
+          {/* Header */}
           <div className="text-center mb-8">
+            <div className="w-20 h-20 bg-red-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <ShieldCheck className="w-10 h-10 text-red-400" />
+            </div>
             <h1 className="text-3xl sm:text-4xl font-black text-white mb-2">
-              Welcome Back
+              Admin Portal
             </h1>
             <p className="text-slate-400">{ACADEMY_NAME}</p>
+            <p className="text-red-400/80 text-xs mt-1 uppercase tracking-widest font-semibold">
+              Administrators Only
+            </p>
           </div>
 
           {/* Error Message */}
@@ -135,29 +131,24 @@ const LoginPage: React.FC = () => {
             </div>
           )}
 
-          {/* Info Message */}
-          {info && (
-            <div className="mb-6 p-4 bg-blue-500/10 border border-blue-500/20 rounded-xl text-blue-300 text-sm">
-              ⏳ {info}
-            </div>
-          )}
-
-          <div className="mb-6 space-y-3">
+          {/* Google OAuth */}
+          <div className="mb-6">
             <button
               type="button"
-              onClick={() => handleSocialLogin('google')}
-              className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl hover:bg-white/15 transition text-white font-semibold"
+              onClick={handleGoogleLogin}
+              disabled={oauthLoading || loading}
+              className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl hover:bg-white/15 transition text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Continue with Google
+              {oauthLoading ? 'Redirecting...' : 'Continue with Google'}
             </button>
-            <div className="text-center text-slate-500 text-xs uppercase tracking-[0.2em]">or</div>
+            <div className="mt-4 text-center text-slate-500 text-xs uppercase tracking-[0.2em]">or</div>
           </div>
 
           {/* Login Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-[10px] font-black text-primary-400 mb-3 uppercase tracking-[0.2em]">
-                Email Address
+              <label className="block text-[10px] font-black text-red-400 mb-3 uppercase tracking-[0.2em]">
+                Admin Email
               </label>
               <input
                 type="email"
@@ -165,13 +156,13 @@ const LoginPage: React.FC = () => {
                 value={formData.email}
                 onChange={handleChange}
                 required
-                className="w-full px-6 py-5 bg-white/10 border border-white/20 rounded-[1.2rem] focus:ring-2 focus:ring-primary-400/50 focus:border-primary-400 focus:bg-white/15 outline-none transition-all text-white placeholder-slate-400"
-                placeholder="your@email.com"
+                className="w-full px-6 py-5 bg-white/10 border border-white/20 rounded-[1.2rem] focus:ring-2 focus:ring-red-400/50 focus:border-red-400 focus:bg-white/15 outline-none transition-all text-white placeholder-slate-400"
+                placeholder="admin@mohammadiacademy.com"
               />
             </div>
 
             <div>
-              <label className="block text-[10px] font-black text-primary-400 mb-3 uppercase tracking-[0.2em]">
+              <label className="block text-[10px] font-black text-red-400 mb-3 uppercase tracking-[0.2em]">
                 Password
               </label>
               <input
@@ -180,41 +171,35 @@ const LoginPage: React.FC = () => {
                 value={formData.password}
                 onChange={handleChange}
                 required
-                className="w-full px-6 py-5 bg-white/10 border border-white/20 rounded-[1.2rem] focus:ring-2 focus:ring-primary-400/50 focus:border-primary-400 focus:bg-white/15 outline-none transition-all text-white placeholder-slate-400"
+                className="w-full px-6 py-5 bg-white/10 border border-white/20 rounded-[1.2rem] focus:ring-2 focus:ring-red-400/50 focus:border-red-400 focus:bg-white/15 outline-none transition-all text-white placeholder-slate-400"
                 placeholder="••••••••"
               />
-            </div>
-
-            <div className="flex items-center justify-between text-sm">
-              <Link
-                to="/forgot-password"
-                className="text-primary-400 hover:text-primary-300 transition-colors"
-              >
-                Forgot Password?
-              </Link>
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full px-10 py-5 bg-gradient-to-r from-primary-500 to-accent-500 hover:from-primary-400 hover:to-accent-400 text-white font-black rounded-[1.2rem] transition-all shadow-xl shadow-primary-900/40 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full px-10 py-5 bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-500 hover:to-orange-400 text-white font-black rounded-[1.2rem] transition-all shadow-xl shadow-red-900/40 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? 'Signing In...' : 'Sign In'}
+              {loading ? 'Signing In...' : 'Access Admin Dashboard'}
             </button>
           </form>
 
-          {/* Register Link */}
+          {/* Back to main login */}
           <div className="mt-8 text-center">
-            <p className="text-slate-400">
-              Don't have an account?{' '}
-              <Link to="/register" className="text-primary-400 hover:text-primary-300 font-semibold transition-colors">
-                Register Here
-              </Link>
-            </p>
+            <Link
+              to="/login"
+              className="text-slate-400 hover:text-slate-200 text-sm transition-colors"
+            >
+              Not an admin?{' '}
+              <span className="text-primary-400 hover:text-primary-300 font-semibold">
+                Student / Teacher Login
+              </span>
+            </Link>
           </div>
 
           {/* Back to Home */}
-          <div className="mt-6 text-center">
+          <div className="mt-4 text-center">
             <Link
               to="/"
               className="text-slate-500 hover:text-slate-300 text-sm transition-colors"
@@ -228,4 +213,4 @@ const LoginPage: React.FC = () => {
   );
 };
 
-export default LoginPage;
+export default AdminLoginPage;

@@ -30,7 +30,8 @@ import {
   ChevronRight,
   Database,
   BarChart3,
-  Sparkles
+  Sparkles,
+  Home
 } from 'lucide-react';
 
 const AdminLayout: React.FC = () => {
@@ -316,6 +317,13 @@ const AdminLayout: React.FC = () => {
 
         {/* Language & Logout */}
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/10 space-y-2">
+          <Link
+            to="/"
+            className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-slate-300 hover:bg-white/10 hover:text-white transition-all"
+          >
+            <Home size={20} />
+            {sidebarOpen && <span className="text-sm font-bold">Visit Homepage</span>}
+          </Link>
           <button
             onClick={handleLogout}
             className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-slate-300 hover:bg-red-500/10 hover:text-red-400 transition-all"

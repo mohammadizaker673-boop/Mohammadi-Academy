@@ -1,10 +1,11 @@
 ﻿import React, { useState, useEffect } from 'react';
-import { collection, getDocs, addDoc, Timestamp } from 'firebase/firestore';
-import { db } from '../../../services/firebase';
+import { getAllAnnouncements, createAnnouncement } from '../../../services/db';
+import { useAuth } from '../../../contexts/AuthContext';
 import { Announcement } from '../../../types/communication.types';
 import { MessageSquare, Plus, Bell } from 'lucide-react';
 
 export default function AnnouncementsPage() {
+    const { user } = useAuth();
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -21,13 +22,8 @@ export default function AnnouncementsPage() {
 
   const fetchAnnouncements = async () => {
     try {
-      const querySnapshot = await getDocs(collection(db, 'announcements'));
-      const data = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        publishedAt: doc.data().publishedAt?.toDate(),
-      })) as Announcement[];
-      setAnnouncements(data.sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime()));
+      const data = await getAllAnnouncements();
+      setAnnouncements(data as unknown as Announcement[]);
     } catch (error) {
       console.error('Error fetching announcements:', error);
     } finally {
@@ -38,13 +34,7 @@ export default function AnnouncementsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await addDoc(collection(db, 'announcements'), {
-        ...formData,
-        publishedAt: Timestamp.now(),
-        createdBy: 'admin',
-        status: 'published',
-      });
-
+      await createAnnouncement(formData, user?.uid ?? '');
       alert('Announcement published successfully!');
       setShowForm(false);
       setFormData({ title: '', content: '', targetAudience: 'all', priority: 'medium' });
