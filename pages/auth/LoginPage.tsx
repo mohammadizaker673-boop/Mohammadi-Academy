@@ -19,6 +19,7 @@ const LoginPage: React.FC = () => {
     email: '',
     password: ''
   });
+  const primaryAdminEmail = 'admin@mohammadiacademy.com';
 
   const withTimeout = <T,>(promise: Promise<T>, ms: number) =>
     new Promise<T>((resolve, reject) => {
@@ -48,6 +49,7 @@ const LoginPage: React.FC = () => {
       const userResult = await withTimeout(supabase.auth.getUser(), 5000);
       const sessionUser = userResult.data.user;
       if (sessionUser) {
+        const normalizedEmail = (sessionUser.email || '').trim().toLowerCase();
         const profileResult = await withTimeout(
           supabase
             .from('profiles')
@@ -56,11 +58,15 @@ const LoginPage: React.FC = () => {
             .maybeSingle(),
           5000
         );
-        const role = profileResult.data?.role || 'student';
+        let role = profileResult.data?.role || 'student';
+
+        if (normalizedEmail === primaryAdminEmail) {
+          role = 'admin';
+        }
 
         if (role === 'admin') {
           await supabase.auth.signOut();
-          setError('Invalid credentials. Please check your email and password.');
+          setError('Admin accounts must sign in from the Admin Portal at /dashboard.');
           return;
         }
         if (role === 'teacher') {
