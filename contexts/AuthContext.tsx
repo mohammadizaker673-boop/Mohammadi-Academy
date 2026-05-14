@@ -12,6 +12,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [needsProfileCompletion, setNeedsProfileCompletion] = useState(false);
   const emailCooldownMs = 60_000;
 
+  const withTimeout = <T,>(promise: Promise<T>, ms: number, label: string) =>
+    new Promise<T>((resolve, reject) => {
+      const timer = window.setTimeout(() => reject(new Error(`${label}-timeout`)), ms);
+      promise
+        .then((result) => {
+          window.clearTimeout(timer);
+          resolve(result);
+        })
+        .catch((err) => {
+          window.clearTimeout(timer);
+          reject(err);
+        });
+    });
+
   const upsertProfile = async (profile: {
     id: string;
     email: string;
@@ -90,14 +104,27 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     app_metadata?: Record<string, unknown>;
     email_confirmed_at?: string | null;
   }): Promise<AuthUser> => {
-    const { data: existingProfile, error: profileError } = await supabase
-      .from('profiles')
-      .select('role, display_name, phone, created_at, last_login')
-      .eq('id', sessionUser.id)
-      .maybeSingle();
+    let existingProfile: any = null;
+    try {
+      const { data, error: profileError } = await withTimeout(
+        supabase
+          .from('profiles')
+          .select('role, display_name, phone, created_at, last_login')
+          .eq('id', sessionUser.id)
+          .maybeSingle(),
+        7000,
+        'profile-lookup'
+      );
 
-    if (profileError) {
-      throw profileError;
+      if (profileError) {
+        throw profileError;
+      }
+
+      existingProfile = data;
+    } catch (err) {
+      // Do not block auth session hydration if profile lookup is slow/unavailable.
+      console.warn('Profile lookup fallback:', err);
+      existingProfile = null;
     }
 
     const provider = String(sessionUser.app_metadata?.provider || '');
@@ -135,20 +162,39 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   useEffect(() => {
+    let disposed = false;
+    const bootstrapFailsafe = window.setTimeout(() => {
+      if (!disposed) {
+        console.warn('Auth bootstrap timed out, releasing loading state.');
+        setLoading(false);
+      }
+    }, 10000);
+
     const bootstrap = async () => {
       try {
-        const { data } = await supabase.auth.getUser();
+        const { data } = await withTimeout(supabase.auth.getUser(), 7000, 'auth-bootstrap');
+        if (disposed) {
+          return;
+        }
         if (data.user) {
           const hydrated = await buildAuthUser(data.user);
+          if (disposed) {
+            return;
+          }
           setUser(hydrated);
         } else {
           setUser(null);
         }
       } catch (err) {
+        if (disposed) {
+          return;
+        }
         console.error('Auth bootstrap error:', err);
         setError(err instanceof Error ? err.message : 'Setup error');
       } finally {
-        setLoading(false);
+        if (!disposed) {
+          setLoading(false);
+        }
       }
     };
 
@@ -156,22 +202,35 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     const { data: listener } = supabase.auth.onAuthStateChange(async (_event, session) => {
       try {
+        if (disposed) {
+          return;
+        }
         if (session?.user) {
-          const hydrated = await buildAuthUser(session.user);
+          const hydrated = await withTimeout(buildAuthUser(session.user), 7000, 'auth-hydrate');
+          if (disposed) {
+            return;
+          }
           setUser(hydrated);
         } else {
           setUser(null);
           setNeedsProfileCompletion(false);
         }
       } catch (err) {
+        if (disposed) {
+          return;
+        }
         console.error('Auth state error:', err);
         setError(err instanceof Error ? err.message : 'Auth error');
       } finally {
-        setLoading(false);
+        if (!disposed) {
+          setLoading(false);
+        }
       }
     });
 
     return () => {
+      disposed = true;
+      window.clearTimeout(bootstrapFailsafe);
       listener.subscription.unsubscribe();
     };
   }, []);
