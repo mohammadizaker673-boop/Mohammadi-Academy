@@ -8,7 +8,7 @@ import { FeaturesSection } from '../components/FeaturesSection';
 import { FooterSocialLinks } from '../components/FooterSocialLinks';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import backgroundImage from '../Photos/FullLogo.jpg';
+import backgroundImage from '../Photos/ChatGPT Image May 15, 2026, 02_50_54 PM.png';
 import { initializeSampleFeatures } from '../utils/sampleFeatures';
 import { Search, Menu, X, Sparkles, Loader2, ArrowRight } from 'lucide-react';
 import { courses } from '../data/courses';

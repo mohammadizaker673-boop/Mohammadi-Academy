@@ -1,6 +1,6 @@
 ﻿import React from 'react';
 import { Link } from 'react-router-dom';
-import logoImage from '../Photos/FullLogo.jpg';
+import logoImage from '../Photos/ChatGPT Image May 15, 2026, 02_50_54 PM.png';
 import { useLanguage } from '../contexts/LanguageContext';
 import { TRANSLATIONS } from '../constants';
 
