@@ -337,12 +337,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         });
 
         if (data.role !== 'admin') {
-          await createSignupApprovalRequest({
-            fullName: data.displayName,
-            email: data.email,
-            phone: data.phone,
-            role: data.role,
-          });
+          try {
+            await createSignupApprovalRequest({
+              fullName: data.displayName,
+              email: data.email,
+              phone: data.phone,
+              role: data.role,
+            });
+          } catch (requestError) {
+            // Registration should still complete even if approval request write is temporarily blocked.
+            console.warn('Signup approval request creation deferred:', requestError);
+          }
         }
 
         setRememberSession();
@@ -376,7 +381,22 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const hydrated = await buildAuthUser(data.user);
 
         if (hydrated.role !== 'admin') {
-          const approvalStatus = await getSignupApprovalStatusByEmail(hydrated.email);
+          let approvalStatus = await getSignupApprovalStatusByEmail(hydrated.email);
+
+          if (!approvalStatus) {
+            try {
+              await createSignupApprovalRequest({
+                fullName: hydrated.displayName,
+                email: hydrated.email,
+                phone: hydrated.phone,
+                role: hydrated.role,
+              });
+              approvalStatus = 'pending';
+            } catch (requestError) {
+              console.warn('Deferred approval request creation on login:', requestError);
+              approvalStatus = 'pending';
+            }
+          }
 
           if (approvalStatus === 'pending') {
             await supabase.auth.signOut();

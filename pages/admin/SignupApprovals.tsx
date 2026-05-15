@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { CheckCircle, Clock, Search, ShieldCheck, XCircle } from 'lucide-react';
 import BackButton from '../../components/BackButton';
 import {
+  approveSignupRequestAndProvision,
   getSignupApprovalRequests,
   SignupApprovalRequest,
   updateSignupApprovalStatus,
@@ -59,7 +60,11 @@ const SignupApprovals: React.FC = () => {
 
     try {
       setProcessingId(request.id);
-      await updateSignupApprovalStatus(request.id, status);
+      if (status === 'approved') {
+        await approveSignupRequestAndProvision(request.id);
+      } else {
+        await updateSignupApprovalStatus(request.id, status);
+      }
       await fetchRequests();
     } catch (error) {
       console.error(`Failed to ${actionText} signup request:`, error);

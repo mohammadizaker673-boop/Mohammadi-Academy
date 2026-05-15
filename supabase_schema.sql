@@ -229,3 +229,10 @@ CREATE POLICY "auth_access" ON public.admission_requests    FOR ALL TO authentic
 CREATE POLICY "auth_access" ON public.hifz_students         FOR ALL TO authenticated USING (true) WITH CHECK (true);
 CREATE POLICY "auth_access" ON public.hifz_memorization_records FOR ALL TO authenticated USING (true) WITH CHECK (true);
 CREATE POLICY "auth_access" ON public.live_class_sessions   FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+-- Public signup requests can be inserted by unauthenticated users only for signup queue entries.
+CREATE POLICY "anon_signup_requests_insert"
+  ON public.admission_requests
+  FOR INSERT
+  TO anon
+  WITH CHECK (course_interest LIKE 'signup:%');

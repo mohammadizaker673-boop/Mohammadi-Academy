@@ -175,7 +175,43 @@ export const getStudents = async (): Promise<(Student & { id: string })[]> => {
 export const getStudentByUserId = async (userId: string): Promise<(Student & { id: string }) | null> => {
   const { data, error } = await supabase.from('students').select('*').eq('user_id', userId).maybeSingle();
   throwOnError(data, error, 'getStudentByUserId');
-  return data ? mapStudent(data) : null;
+  if (data) {
+    return mapStudent(data);
+  }
+
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('email')
+    .eq('id', userId)
+    .maybeSingle();
+
+  throwOnError(profile, profileError, 'getStudentByUserId/profileFallback');
+
+  const fallbackEmail = (profile?.email || '').trim().toLowerCase();
+  if (!fallbackEmail) {
+    return null;
+  }
+
+  const { data: byEmail, error: byEmailError } = await supabase
+    .from('students')
+    .select('*')
+    .eq('email', fallbackEmail)
+    .maybeSingle();
+
+  throwOnError(byEmail, byEmailError, 'getStudentByUserId/emailFallback');
+
+  if (!byEmail) {
+    return null;
+  }
+
+  if (!byEmail.user_id) {
+    await supabase
+      .from('students')
+      .update({ user_id: userId, updated_at: new Date().toISOString() })
+      .eq('id', byEmail.id);
+  }
+
+  return mapStudent({ ...byEmail, user_id: byEmail.user_id || userId });
 };
 
 export const getStudentById = async (id: string): Promise<(Student & { id: string }) | null> => {
@@ -220,7 +256,43 @@ export const getTeachers = async (): Promise<(Teacher & { id: string })[]> => {
 export const getTeacherByUserId = async (userId: string): Promise<(Teacher & { id: string }) | null> => {
   const { data, error } = await supabase.from('teachers').select('*').eq('user_id', userId).maybeSingle();
   throwOnError(data, error, 'getTeacherByUserId');
-  return data ? mapTeacher(data) : null;
+  if (data) {
+    return mapTeacher(data);
+  }
+
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('email')
+    .eq('id', userId)
+    .maybeSingle();
+
+  throwOnError(profile, profileError, 'getTeacherByUserId/profileFallback');
+
+  const fallbackEmail = (profile?.email || '').trim().toLowerCase();
+  if (!fallbackEmail) {
+    return null;
+  }
+
+  const { data: byEmail, error: byEmailError } = await supabase
+    .from('teachers')
+    .select('*')
+    .eq('email', fallbackEmail)
+    .maybeSingle();
+
+  throwOnError(byEmail, byEmailError, 'getTeacherByUserId/emailFallback');
+
+  if (!byEmail) {
+    return null;
+  }
+
+  if (!byEmail.user_id) {
+    await supabase
+      .from('teachers')
+      .update({ user_id: userId, updated_at: new Date().toISOString() })
+      .eq('id', byEmail.id);
+  }
+
+  return mapTeacher({ ...byEmail, user_id: byEmail.user_id || userId });
 };
 
 export const getTeacherById = async (id: string): Promise<(Teacher & { id: string }) | null> => {
@@ -534,6 +606,156 @@ export const updateSignupApprovalStatus = async (
     .eq('id', id);
 
   throwOnError(null, error, 'updateSignupApprovalStatus');
+};
+
+export const approveSignupRequestAndProvision = async (id: string): Promise<void> => {
+  const { data: request, error: requestError } = await supabase
+    .from('admission_requests')
+    .select('*')
+    .eq('id', id)
+    .maybeSingle();
+
+  throwOnError(request, requestError, 'approveSignupRequestAndProvision/request');
+
+  if (!request) {
+    throw new Error('Signup request not found');
+  }
+
+  const role = parseSignupRole(request.course_interest);
+  const normalizedEmail = (request.email || '').trim().toLowerCase();
+  const requestedName = (request.full_name || '').trim();
+  const requestedPhone = request.phone || '';
+
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('id, email, display_name, phone')
+    .eq('email', normalizedEmail)
+    .order('updated_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  throwOnError(profile, profileError, 'approveSignupRequestAndProvision/profile');
+
+  const userId = profile?.id || null;
+  const resolvedName = requestedName || profile?.display_name || normalizedEmail.split('@')[0] || 'User';
+  const resolvedPhone = requestedPhone || profile?.phone || '';
+
+  if (profile?.id) {
+    const { error: profileUpdateError } = await supabase
+      .from('profiles')
+      .update({
+        role,
+        display_name: resolvedName,
+        phone: resolvedPhone,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', profile.id);
+
+    throwOnError(null, profileUpdateError, 'approveSignupRequestAndProvision/profileUpdate');
+  }
+
+  if (role === 'teacher') {
+    const { data: existingTeacher, error: existingTeacherError } = await supabase
+      .from('teachers')
+      .select('id, user_id')
+      .eq('email', normalizedEmail)
+      .maybeSingle();
+
+    throwOnError(existingTeacher, existingTeacherError, 'approveSignupRequestAndProvision/existingTeacher');
+
+    if (existingTeacher) {
+      const patch: Record<string, any> = {
+        full_name: resolvedName,
+        phone: resolvedPhone,
+        status: 'active',
+        updated_at: new Date().toISOString(),
+      };
+      if (userId && !existingTeacher.user_id) {
+        patch.user_id = userId;
+      }
+
+      const { error: teacherUpdateError } = await supabase
+        .from('teachers')
+        .update(patch)
+        .eq('id', existingTeacher.id);
+
+      throwOnError(null, teacherUpdateError, 'approveSignupRequestAndProvision/teacherUpdate');
+    } else {
+      const { error: teacherInsertError } = await supabase
+        .from('teachers')
+        .insert({
+          user_id: userId,
+          full_name: resolvedName,
+          email: normalizedEmail,
+          phone: resolvedPhone,
+          status: 'active',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        });
+
+      throwOnError(null, teacherInsertError, 'approveSignupRequestAndProvision/teacherInsert');
+    }
+  }
+
+  if (role === 'student') {
+    const { data: existingStudent, error: existingStudentError } = await supabase
+      .from('students')
+      .select('id, user_id')
+      .eq('email', normalizedEmail)
+      .maybeSingle();
+
+    throwOnError(existingStudent, existingStudentError, 'approveSignupRequestAndProvision/existingStudent');
+
+    if (existingStudent) {
+      const patch: Record<string, any> = {
+        full_name: resolvedName,
+        phone: resolvedPhone,
+        status: 'active',
+        updated_at: new Date().toISOString(),
+      };
+      if (userId && !existingStudent.user_id) {
+        patch.user_id = userId;
+      }
+
+      const { error: studentUpdateError } = await supabase
+        .from('students')
+        .update(patch)
+        .eq('id', existingStudent.id);
+
+      throwOnError(null, studentUpdateError, 'approveSignupRequestAndProvision/studentUpdate');
+    } else {
+      const { error: studentInsertError } = await supabase
+        .from('students')
+        .insert({
+          user_id: userId,
+          full_name: resolvedName,
+          email: normalizedEmail,
+          phone: resolvedPhone,
+          status: 'active',
+          student_type: 'online',
+          current_course: 'Quran Memorization',
+          level: 'beginner',
+          schedule: { days: [], timeSlot: '' },
+          progress: {
+            currentSurah: '',
+            currentAyah: 0,
+            memorizedSurahs: [],
+            completionPercentage: 0,
+          },
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        });
+
+      throwOnError(null, studentInsertError, 'approveSignupRequestAndProvision/studentInsert');
+    }
+  }
+
+  const { error: approveError } = await supabase
+    .from('admission_requests')
+    .update({ status: 'approved', updated_at: new Date().toISOString() })
+    .eq('id', id);
+
+  throwOnError(null, approveError, 'approveSignupRequestAndProvision/approve');
 };
 
 export const updateAdmissionStatus = async (id: string, status: 'pending' | 'approved' | 'rejected'): Promise<void> => {

@@ -11,8 +11,9 @@ const LoginPage: React.FC = () => {
   const { language } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
-  const { login, signInWithOAuth } = useAuth();
+  const { login, signInWithOAuth, resetPassword } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
   const [error, setError] = useState('');
   const [info, setInfo] = useState('');
   const [formData, setFormData] = useState({
@@ -97,6 +98,26 @@ const LoginPage: React.FC = () => {
     } catch (err: any) {
       setInfo('');
       setError(err.message || `Failed to continue with ${provider}`);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    setError('');
+    setInfo('');
+
+    if (!formData.email.trim()) {
+      setError('Please enter your email first, then click Forgot Password.');
+      return;
+    }
+
+    try {
+      setResetLoading(true);
+      await resetPassword(formData.email.trim());
+      setInfo('Password reset email sent. Please check your inbox and spam folder.');
+    } catch (err: any) {
+      setError(err.message || 'Failed to send password reset email');
+    } finally {
+      setResetLoading(false);
     }
   };
 
@@ -192,12 +213,14 @@ const LoginPage: React.FC = () => {
             </div>
 
             <div className="flex items-center justify-between text-sm">
-              <Link
-                to="/forgot-password"
-                className="text-primary-400 hover:text-primary-300 transition-colors"
+              <button
+                type="button"
+                onClick={handleForgotPassword}
+                disabled={resetLoading || loading}
+                className="text-primary-400 hover:text-primary-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Forgot Password?
-              </Link>
+                {resetLoading ? 'Sending reset email...' : 'Forgot Password?'}
+              </button>
             </div>
 
             <button

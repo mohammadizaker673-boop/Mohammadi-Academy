@@ -34,6 +34,22 @@ const HomePage: React.FC = () => {
   const [heroSearching, setHeroSearching] = useState(false);
   const [heroSearched, setHeroSearched] = useState(false);
 
+  const heroSearchPlaceholder = t.nav.searchPlaceholder || 'What do you want to learn? (e.g., Quran, Arabic)';
+  const heroSearchTitle = heroSearchPlaceholder.includes('(')
+    ? heroSearchPlaceholder.split('(')[0].trim()
+    : heroSearchPlaceholder;
+
+  const heroTopicSuggestions = useMemo(() => {
+    const localizedTopics: Record<string, string[]> = {
+      en: ['Quran', 'Arabic', 'Tajweed', 'Python', 'Islamic Studies', 'English'],
+      ar: ['القرآن', 'العربية', 'التجويد', 'بايثون', 'الدراسات الإسلامية', 'الإنجليزية'],
+      fa: ['قرآن', 'عربی', 'تجوید', 'پایتون', 'مطالعات اسلامی', 'انگلیسی'],
+      ps: ['قرآن', 'عربي', 'تجوید', 'پایتون', 'اسلامي زده کړې', 'انګلیسي']
+    };
+
+    return localizedTopics[language] || localizedTopics.en;
+  }, [language]);
+
   if (!t) {
     return (
       <div style={{ color: 'white', padding: '20px', textAlign: 'center' }}>
@@ -452,16 +468,17 @@ const HomePage: React.FC = () => {
           <div className="relative">
             <div className="absolute -inset-8 bg-gradient-to-br from-primary-400/10 to-accent-500/10 blur-3xl rounded-full"></div>
             <div className="relative rounded-[3rem] overflow-hidden shadow-2xl border-2 border-white/10 bg-black">
-              <img src={backgroundImage} alt={t.name} className="w-full h-full object-cover" style={{ mixBlendMode: 'screen', filter: 'brightness(1.2) contrast(1.1)' }} />
-              {/* Search overlay on image */}
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-6 pt-16">
-                <h3 className="text-lg font-black text-white mb-3">What do you want to learn?</h3>
+              <div className="w-full h-[340px] sm:h-[420px] p-6 sm:p-8 flex items-center justify-center">
+                <img src={backgroundImage} alt={t.name} className="w-full h-full object-contain" style={{ filter: 'brightness(1.08) contrast(1.02) drop-shadow(0 12px 26px rgba(15, 23, 42, 0.28))' }} />
+              </div>
+              <div className="border-t border-white/10 bg-gradient-to-b from-black/70 to-black/90 p-6">
+                <h3 className="text-lg font-black text-white mb-3">{heroSearchTitle}</h3>
                 <form onSubmit={(e) => { e.preventDefault(); handleHeroSearch(); }} className="flex gap-2">
                   <input
                     type="text"
                     value={heroSearch}
                     onChange={(e) => { setHeroSearch(e.target.value); setHeroSearched(false); }}
-                    placeholder="e.g. Tajweed, Python, Arabic, First Aid..."
+                    placeholder={heroSearchPlaceholder}
                     className="flex-1 px-4 py-3 bg-white/15 backdrop-blur-md border border-white/20 rounded-xl text-white placeholder:text-slate-300 focus:border-primary-400 focus:outline-none text-sm"
                   />
                   <button
@@ -474,7 +491,7 @@ const HomePage: React.FC = () => {
                 </form>
                 {!heroSearched && (
                   <div className="mt-3 flex flex-wrap gap-1.5">
-                    {['Quran', 'Arabic', 'Tajweed', 'Python', 'Islamic Studies', 'English'].map(topic => (
+                    {heroTopicSuggestions.map(topic => (
                       <button
                         key={topic}
                         type="button"
