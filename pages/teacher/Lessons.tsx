@@ -4,6 +4,13 @@ import { db } from '../../services/firebase';
 import { useAuth } from '../../contexts/AuthContext';
 import { BookOpen, Search, Filter, Clock, FileText, CheckCircle } from 'lucide-react';
 import BackButton from '../../components/BackButton';
+import { Link } from 'react-router-dom';
+import {
+  canJoinLiveClass,
+  listTeacherLiveClassSessions,
+  upsertLiveClassSession,
+  type LiveClassSession,
+} from '../../services/liveClassService';
 
 interface Lesson {
   id: string;
@@ -32,6 +39,9 @@ const Lessons = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCourse, setSelectedCourse] = useState('all');
   const [teacherData, setTeacherData] = useState<any>(null);
+  const [teacherSessions, setTeacherSessions] = useState<LiveClassSession[]>([]);
+  const [scheduleDrafts, setScheduleDrafts] = useState<Record<string, { startsAt: string; duration: string }>>({});
+  const [savingSessionByLesson, setSavingSessionByLesson] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     if (user?.email) {
@@ -69,6 +79,9 @@ const Lessons = () => {
       if (!teachersSnap.empty) {
         const teacher = { id: teachersSnap.docs[0].id, ...teachersSnap.docs[0].data() };
         setTeacherData(teacher);
+
+        const sessions = await listTeacherLiveClassSessions(teacher.id);
+        setTeacherSessions(sessions);
 
         // Fetch all courses
         const coursesSnap = await getDocs(collection(db, 'courses'));
@@ -160,6 +173,45 @@ const Lessons = () => {
               key={lesson.id}
               className="bg-gradient-to-br from-slate-800/90 to-slate-900/90 backdrop-blur-xl border border-white/10 rounded-2xl p-6 hover:border-primary-500/30 transition-all"
             >
+              {(() => {
+                const now = Date.now();
+                const lessonSessions = teacherSessions
+                  .filter((session) => session.lessonId === lesson.id)
+                  .sort((a, b) => new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime());
+                const upcomingSession = lessonSessions.find((session) => new Date(session.endsAt).getTime() >= now) || null;
+                const draft = scheduleDrafts[lesson.id] || { startsAt: '', duration: '45' };
+
+                const handleSaveSession = async () => {
+                  if (!teacherData?.id || !user?.uid) return;
+                  if (!draft.startsAt) return;
+
+                  const startsAtIso = new Date(draft.startsAt).toISOString();
+                  const durationMinutes = Number(draft.duration || 45);
+                  const endsAtIso = new Date(new Date(draft.startsAt).getTime() + durationMinutes * 60 * 1000).toISOString();
+
+                  setSavingSessionByLesson((prev) => ({ ...prev, [lesson.id]: true }));
+                  try {
+                    await upsertLiveClassSession({
+                      teacherId: teacherData.id,
+                      teacherUserId: user.uid,
+                      lessonId: lesson.id,
+                      lessonTitle: lesson.title,
+                      courseName: lesson.courseName,
+                      startsAt: startsAtIso,
+                      endsAt: endsAtIso,
+                    });
+
+                    const sessions = await listTeacherLiveClassSessions(teacherData.id);
+                    setTeacherSessions(sessions);
+                  } catch (saveError) {
+                    console.error('Failed to schedule class session:', saveError);
+                  } finally {
+                    setSavingSessionByLesson((prev) => ({ ...prev, [lesson.id]: false }));
+                  }
+                };
+
+                return (
+                  <>
               {/* Lesson Header */}
               <div className="flex items-start gap-4 mb-4">
                 <div className="p-3 bg-primary-500/10 rounded-xl flex-shrink-0">
@@ -243,6 +295,71 @@ const Lessons = () => {
                   </a>
                 </div>
               )}
+
+              <div className="mt-4 border-t border-white/10 pt-4 space-y-3">
+                <h4 className="text-sm font-bold text-white">Live Class Session</h4>
+
+                {upcomingSession ? (
+                  <div className="bg-primary-500/10 border border-primary-500/30 rounded-xl p-3 text-sm">
+                    <p className="text-primary-200 font-semibold">Scheduled: {new Date(upcomingSession.startsAt).toLocaleString()}</p>
+                    <p className="text-slate-300 mt-1">Ends: {new Date(upcomingSession.endsAt).toLocaleTimeString()}</p>
+                    <div className="mt-3 flex gap-2">
+                      {canJoinLiveClass(upcomingSession) ? (
+                        <Link
+                          to={`/class/${upcomingSession.id}`}
+                          className="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-bold text-xs"
+                        >
+                          Start / Join Live Class
+                        </Link>
+                      ) : (
+                        <span className="px-3 py-2 bg-slate-700 text-slate-200 rounded-lg font-bold text-xs">
+                          Join opens 15 min before start
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-xs text-slate-400">No live class scheduled yet for this lesson.</p>
+                )}
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  <input
+                    type="datetime-local"
+                    value={draft.startsAt}
+                    onChange={(e) =>
+                      setScheduleDrafts((prev) => ({
+                        ...prev,
+                        [lesson.id]: { ...draft, startsAt: e.target.value },
+                      }))
+                    }
+                    className="px-3 py-2 bg-slate-900/70 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary-500"
+                  />
+                  <input
+                    type="number"
+                    min={15}
+                    max={180}
+                    value={draft.duration}
+                    onChange={(e) =>
+                      setScheduleDrafts((prev) => ({
+                        ...prev,
+                        [lesson.id]: { ...draft, duration: e.target.value },
+                      }))
+                    }
+                    className="px-3 py-2 bg-slate-900/70 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-primary-500"
+                    placeholder="Duration (minutes)"
+                  />
+                </div>
+                <button
+                  onClick={handleSaveSession}
+                  disabled={!draft.startsAt || savingSessionByLesson[lesson.id]}
+                  className="px-4 py-2 bg-gradient-to-r from-primary-500 to-accent-500 hover:from-primary-400 hover:to-accent-400 disabled:opacity-50 text-white rounded-lg text-sm font-bold"
+                >
+                  {savingSessionByLesson[lesson.id] ? 'Saving...' : 'Schedule / Update Session'}
+                </button>
+              </div>
+                  </>
+                );
+              })()}
             </div>
           ))}
         </div>

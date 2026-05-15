@@ -1,8 +1,9 @@
 import React from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { Camera, CameraOff, Copy, Mic, MicOff, PhoneOff, Users } from 'lucide-react';
+import { Camera, CameraOff, Copy, Mic, MicOff, PhoneOff, RotateCcw, Users } from 'lucide-react';
 import { supabase } from '../services/supabase';
 import { useAuth } from '../contexts/AuthContext';
+import { canJoinLiveClass, getLiveClassSessionById, markLiveClassStatus, type LiveClassSession } from '../services/liveClassService';
 
 interface SignalPayload {
   from: string;
@@ -13,7 +14,7 @@ interface SignalPayload {
 }
 
 const InAppMeetingPage: React.FC = () => {
-  const { roomId } = useParams<{ roomId: string }>();
+  const { roomId, sessionId } = useParams<{ roomId?: string; sessionId?: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [guestName, setGuestName] = React.useState('');
@@ -33,10 +34,13 @@ const InAppMeetingPage: React.FC = () => {
   const [error, setError] = React.useState('');
   const [cameraEnabled, setCameraEnabled] = React.useState(true);
   const [micEnabled, setMicEnabled] = React.useState(true);
+  const [cameraUnavailable, setCameraUnavailable] = React.useState(false);
   const [remoteConnected, setRemoteConnected] = React.useState(false);
   const [copied, setCopied] = React.useState(false);
+  const [session, setSession] = React.useState<LiveClassSession | null>(null);
+  const [resolvedRoomId, setResolvedRoomId] = React.useState(roomId || '');
 
-  const meetingUrl = `${window.location.origin}/meeting/${roomId || ''}`;
+  const meetingUrl = `${window.location.origin}/${sessionId ? `class/${sessionId}` : `meeting/${resolvedRoomId}`}`;
 
   const identityName = user?.displayName || user?.email || guestName.trim();
 
@@ -116,7 +120,7 @@ const InAppMeetingPage: React.FC = () => {
   }, [sendSignal]);
 
   React.useEffect(() => {
-    if (!roomId) {
+    if (!roomId && !sessionId) {
       setError('Invalid meeting room.');
       setLoading(false);
       return;
@@ -139,20 +143,61 @@ const InAppMeetingPage: React.FC = () => {
         setLoading(true);
         setError('');
 
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: true,
-          audio: true,
-        });
+        let activeRoomId = roomId || '';
+        if (sessionId) {
+          const liveSession = await getLiveClassSessionById(sessionId);
+          if (!liveSession) {
+            setError('Class session not found. Ask your teacher to reschedule this lesson.');
+            setLoading(false);
+            return;
+          }
+          if (!canJoinLiveClass(liveSession)) {
+            setSession(liveSession);
+            setError('This class is not open yet. You can join 15 minutes before the scheduled start time.');
+            setLoading(false);
+            return;
+          }
+
+          activeRoomId = liveSession.roomId;
+          setResolvedRoomId(activeRoomId);
+          setSession(liveSession);
+          void markLiveClassStatus(liveSession.id, 'live');
+        }
+
+        const mediaConstraints: MediaStreamConstraints = {
+          video: {
+            facingMode: 'user',
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
+          },
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true,
+          },
+        };
+
+        let stream: MediaStream;
+        try {
+          stream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
+          setCameraUnavailable(false);
+        } catch (mediaError) {
+          // If camera fails, keep lesson functional by falling back to audio-only.
+          stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+          setCameraEnabled(false);
+          setCameraUnavailable(true);
+        }
         if (!active) return;
 
         localStreamRef.current = stream;
         if (localVideoRef.current) {
           localVideoRef.current.srcObject = stream;
+          void localVideoRef.current.play().catch(() => undefined);
         }
 
         await ensurePeerConnection();
 
-        const channel = supabase.channel(`meeting-room-${roomId}`, {
+        const channel = supabase.channel(`meeting-room-${activeRoomId}`, {
           config: {
             broadcast: { self: false },
             presence: { key: clientIdRef.current },
@@ -265,8 +310,12 @@ const InAppMeetingPage: React.FC = () => {
       remoteStreamRef.current = new MediaStream();
       remotePeerIdRef.current = null;
       hasSentOfferRef.current = false;
+
+      if (sessionId) {
+        void markLiveClassStatus(sessionId, 'completed');
+      }
     };
-  }, [roomId, user, guestReady, identityName, ensurePeerConnection, createOffer, sendSignal]);
+  }, [roomId, sessionId, user, guestReady, identityName, ensurePeerConnection, createOffer, sendSignal]);
   if (!user && !guestReady) {
     return (
       <div className="min-h-screen bg-[#0a0f2b] flex items-center justify-center px-4">
@@ -327,6 +376,36 @@ const InAppMeetingPage: React.FC = () => {
     setCameraEnabled(nextEnabled);
   };
 
+  const retryCamera = async () => {
+    try {
+      const stream = localStreamRef.current;
+      if (!stream) return;
+
+      const camStream = await navigator.mediaDevices.getUserMedia({ video: true });
+      const [camTrack] = camStream.getVideoTracks();
+      if (!camTrack) return;
+
+      const sender = peerConnectionRef.current?.getSenders().find((s) => s.track?.kind === 'video');
+      if (sender) {
+        await sender.replaceTrack(camTrack);
+      } else {
+        peerConnectionRef.current?.addTrack(camTrack, stream);
+      }
+
+      stream.getVideoTracks().forEach((track) => track.stop());
+      stream.addTrack(camTrack);
+      setCameraEnabled(true);
+      setCameraUnavailable(false);
+
+      if (localVideoRef.current) {
+        localVideoRef.current.srcObject = stream;
+      }
+    } catch (cameraError) {
+      console.error('Retry camera failed:', cameraError);
+      setError('Camera still unavailable. Check browser permission and device usage by other apps.');
+    }
+  };
+
   const copyMeetingLink = async () => {
     try {
       await navigator.clipboard.writeText(meetingUrl);
@@ -354,7 +433,7 @@ const InAppMeetingPage: React.FC = () => {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <h1 className="text-3xl font-black text-white">In-App Meeting Room</h1>
-            <p className="text-slate-400">Room ID: {roomId}</p>
+            <p className="text-slate-400">{session ? `${session.lessonTitle} • ${new Date(session.startsAt).toLocaleString()}` : 'Live class room'}</p>
           </div>
           <div className="flex gap-3">
             <button
@@ -376,6 +455,19 @@ const InAppMeetingPage: React.FC = () => {
         {error && (
           <div className="p-4 rounded-xl bg-red-500/20 border border-red-500/30 text-red-200 text-sm">
             {error}
+          </div>
+        )}
+
+        {cameraUnavailable && (
+          <div className="p-4 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-100 text-sm flex items-center justify-between gap-4">
+            <span>Camera is currently unavailable. You are connected with audio. You can retry camera anytime.</span>
+            <button
+              onClick={retryCamera}
+              className="px-3 py-2 bg-amber-500/30 hover:bg-amber-500/40 rounded-lg text-xs font-bold inline-flex items-center gap-2"
+            >
+              <RotateCcw size={14} />
+              Retry Camera
+            </button>
           </div>
         )}
 

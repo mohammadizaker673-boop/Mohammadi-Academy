@@ -217,6 +217,7 @@ const App: React.FC = () => {
             <Route path="/store/product/:productId" element={<KnowledgeStoreProduct />} />
             <Route path="/store/dashboard" element={<KnowledgeStoreDashboard />} />
             <Route path="/meetings" element={<MeetingsHubPage />} />
+            <Route path="/class/:sessionId" element={<InAppMeetingPage />} />
             <Route path="/meeting/:roomId" element={<InAppMeetingPage />} />
             
             {/* Arabic Learning Platform */}

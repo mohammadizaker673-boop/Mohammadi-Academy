@@ -183,6 +183,27 @@ CREATE TABLE IF NOT EXISTS public.hifz_memorization_records (
   timestamp      timestamptz DEFAULT now()
 );
 
+-- 10. LIVE CLASS SESSIONS (teacher-scheduled lesson calls)
+CREATE TABLE IF NOT EXISTS public.live_class_sessions (
+  id              uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  teacher_id      uuid REFERENCES public.teachers(id) ON DELETE CASCADE,
+  teacher_user_id uuid REFERENCES auth.users(id),
+  lesson_id       text NOT NULL,
+  lesson_title    text NOT NULL,
+  course_name     text DEFAULT '',
+  starts_at       timestamptz NOT NULL,
+  ends_at         timestamptz NOT NULL,
+  room_id         text NOT NULL,
+  status          text DEFAULT 'scheduled',
+  created_at      timestamptz DEFAULT now(),
+  updated_at      timestamptz DEFAULT now(),
+  CONSTRAINT live_class_sessions_unique_schedule UNIQUE (teacher_id, lesson_id, starts_at)
+);
+
+CREATE INDEX IF NOT EXISTS idx_live_class_sessions_teacher_id ON public.live_class_sessions (teacher_id);
+CREATE INDEX IF NOT EXISTS idx_live_class_sessions_starts_at ON public.live_class_sessions (starts_at);
+CREATE INDEX IF NOT EXISTS idx_live_class_sessions_status ON public.live_class_sessions (status);
+
 -- ============================================================
 -- ROW LEVEL SECURITY
 -- Authenticated users have full access (app enforces roles)
@@ -196,6 +217,7 @@ ALTER TABLE public.messages              ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.admission_requests    ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.hifz_students         ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.hifz_memorization_records ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.live_class_sessions   ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "auth_access" ON public.students              FOR ALL TO authenticated USING (true) WITH CHECK (true);
 CREATE POLICY "auth_access" ON public.teachers              FOR ALL TO authenticated USING (true) WITH CHECK (true);
@@ -206,3 +228,4 @@ CREATE POLICY "auth_access" ON public.messages              FOR ALL TO authentic
 CREATE POLICY "auth_access" ON public.admission_requests    FOR ALL TO authenticated USING (true) WITH CHECK (true);
 CREATE POLICY "auth_access" ON public.hifz_students         FOR ALL TO authenticated USING (true) WITH CHECK (true);
 CREATE POLICY "auth_access" ON public.hifz_memorization_records FOR ALL TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "auth_access" ON public.live_class_sessions   FOR ALL TO authenticated USING (true) WITH CHECK (true);

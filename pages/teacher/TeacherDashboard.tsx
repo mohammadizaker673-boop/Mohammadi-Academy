@@ -7,6 +7,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { Users, BookOpen, Calendar, TrendingUp, Clock } from 'lucide-react';
 import { AccessiblePremiumCourseCard } from '../../types/course-access.types';
 import { listAccessiblePremiumCoursesForUser } from '../../services/courseAccessService';
+import { canJoinLiveClass, listTeacherLiveClassSessions, type LiveClassSession } from '../../services/liveClassService';
 
 interface TeacherData {
   id: string;
@@ -34,6 +35,7 @@ const TeacherDashboard: React.FC = () => {
   const [teacher, setTeacher] = useState<TeacherData | null>(null);
   const [students, setStudents] = useState<StudentData[]>([]);
   const [premiumCourses, setPremiumCourses] = useState<AccessiblePremiumCourseCard[]>([]);
+  const [teacherSessions, setTeacherSessions] = useState<LiveClassSession[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -71,6 +73,8 @@ const TeacherDashboard: React.FC = () => {
       const teacherRecord = await getTeacherByUserId(user.uid);
       if (teacherRecord) {
         setTeacher(teacherRecord as unknown as TeacherData);
+        const sessions = await listTeacherLiveClassSessions(teacherRecord.id);
+        setTeacherSessions(sessions.slice(0, 5));
         if (teacherRecord.assignedStudentIds?.length) {
           const studentPromises = teacherRecord.assignedStudentIds.slice(0, 3).map(id =>
             getStudentById(id).catch(() => null)
@@ -247,15 +251,44 @@ const TeacherDashboard: React.FC = () => {
       <div className="bg-gradient-to-br from-slate-800/90 to-slate-900/90 backdrop-blur-xl border border-white/10 rounded-2xl p-6">
         <h2 className="text-2xl font-black text-white mb-6">Today's Schedule</h2>
         <div className="space-y-4">
-          <div className="flex items-center gap-4 p-4 bg-white/5 rounded-xl">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary-500 to-accent-400 flex items-center justify-center">
-              <Clock size={24} className="text-white" />
+          {teacherSessions.length > 0 ? (
+            teacherSessions.map((session) => (
+              <div key={session.id} className="flex items-center gap-4 p-4 bg-white/5 rounded-xl">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary-500 to-accent-400 flex items-center justify-center">
+                  <Clock size={24} className="text-white" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-bold text-white truncate">{session.lessonTitle}</p>
+                  <p className="text-xs text-slate-400">{new Date(session.startsAt).toLocaleString()} • {session.courseName}</p>
+                </div>
+                {canJoinLiveClass(session) ? (
+                  <Link
+                    to={`/class/${session.id}`}
+                    className="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold whitespace-nowrap"
+                  >
+                    Join
+                  </Link>
+                ) : (
+                  <span className="px-3 py-2 bg-slate-700 text-slate-300 rounded-lg text-xs font-bold whitespace-nowrap">
+                    Upcoming
+                  </span>
+                )}
+              </div>
+            ))
+          ) : (
+            <div className="flex items-center gap-4 p-4 bg-white/5 rounded-xl">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary-500 to-accent-400 flex items-center justify-center">
+                <Clock size={24} className="text-white" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-bold text-white">No lessons scheduled yet</p>
+                <p className="text-xs text-slate-400">Open My Lessons to set class time for each lesson.</p>
+              </div>
+              <Link to="/teacher/lessons" className="px-3 py-2 bg-primary-500/20 text-primary-200 hover:bg-primary-500/30 rounded-lg text-xs font-bold whitespace-nowrap">
+                Schedule
+              </Link>
             </div>
-            <div className="flex-1">
-              <p className="text-sm font-bold text-white">No lessons scheduled for today</p>
-              <p className="text-xs text-slate-400">Check back tomorrow for your schedule</p>
-            </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

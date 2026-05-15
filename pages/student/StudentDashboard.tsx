@@ -10,6 +10,11 @@ import { issueCertificate, listCertificatesForStudent } from '../../services/cer
 import { CertificateRecord } from '../../types/certificate.types';
 import { AccessiblePremiumCourseCard } from '../../types/course-access.types';
 import { listAccessiblePremiumCoursesForUser } from '../../services/courseAccessService';
+import {
+  canJoinLiveClass,
+  listStudentUpcomingLiveClasses,
+  type LiveClassSession,
+} from '../../services/liveClassService';
 
 interface StudentData {
   id: string;
@@ -50,6 +55,7 @@ const StudentDashboard: React.FC = () => {
   const [teacher, setTeacher] = useState<TeacherData | null>(null);
   const [premiumCourses, setPremiumCourses] = useState<AccessiblePremiumCourseCard[]>([]);
   const [certificates, setCertificates] = useState<CertificateRecord[]>([]);
+  const [upcomingLiveClasses, setUpcomingLiveClasses] = useState<LiveClassSession[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -92,6 +98,15 @@ const StudentDashboard: React.FC = () => {
           getTeacherById(studentData.assignedTeacherId).then(teacherDoc => {
             if (teacherDoc) setTeacher(teacherDoc as unknown as TeacherData);
           }).catch(err => console.error('Failed to load teacher:', err));
+
+          listStudentUpcomingLiveClasses(studentData.assignedTeacherId)
+            .then((sessions) => {
+              const activeSessions = sessions
+                .filter((session) => new Date(session.endsAt).getTime() >= Date.now())
+                .slice(0, 4);
+              setUpcomingLiveClasses(activeSessions);
+            })
+            .catch((sessionError) => console.error('Failed to load live classes:', sessionError));
         }
         
         // Lazy load certificates
@@ -334,22 +349,31 @@ const StudentDashboard: React.FC = () => {
                 </div>
               </div>
               
-              {student.studentType === 'online' && student.schedule?.meetingLink && (
-                <div className="p-4 bg-gradient-to-r from-primary-500/10 to-accent-500/10 border border-primary-500/20 rounded-xl">
-                  <div className="flex items-start gap-3">
-                    <Video className="text-primary-400 flex-shrink-0 mt-1" size={20} />
-                    <div>
-                      <p className="text-sm font-bold text-white mb-2">Join Online Class</p>
-                      <a 
-                        href={student.schedule?.meetingLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-xs text-primary-400 hover:text-primary-300 break-all"
-                      >
-                        {student.schedule?.meetingLink}
-                      </a>
+              {upcomingLiveClasses.length > 0 && (
+                <div className="space-y-3">
+                  {upcomingLiveClasses.map((session) => (
+                    <div key={session.id} className="p-4 bg-gradient-to-r from-primary-500/10 to-accent-500/10 border border-primary-500/20 rounded-xl">
+                      <div className="flex items-start gap-3">
+                        <Video className="text-primary-400 flex-shrink-0 mt-1" size={20} />
+                        <div className="flex-1">
+                          <p className="text-sm font-bold text-white mb-1">{session.lessonTitle}</p>
+                          <p className="text-xs text-slate-300 mb-3">{new Date(session.startsAt).toLocaleString()} • {session.courseName}</p>
+                          {canJoinLiveClass(session) ? (
+                            <Link
+                              to={`/class/${session.id}`}
+                              className="inline-flex px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold"
+                            >
+                              Join Class Now
+                            </Link>
+                          ) : (
+                            <span className="inline-flex px-3 py-2 bg-slate-700 text-slate-200 rounded-lg text-xs font-bold">
+                              Join opens 15 min before class
+                            </span>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                  </div>
+                  ))}
                 </div>
               )}
 
