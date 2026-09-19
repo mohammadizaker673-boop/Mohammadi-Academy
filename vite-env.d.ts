@@ -5,6 +5,8 @@ interface ImportMetaEnv {
   readonly VITE_OPENROUTER_MODEL?: string;
   readonly VITE_OPENROUTER_APP_NAME?: string;
   readonly VITE_OPENROUTER_SITE_URL?: string;
+  /** Optional – enables Whisper auto-captions in the Reaction Video editor. */
+  readonly VITE_OPENAI_API_KEY?: string;
 }
 
 interface ImportMeta {

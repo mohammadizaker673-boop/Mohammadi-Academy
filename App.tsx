@@ -79,6 +79,7 @@ const CourseDetails = React.lazy(() => import('./pages/admin/courses/CourseDetai
 const CourseList = React.lazy(() => import('./pages/admin/courses/CourseList'));
 const LessonsManager = React.lazy(() => import('./pages/admin/courses/LessonsManager'));
 const MediaLibrary = React.lazy(() => import('./pages/admin/courses/MediaLibrary'));
+const ReactionVideoEditorPage = React.lazy(() => import('./pages/ReactionVideoEditorPage'));
 const NooraniQaidaManagement = React.lazy(() => import('./pages/admin/courses/NooraniQaidaManagement'));
 const AddStudent = React.lazy(() => import('./pages/admin/students/AddStudent'));
 const StudentManagement = React.lazy(() => import('./pages/admin/StudentManagement'));
@@ -217,6 +218,7 @@ const App: React.FC = () => {
             <Route path="/store/product/:productId" element={<KnowledgeStoreProduct />} />
             <Route path="/store/dashboard" element={<KnowledgeStoreDashboard />} />
             <Route path="/meetings" element={<MeetingsHubPage />} />
+            <Route path="/reaction-video" element={<ReactionVideoEditorPage fullPage />} />
             <Route path="/class/:sessionId" element={<InAppMeetingPage />} />
             <Route path="/meeting/:roomId" element={<InAppMeetingPage />} />
             
@@ -251,6 +253,7 @@ const App: React.FC = () => {
               <Route path="courses/list" element={<CourseList />} />
               <Route path="courses/lessons" element={<LessonsManager />} />
               <Route path="courses/media" element={<MediaLibrary />} />
+              <Route path="courses/reaction-video" element={<ReactionVideoEditorPage />} />
               <Route path="courses/noorani" element={<NooraniQaidaManagement />} />
               <Route path="courses/player/:courseId" element={<AutomatedCoursePlayer />} />
               <Route path="noorani-qaida-player" element={<TeacherNooraniQaidaPage />} />
@@ -323,6 +326,7 @@ const App: React.FC = () => {
               <Route path="students" element={<MyStudents />} />
               <Route path="attendance" element={<TeacherAttendance />} />
               <Route path="lessons" element={<Lessons />} />
+              <Route path="reaction-video" element={<ReactionVideoEditorPage />} />
               <Route path="announcements" element={<TeacherAnnouncements />} />
               {/* Hifz System */}
               <Route path="hifz" element={<HifzCoursePage userRole="teacher" />} />

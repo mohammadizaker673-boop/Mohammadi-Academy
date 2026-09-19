@@ -105,6 +105,7 @@ const AdminLayout: React.FC = () => {
         { path: '/admin/courses/list', label: t.dashboard.admin.editCourses },
         { path: '/admin/courses/lessons', label: t.dashboard.admin.lessonsManager },
         { path: '/admin/courses/media', label: t.dashboard.admin.mediaLibrary },
+        { path: '/admin/courses/reaction-video', label: 'Reaction Video Editor' },
         { path: '/admin/courses/noorani', label: 'Noorani Qaida Course' },
       ]
     },

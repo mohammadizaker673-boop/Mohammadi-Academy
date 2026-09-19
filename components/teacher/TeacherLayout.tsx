@@ -17,7 +17,8 @@ import {
   Menu,
   X,
   UserCircle,
-  Bell
+  Bell,
+  Video,
 } from 'lucide-react';
 
 const TeacherLayout: React.FC = () => {
@@ -66,6 +67,7 @@ const TeacherLayout: React.FC = () => {
     { path: '/teacher/students', icon: Users, label: t.dashboard.teacher.myStudents },
     { path: '/teacher/attendance', icon: Calendar, label: t.dashboard.teacher.attendance },
     { path: '/teacher/lessons', icon: BookOpen, label: t.dashboard.teacher.lessons },
+    { path: '/teacher/reaction-video', icon: Video, label: 'Reaction Video' },
     { path: '/teacher/announcements', icon: Bell, label: t.dashboard.teacher.announcements },
   ];
 
