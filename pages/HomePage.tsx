@@ -4,13 +4,11 @@ import { useLanguage } from '../contexts/LanguageContext';
 import LanguageSelector from '../components/LanguageSelector';
 import LogoLink from '../components/LogoLink';
 import ThemeToggle from '../components/ThemeToggle';
-import { FeaturesSection } from '../components/FeaturesSection';
 import { LatestFacebookSection } from '../components/FacebookVideos';
 import { FooterSocialLinks } from '../components/FooterSocialLinks';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import backgroundImage from '../Photos/ChatGPT Image May 15, 2026, 02_50_54 PM.png';
-import { initializeSampleFeatures } from '../utils/sampleFeatures';
 import { Search, Menu, X, Sparkles, Loader2, ArrowRight } from 'lucide-react';
 import { courses } from '../data/courses';
 import { getCourseDetailPath } from '../utils/courseRouting';
@@ -86,8 +84,6 @@ const HomePage: React.FC = () => {
   useEffect(() => {
     document.documentElement.dir = t.dir;
     document.documentElement.lang = language;
-    // Initialize sample features on first load
-    initializeSampleFeatures();
   }, [language, t.dir]);
 
   useEffect(() => {
@@ -736,9 +732,6 @@ const HomePage: React.FC = () => {
           </div>
         </div>
       </section>
-      {/* Featured Content Section */}
-      <FeaturesSection maxItems={6} />
-
       {/* Latest videos from our Facebook page */}
       <LatestFacebookSection />
 

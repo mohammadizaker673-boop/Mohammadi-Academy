@@ -43,7 +43,11 @@ export const FacebookVideoCard: React.FC<{ post: FacebookPost }> = ({ post }) =>
       />
     </div>
     <div className="p-5 flex flex-col flex-1">
-      <h3 className="text-white font-bold leading-snug line-clamp-2">{post.title}</h3>
+      <h3 className="text-white font-bold leading-snug line-clamp-2">
+        <Link to={`/videos/${post.id}`} className="hover:text-primary-300 transition-colors">
+          {post.title}
+        </Link>
+      </h3>
       <p className="text-slate-400 text-sm mt-2 line-clamp-2">{post.caption}</p>
       <div className="mt-4 pt-4 border-t border-white/10 flex items-center justify-between gap-3">
         <span className="inline-flex items-center gap-1.5 text-xs text-slate-400">

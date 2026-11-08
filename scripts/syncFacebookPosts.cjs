@@ -38,6 +38,27 @@ function firstLine(caption) {
   return line.length > 110 ? line.slice(0, 107) + '…' : line;
 }
 
+/**
+ * Fetch the reel/video page and pull its og:image — the video's real
+ * thumbnail frame. Used for the video page's social card and the
+ * VideoObject structured data Google needs to index the video.
+ * Uses curl (Node's https gets its socket hung up by Facebook).
+ * Returns '' when the page cannot be read (thumbnail is optional).
+ */
+function fetchThumbnail(pageUrl) {
+  try {
+    const html = execFileSync('curl', [
+      '-s', '-L', '--max-time', '25',
+      '-A', 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
+      pageUrl,
+    ], { encoding: 'utf-8', maxBuffer: 4 * 1024 * 1024 });
+    const m = html.match(/<meta property="og:image" content="([^"]+)"/);
+    return m ? m[1].replace(/&amp;/g, '&') : '';
+  } catch (e) {
+    return '';
+  }
+}
+
 function mediaKind(mediaType) {
   if (!mediaType) return 'post';
   if (mediaType.includes('video') || mediaType.includes('reel')) return 'video';
@@ -45,7 +66,7 @@ function mediaKind(mediaType) {
   return 'post';
 }
 
-function main() {
+async function main() {
   const list = runCli(['pages', 'posts', 'list', '--page-id', PAGE_ID, '--limit', '10']);
   const results = list.results || [];
   const posts = [];
@@ -66,6 +87,7 @@ function main() {
     const url = detail.url || `https://www.facebook.com/${PAGE_ID}/posts/${id}`;
     const created = (detail.post_created_at && detail.post_created_at.utc)
       || (detail.created_at) || '';
+    const thumbnail_url = fetchThumbnail(url);
     posts.push({
       id,
       title: firstLine(caption),
@@ -73,6 +95,7 @@ function main() {
       created_at: created,
       media_type: mediaKind(detail.media_type),
       url,
+      thumbnail_url,
       embed_url: 'https://www.facebook.com/plugins/video.php?href='
         + encodeURIComponent(url) + '&show_text=false&width=560',
     });
