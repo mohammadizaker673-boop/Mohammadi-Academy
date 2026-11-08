@@ -31,7 +31,7 @@ export const FooterSocialLinks: React.FC = () => {
       id: 'facebook',
       name: t.socialMedia.facebook,
       icon: <Facebook className="w-4 h-4" />,
-      url: 'https://facebook.com/mohammadiacademy',
+      url: 'https://facebook.com/Quranultimatetruth',
       color: 'hover:text-blue-400',
       bgColor: 'hover:bg-blue-400/20'
     },

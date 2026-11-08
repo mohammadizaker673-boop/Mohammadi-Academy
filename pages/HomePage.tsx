@@ -803,7 +803,7 @@ const HomePage: React.FC = () => {
                 <li><Link to="/ai-tutor" className="text-slate-300 hover:text-primary-400 transition-colors">AI Teachers</Link></li>
                 <li><Link to="/parent" className="text-slate-300 hover:text-primary-400 transition-colors">{t.footerExtra?.parentDashboard || 'Parent Dashboard'}</Link></li>
                 <li><Link to="/about" className="text-slate-300 hover:text-primary-400 transition-colors">{t.footerExtra?.aboutUs || t.aboutUs?.title || 'About Us'}</Link></li>
-                {language === 'en' && <li><Link to="/quran" className="text-slate-300 hover:text-primary-400 transition-colors">{t.footerExtra?.quranLink || 'Quran'}</Link></li>}
+                {language === 'en' && <li><Link to="/quran-tajweed" className="text-slate-300 hover:text-primary-400 transition-colors">{t.footerExtra?.quranLink || 'Quran'}</Link></li>}
                 <li><a href="#pricing" className="text-slate-300 hover:text-primary-400 transition-colors">{t.footer.tuition}</a></li>
                 <li><Link to="/register" className="text-slate-300 hover:text-primary-400 transition-colors">{t.nav.register}</Link></li>
               </ul>
