@@ -16,7 +16,7 @@ import { useLocation } from 'react-router-dom';
  * to their title/description automatically.
  */
 
-const SITE_URL = 'https://www.mohammadiacademy.org';
+const SITE_URL = 'https://mohammadiacademy.org';
 const SITE_NAME = 'Mohammadi Online Quran Academy';
 const DEFAULT_IMAGE = 'https://raw.githubusercontent.com/mohammadizaker673-boop/Mohammadi-Academy/redesign/Photos/FullLogo.jpg';
 
