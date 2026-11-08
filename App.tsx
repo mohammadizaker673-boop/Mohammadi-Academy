@@ -155,7 +155,6 @@ const AILearningPath = React.lazy(() => import('./components/ai/AILearningPath')
 const AIParentReport = React.lazy(() => import('./components/ai/AIParentReport'));
 const AIRecommendations = React.lazy(() => import('./components/ai/AIRecommendations'));
 const AITeacherTools = React.lazy(() => import('./components/ai/AITeacherTools'));
-const AITutorPage = React.lazy(() => import('./pages/AITutorPage'));
 const CourseLearningPage = React.lazy(() => import('./pages/CourseLearningPage'));
 const CreateCoursePage = React.lazy(() => import('./pages/CreateCoursePage'));
 const NotFoundPage = React.lazy(() => import('./pages/NotFoundPage'));
@@ -238,7 +237,6 @@ const App: React.FC = () => {
             <Route path="/automated/:courseId" element={<AutomatedCourseDetailPage />} />
             <Route path="/about" element={<AboutUs />} />
             <Route path="/contact" element={<ContactUs />} />
-            <Route path="/ai-tutor" element={<AITutorPage />} />
             <Route path="/learn/:courseId" element={<CourseLearningPage />} />
             <Route path="/create-course" element={<CreateCoursePage />} />
             <Route path="/faq" element={<FAQPage />} />

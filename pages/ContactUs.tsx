@@ -85,9 +85,6 @@ const ContactUs: React.FC = () => {
             <Link to="/courses" className="text-slate-300 hover:text-primary-400 text-[11px] font-black uppercase tracking-wider transition-colors">
               Courses
             </Link>
-            <Link to="/ai-tutor" className="text-slate-300 hover:text-primary-400 text-[11px] font-black uppercase tracking-wider transition-colors">
-              AI Teachers
-            </Link>
             <Link to="/about" className="text-slate-300 hover:text-primary-400 text-[11px] font-black uppercase tracking-wider transition-colors">
               About
             </Link>

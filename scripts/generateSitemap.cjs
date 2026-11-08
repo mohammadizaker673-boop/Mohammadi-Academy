@@ -32,7 +32,6 @@ const STATIC_ROUTES = [
   ['/islamic-studies', 'monthly', '0.8'],
   ['/learn-arabic', 'monthly', '0.8'],
   ['/hifz', 'monthly', '0.8'],
-  ['/ai-tutor', 'monthly', '0.7'],
   ['/articles', 'weekly', '0.7'],
   ['/videos', 'daily', '0.8'],
   ['/store', 'monthly', '0.6'],

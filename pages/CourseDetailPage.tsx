@@ -26,18 +26,6 @@ const isEnrolled = (courseId: string): boolean => {
   return !!getEnrollments()[courseId];
 };
 
-const CATEGORY_AI_MAP: Record<string, { name: string; emoji: string }> = {
-  'quran': { name: 'Sheikh Noor', emoji: '📖' },
-  'islamic-studies': { name: 'Ustadh Ibrahim', emoji: '🕌' },
-  'language-learning': { name: "Mu'allim Ahmad", emoji: '🇸🇦' },
-  'science': { name: 'Dr. Fatima', emoji: '🔬' },
-  'information-technology': { name: 'Engineer Zain', emoji: '💻' },
-  'digital-skills': { name: 'Engineer Zain', emoji: '💻' },
-  'artificial-intelligence': { name: 'Engineer Zain', emoji: '💻' },
-  'life-skills': { name: 'Mentor Aisha', emoji: '🌱' },
-  'general-knowledge': { name: 'Noor AI', emoji: '✨' },
-};
-
 const CourseDetailPage: React.FC = () => {
   const { courseId } = useParams<{ courseId: string }>();
   const navigate = useNavigate();
@@ -389,23 +377,6 @@ const CourseDetailPage: React.FC = () => {
               )}
             </section>
 
-            {/* AI Teacher CTA */}
-            <section className="bg-gradient-to-br from-primary-500/10 to-accent-500/10 border border-primary-400/20 rounded-2xl p-8 text-center reveal animate-glow">
-              <div className="text-4xl mb-3 animate-float">{CATEGORY_AI_MAP[course.category]?.emoji || '✨'}</div>
-              <h2 className="text-2xl font-black text-white mb-2 flex items-center justify-center gap-2">
-                <Sparkles className="w-5 h-5 text-primary-400" />
-                Need help with this subject?
-              </h2>
-              <p className="text-slate-300 mb-6 max-w-lg mx-auto">
-                Ask <span className="text-primary-300 font-bold">{CATEGORY_AI_MAP[course.category]?.name || 'Noor AI'}</span>, your AI teacher specialized in {course.title}. Get instant answers and explanations 24/7.
-              </p>
-              <Link
-                to="/ai-tutor"
-                className="inline-block px-8 py-4 bg-gradient-to-r from-primary-500 to-accent-500 text-white font-black rounded-xl text-sm uppercase tracking-wider hover:from-primary-400 hover:to-accent-400 transition-all shadow-lg"
-              >
-                Ask AI Teacher →
-              </Link>
-            </section>
           </div>
       </div>
     </div>
