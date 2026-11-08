@@ -5,6 +5,7 @@ import LanguageSelector from '../components/LanguageSelector';
 import LogoLink from '../components/LogoLink';
 import ThemeToggle from '../components/ThemeToggle';
 import { FeaturesSection } from '../components/FeaturesSection';
+import { LatestFacebookSection } from '../components/FacebookVideos';
 import { FooterSocialLinks } from '../components/FooterSocialLinks';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -412,6 +413,7 @@ const HomePage: React.FC = () => {
                 <Link to="/store" onClick={() => setMobileMenuOpen(false)} className="px-4 py-3 text-slate-200 hover:bg-white/5 rounded-lg text-sm font-semibold transition-colors">{t.nav.knowledgeStore}</Link>
                 <Link to="/meetings" onClick={() => setMobileMenuOpen(false)} className="px-4 py-3 text-slate-200 hover:bg-white/5 rounded-lg text-sm font-semibold transition-colors">Meetings</Link>
                 <Link to="/about" onClick={() => setMobileMenuOpen(false)} className="px-4 py-3 text-slate-200 hover:bg-white/5 rounded-lg text-sm font-semibold transition-colors">{t.footerExtra?.aboutUs || 'About Us'}</Link>
+                <Link to="/videos" onClick={() => setMobileMenuOpen(false)} className="px-4 py-3 text-slate-200 hover:bg-white/5 rounded-lg text-sm font-semibold transition-colors">Videos</Link>
                 <Link to="/faq" onClick={() => setMobileMenuOpen(false)} className="px-4 py-3 text-slate-200 hover:bg-white/5 rounded-lg text-sm font-semibold transition-colors">FAQ</Link>
                 <Link to="/contact" onClick={() => setMobileMenuOpen(false)} className="px-4 py-3 text-slate-200 hover:bg-white/5 rounded-lg text-sm font-semibold transition-colors">{t.footerExtra?.contactUs || 'Contact Us'}</Link>
               </div>
@@ -737,6 +739,9 @@ const HomePage: React.FC = () => {
       {/* Featured Content Section */}
       <FeaturesSection maxItems={6} />
 
+      {/* Latest videos from our Facebook page */}
+      <LatestFacebookSection />
+
       {/* AI Teachers Section */}
       <section className="py-20 relative">
         <div className="max-w-7xl mx-auto px-6">
@@ -801,6 +806,7 @@ const HomePage: React.FC = () => {
               <h3 className="text-xl font-black text-white mb-6">{t.footerExtra?.quickLinks || 'Quick Links'}</h3>
               <ul className="space-y-3">
                 <li><Link to="/courses" className="text-slate-300 hover:text-primary-400 transition-colors">{t.nav.courses}</Link></li>
+                <li><Link to="/videos" className="text-slate-300 hover:text-primary-400 transition-colors">Videos</Link></li>
                 <li><Link to="/ai-tutor" className="text-slate-300 hover:text-primary-400 transition-colors">AI Teachers</Link></li>
                 <li><Link to="/parent" className="text-slate-300 hover:text-primary-400 transition-colors">{t.footerExtra?.parentDashboard || 'Parent Dashboard'}</Link></li>
                 <li><Link to="/about" className="text-slate-300 hover:text-primary-400 transition-colors">{t.footerExtra?.aboutUs || t.aboutUs?.title || 'About Us'}</Link></li>

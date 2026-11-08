@@ -135,6 +135,11 @@ export const ROUTE_SEO: Record<string, { title: string; description: string }> =
     description:
       'Read articles on the Quran, Tajweed, Hifz, Arabic and Islamic Studies from Mohammadi Online Quran Academy.',
   },
+  '/videos': {
+    title: 'Videos & Reminders — Quran The Ultimate Truth | Mohammadi Academy',
+    description:
+      'Watch the latest Islamic reminders and lessons from our Facebook page, Quran The Ultimate Truth — short videos on Allah, the Quran, the Last Day and more.',
+  },
   '/store': {
     title: 'Knowledge Store — Islamic Books & Learning Resources',
     description:
