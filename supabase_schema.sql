@@ -111,6 +111,16 @@ CREATE TABLE IF NOT EXISTS public.announcements (
 );
 
 -- 6. MESSAGES
+-- Website page views, for the daily traffic report.
+-- Run this in the Supabase SQL editor once to activate view tracking.
+CREATE TABLE IF NOT EXISTS public.page_views (
+  id         bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  path       text NOT NULL,
+  session_id text NOT NULL,
+  referrer   text DEFAULT '',
+  viewed_at  timestamptz DEFAULT now()
+);
+
 -- Contact form messages from website visitors (public, may be anonymous).
 -- Run this in the Supabase SQL editor once to activate the contact form.
 CREATE TABLE IF NOT EXISTS public.contact_messages (
@@ -225,6 +235,10 @@ ALTER TABLE public.teachers              ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.attendance            ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.fees                  ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.announcements         ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.page_views        ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "views_insert" ON public.page_views FOR INSERT TO anon, authenticated WITH CHECK (true);
+CREATE POLICY "views_read"   ON public.page_views FOR SELECT TO authenticated USING (true);
+
 ALTER TABLE public.contact_messages    ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "contact_insert" ON public.contact_messages FOR INSERT TO anon, authenticated WITH CHECK (true);
 CREATE POLICY "contact_read"   ON public.contact_messages FOR SELECT TO authenticated USING (true);

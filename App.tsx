@@ -10,6 +10,37 @@ import StudentLayout from './components/student/StudentLayout';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import ScrollRevealInit from './components/motion/ScrollRevealInit';
 import { RouteSeo } from './components/Seo';
+import { supabase } from './services/supabase';
+
+/**
+ * Logs one row per page visit into Supabase (page_views) so the academy
+ * can see how many people visit and which pages they read. One row per
+ * route change; a per-session id (kept in sessionStorage) lets the daily
+ * report count unique visitors as well as total views. Silent on failure
+ * — a blocked insert must never break the page for the visitor.
+ */
+const PageViewTracker: React.FC = () => {
+  const { pathname } = useLocation();
+  React.useEffect(() => {
+    try {
+      let sessionId = sessionStorage.getItem('ma_session');
+      if (!sessionId) {
+        sessionId = Math.random().toString(36).slice(2) + Date.now().toString(36);
+        sessionStorage.setItem('ma_session', sessionId);
+      }
+      supabase.from('page_views').insert({
+        path: pathname,
+        session_id: sessionId,
+        referrer: document.referrer || '',
+      }).then(({ error }) => {
+        if (error) console.warn('Page view not recorded:', error.message);
+      });
+    } catch (e) {
+      // Tracking must never break the page.
+    }
+  }, [pathname]);
+  return null;
+};
 
 const HomePage = React.lazy(() => import('./pages/HomePage'));
 const LoginPage = React.lazy(() => import('./pages/auth/LoginPage'));
@@ -182,6 +213,7 @@ const App: React.FC = () => {
             <ErrorBoundary>
             <ScrollToTop />
             <RouteSeo />
+            <PageViewTracker />
             <ScrollRevealInit />
             <React.Suspense fallback={<LoadingFallback />}>
             <Routes>
