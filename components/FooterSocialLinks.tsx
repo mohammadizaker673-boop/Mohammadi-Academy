@@ -10,7 +10,7 @@ import {
   Music,
   Phone
 } from 'lucide-react';
-import { TRANSLATIONS, PHONE_NUMBER } from '../constants';
+import { TRANSLATIONS, WHATSAPP_NUMBER } from '../constants';
 import { useLanguage } from '../contexts/LanguageContext';
 
 interface SocialLink {
@@ -71,7 +71,7 @@ export const FooterSocialLinks: React.FC = () => {
       id: 'whatsapp',
       name: t.socialMedia.whatsapp,
       icon: <MessageCircle className="w-4 h-4" />,
-      url: `https://wa.me/${PHONE_NUMBER}`,
+      url: `https://wa.me/${WHATSAPP_NUMBER}`,
       color: 'hover:text-green-400',
       bgColor: 'hover:bg-green-400/20'
     },
@@ -113,7 +113,7 @@ export const FooterSocialLinks: React.FC = () => {
       
       {/* WhatsApp Direct Contact Button */}
       <a
-        href={`https://wa.me/${PHONE_NUMBER}`}
+        href={`https://wa.me/${WHATSAPP_NUMBER}`}
         target="_blank"
         rel="noopener noreferrer"
         className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-400 hover:to-green-500 text-white rounded-lg font-semibold text-sm transition-all duration-300 w-fit"
