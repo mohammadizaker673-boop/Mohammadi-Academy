@@ -16,8 +16,10 @@ import { supabase } from './services/supabase';
  * Logs one row per page visit into Supabase (page_views) so the academy
  * can see how many people visit and which pages they read. One row per
  * route change; a per-session id (kept in sessionStorage) lets the daily
- * report count unique visitors as well as total views. Silent on failure
- * — a blocked insert must never break the page for the visitor.
+ * report count unique visitors as well as total views. Also sends a
+ * page_view to Google Analytics (GA4) on every route change, since this
+ * is a single-page app and the GA tag alone only sees the first load.
+ * Silent on failure — tracking must never break the page for the visitor.
  */
 const PageViewTracker: React.FC = () => {
   const { pathname } = useLocation();
@@ -37,6 +39,14 @@ const PageViewTracker: React.FC = () => {
       });
     } catch (e) {
       // Tracking must never break the page.
+    }
+    try {
+      const gtagFn = (window as any).gtag;
+      if (typeof gtagFn === 'function') {
+        gtagFn('config', 'G-KWTJQGLED7', { page_path: pathname });
+      }
+    } catch (e) {
+      // GA failure must never break the page either.
     }
   }, [pathname]);
   return null;
