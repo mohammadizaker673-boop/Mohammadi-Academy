@@ -176,6 +176,7 @@ export const ROUTE_SEO: Record<string, { title: string; description: string }> =
  */
 export const RouteSeo: React.FC = () => {
   const { pathname } = useLocation();
+  if (pathname.startsWith('/videos/')) return null; // detail page sets its own SEO
 
   const meta = ROUTE_SEO[pathname];
   if (meta) {

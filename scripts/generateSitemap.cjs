@@ -65,6 +65,15 @@ function main() {
     if (!staticPaths.has(p)) urls.push([p, 'monthly', '0.7']);
   }
 
+  // Facebook videos -> /videos/<post id> (each video gets its own
+  // crawlable page with the full caption + VideoObject structured data)
+  try {
+    const fb = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'facebookPosts.json'), 'utf-8'));
+    for (const p of fb.posts || []) {
+      urls.push([`/videos/${p.id}`, 'weekly', '0.7']);
+    }
+  } catch (e) { /* no synced posts yet */ }
+
   // Articles -> /articles/<id>
   const articleIds = extractIds('pages/ArticlesPage.tsx', /^\s*id: '([^']+)'/);
   for (const id of articleIds) {
@@ -84,8 +93,9 @@ function main() {
   lines.push('</urlset>');
   fs.mkdirSync(path.dirname(OUT), { recursive: true });
   fs.writeFileSync(OUT, lines.join('\n') + '\n', 'utf-8');
+  const videoCount = urls.filter(u => u[0].startsWith('/videos/')).length;
   console.log(
-    `Sitemap: ${urls.length} URLs (${STATIC_ROUTES.length} static, ${courseIds.length} courses, ${articleIds.length} articles) -> ${OUT}`
+    `Sitemap: ${urls.length} URLs (${STATIC_ROUTES.length} static, ${courseIds.length} courses, ${articleIds.length} articles, ${videoCount} videos) -> ${OUT}`
   );
 }
 
