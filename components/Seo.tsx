@@ -125,11 +125,6 @@ export const ROUTE_SEO: Record<string, { title: string; description: string }> =
     description:
       'Memorise the Holy Quran with a structured Hifz programme: daily Sabaq, revision (Sabqi and Manzil) and a personal Hifz tracker, guided by a qualified Hafiz teacher.',
   },
-  '/ai-tutor': {
-    title: 'AI Quran Tutor — Practice & Learn with AI',
-    description:
-      'Practise Quran recitation, Tajweed and Arabic with your AI tutor — instant feedback, quizzes and personalised learning paths, any time of day.',
-  },
   '/articles': {
     title: 'Articles — Quran, Tajweed & Islamic Knowledge',
     description:

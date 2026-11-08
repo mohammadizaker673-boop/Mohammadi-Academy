@@ -248,12 +248,6 @@ const HomePage: React.FC = () => {
               {t.nav.startLearning}
             </Link>
             <Link
-              to="/ai-tutor"
-              className="hidden lg:block text-slate-300 hover:text-primary-400 transition-colors text-[11px] font-black uppercase tracking-[0.2em]"
-            >
-              AI Teachers
-            </Link>
-            <Link
               to="/store"
               className="hidden lg:block text-slate-300 hover:text-primary-400 transition-colors text-[11px] font-black uppercase tracking-[0.2em]"
             >
@@ -405,7 +399,6 @@ const HomePage: React.FC = () => {
               <div className="flex flex-col gap-1">
                 <Link to="/courses" onClick={() => setMobileMenuOpen(false)} className="px-4 py-3 text-slate-200 hover:bg-white/5 rounded-lg text-sm font-semibold transition-colors">{t.nav.explore}</Link>
                 <Link to="/start" onClick={() => setMobileMenuOpen(false)} className="px-4 py-3 text-slate-200 hover:bg-white/5 rounded-lg text-sm font-semibold transition-colors">{t.nav.startLearning}</Link>
-                <Link to="/ai-tutor" onClick={() => setMobileMenuOpen(false)} className="px-4 py-3 text-slate-200 hover:bg-white/5 rounded-lg text-sm font-semibold transition-colors">AI Teachers</Link>
                 <Link to="/store" onClick={() => setMobileMenuOpen(false)} className="px-4 py-3 text-slate-200 hover:bg-white/5 rounded-lg text-sm font-semibold transition-colors">{t.nav.knowledgeStore}</Link>
                 <Link to="/meetings" onClick={() => setMobileMenuOpen(false)} className="px-4 py-3 text-slate-200 hover:bg-white/5 rounded-lg text-sm font-semibold transition-colors">Meetings</Link>
                 <Link to="/about" onClick={() => setMobileMenuOpen(false)} className="px-4 py-3 text-slate-200 hover:bg-white/5 rounded-lg text-sm font-semibold transition-colors">{t.footerExtra?.aboutUs || 'About Us'}</Link>
@@ -552,10 +545,10 @@ const HomePage: React.FC = () => {
                       )}
                     </div>
                     <Link
-                      to="/ai-tutor"
+                      to="/courses"
                       className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary-500 to-accent-500 text-white rounded-lg text-xs font-bold hover:from-primary-400 hover:to-accent-400 transition-all"
                     >
-                      <Sparkles size={12} /> Start Learning with AI
+                      Browse Our Courses
                     </Link>
                   </div>
                 )}
@@ -564,10 +557,10 @@ const HomePage: React.FC = () => {
                   <div className="text-center py-3">
                     <p className="text-sm text-slate-400 mb-3">No exact matches found for &quot;{heroSearch}&quot;</p>
                     <Link
-                      to="/ai-tutor"
+                      to="/courses"
                       className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary-500 to-accent-500 text-white rounded-lg text-xs font-bold hover:from-primary-400 hover:to-accent-400 transition-all"
                     >
-                      <Sparkles size={12} /> Ask AI Teacher Instead
+                      Browse All Courses
                     </Link>
                   </div>
                 )}
@@ -735,58 +728,6 @@ const HomePage: React.FC = () => {
       {/* Latest videos from our Facebook page */}
       <LatestFacebookSection />
 
-      {/* AI Teachers Section */}
-      <section className="py-20 relative">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-14 reveal">
-            <div className="inline-flex items-center gap-3 px-5 py-2.5 bg-primary-400/10 border border-primary-400/20 rounded-full mb-6 animate-glow">
-              <Sparkles size={16} className="text-primary-400" />
-              <span className="text-primary-300 text-[10px] font-black tracking-[0.3em] uppercase">AI-Powered Learning</span>
-            </div>
-            <h2 className="text-4xl sm:text-5xl font-black text-white mb-4">
-              Meet Your AI Teachers
-            </h2>
-            <p className="text-lg text-slate-300 max-w-2xl mx-auto">
-              Get instant, personalized help from subject-specialized AI tutors — available 24/7, free for all students.
-            </p>
-          </div>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-10 stagger-children">
-            {[
-              { emoji: '📖', name: 'Sheikh Noor', subject: 'Quran & Tajweed', color: 'from-emerald-500 to-teal-500' },
-              { emoji: '🕌', name: 'Ustadh Ibrahim', subject: 'Islamic Studies', color: 'from-amber-500 to-orange-500' },
-              { emoji: '🇸🇦', name: "Mu'allim Ahmad", subject: 'Arabic Language', color: 'from-blue-500 to-indigo-500' },
-              { emoji: '🔬', name: 'Dr. Fatima', subject: 'Science & STEM', color: 'from-violet-500 to-purple-500' },
-              { emoji: '💻', name: 'Engineer Zain', subject: 'IT & Digital Skills', color: 'from-cyan-500 to-blue-500' },
-              { emoji: '🌱', name: 'Mentor Aisha', subject: 'Life Skills & Career', color: 'from-rose-500 to-pink-500' },
-              { emoji: '🌍', name: 'Teacher Mariam', subject: 'English, Farsi & Pashto', color: 'from-teal-500 to-emerald-500' },
-              { emoji: '✨', name: 'Noor AI', subject: 'General Tutor', color: 'from-primary-500 to-accent-500' },
-            ].map((teacher) => (
-              <Link
-                key={teacher.name}
-                to="/ai-tutor"
-                className="group bg-white/5 border border-white/10 rounded-2xl p-5 hover:border-primary-400/40 hover:bg-white/[0.08] transition-all reveal depth-card"
-              >
-                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${teacher.color} flex items-center justify-center text-xl mb-3 animate-float-slow`}>
-                  {teacher.emoji}
-                </div>
-                <h3 className="text-base font-black text-white mb-0.5">{teacher.name}</h3>
-                <p className="text-xs text-slate-400">{teacher.subject}</p>
-              </Link>
-            ))}
-          </div>
-
-          <div className="text-center">
-            <Link
-              to="/ai-tutor"
-              className="inline-block px-8 py-4 bg-gradient-to-r from-primary-500 to-accent-500 text-white font-black rounded-xl text-sm uppercase tracking-wider hover:from-primary-400 hover:to-accent-400 transition-all shadow-lg"
-            >
-              Start Learning with AI →
-            </Link>
-          </div>
-        </div>
-      </section>
-
       {/* Footer */}
       <footer className="bg-[#0e1436]/80 border-t border-white/5 py-12">
         <div className="max-w-7xl mx-auto px-6">
@@ -800,7 +741,6 @@ const HomePage: React.FC = () => {
               <ul className="space-y-3">
                 <li><Link to="/courses" className="text-slate-300 hover:text-primary-400 transition-colors">{t.nav.courses}</Link></li>
                 <li><Link to="/videos" className="text-slate-300 hover:text-primary-400 transition-colors">Videos</Link></li>
-                <li><Link to="/ai-tutor" className="text-slate-300 hover:text-primary-400 transition-colors">AI Teachers</Link></li>
                 <li><Link to="/parent" className="text-slate-300 hover:text-primary-400 transition-colors">{t.footerExtra?.parentDashboard || 'Parent Dashboard'}</Link></li>
                 <li><Link to="/about" className="text-slate-300 hover:text-primary-400 transition-colors">{t.footerExtra?.aboutUs || t.aboutUs?.title || 'About Us'}</Link></li>
                 {language === 'en' && <li><Link to="/quran-tajweed" className="text-slate-300 hover:text-primary-400 transition-colors">{t.footerExtra?.quranLink || 'Quran'}</Link></li>}
