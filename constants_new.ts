@@ -1,14 +1,14 @@
-﻿export const ACADEMY_NAME = 'Muhammadi Online Academy';
+﻿export const ACADEMY_NAME = 'Mohammadi Online Academy';
 export const PHONE_NUMBER = '+1 (555) 123-4567';
 
 export const TRANSLATIONS = {
   en: {
     dir: 'ltr',
-    name: 'Muhammadi Online Academy',
-    shortName: 'Muhammadi Academy',
+    name: 'Mohammadi Online Academy',
+    shortName: 'Mohammadi Academy',
     tagline: 'Connecting Hearts with Knowledge for Every Learner',
     brighterLearning: 'Brighter Learning',
-    heroSub: 'At Muhammadi Online Academy, we connect hearts with foundational knowledge across faith, character, and modern skills. We believe learning builds values, critical thinking, and practical capability.',
+    heroSub: 'At Mohammadi Online Academy, we connect hearts with foundational knowledge across faith, character, and modern skills. We believe learning builds values, critical thinking, and practical capability.',
     mission: 'Guided by faith and excellence, we deliver knowledge that shapes character, builds skills, and serves communities.',
     nav: { courses: 'Courses', pricing: 'Pricing', admission: 'Admission', enroll: 'Enroll Now' },
     courses: {

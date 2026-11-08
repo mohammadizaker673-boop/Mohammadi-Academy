@@ -151,7 +151,7 @@ const CourseModuleLandingPage: React.FC<CourseModuleLandingPageProps> = ({ cours
       <header className="bg-gradient-to-r from-slate-900/95 to-slate-800/95 border-b border-white/10 sticky top-0 z-30 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between gap-4">
           <div>
-            <p className="text-xs uppercase tracking-[0.25em] text-primary-300 font-black">Muhammadi Online Academy</p>
+            <p className="text-xs uppercase tracking-[0.25em] text-primary-300 font-black">Mohammadi Online Academy</p>
             <h1 className="text-xl font-black text-white mt-1">{course.metadata.title}</h1>
           </div>
           <button

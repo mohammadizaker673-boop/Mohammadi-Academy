@@ -117,7 +117,7 @@ const LearningPathPanel: React.FC<LearningPathPanelProps> = ({
           {
             role: 'system',
             content: [
-              'You are Muhammadi Academy\'s Islamic learning planner.',
+              'You are Mohammadi Academy\'s Islamic learning planner.',
               'Create a brief, practical 7-day plan using only the supplied lesson context and verified references.',
               'Do not invent new religious sources.',
               'Return JSON with these keys only: title, summary, days. Each item in days must have day, focus, practice.'

@@ -11,7 +11,7 @@ const cover = (title: string, accent: string, secondary: string) => {
     </defs>
     <rect width="900" height="1200" fill="url(#g)" />
     <rect x="70" y="90" width="760" height="1020" rx="48" fill="rgba(7,10,26,0.5)" />
-    <text x="120" y="250" font-family="'Space Grotesk', Arial" font-size="42" fill="#E2E8F0" letter-spacing="2">Muhammadi Academy</text>
+    <text x="120" y="250" font-family="'Space Grotesk', Arial" font-size="42" fill="#E2E8F0" letter-spacing="2">Mohammadi Academy</text>
     <text x="120" y="420" font-family="'Fraunces', Georgia" font-size="72" fill="#FFFFFF">${title}</text>
     <text x="120" y="520" font-family="'Space Grotesk', Arial" font-size="28" fill="#CBD5F5" letter-spacing="4">Premium Knowledge Store</text>
     <rect x="120" y="620" width="260" height="6" fill="#FFFFFF" opacity="0.6" />

@@ -1,0 +1,26 @@
+# Mohammadi Online Quran Academy — robots.txt
+User-agent: *
+Allow: /
+
+# Keep crawlers out of private/app areas (login, dashboards, admin)
+Disallow: /admin
+Disallow: /admin-dashboard
+Disallow: /dashboard
+Disallow: /teacher
+Disallow: /student
+Disallow: /parent
+Disallow: /login
+Disallow: /register
+Disallow: /complete-profile
+Disallow: /quick-admin
+Disallow: /quick-student
+Disallow: /quick-teacher
+Disallow: /meetings
+Disallow: /meeting/
+Disallow: /class/
+Disallow: /hifz-debug/
+Disallow: /learn/
+Disallow: /progress
+Disallow: /analytics
+
+Sitemap: https://www.mohammadiacademy.org/sitemap.xml
