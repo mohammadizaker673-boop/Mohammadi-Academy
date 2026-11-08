@@ -10,6 +10,7 @@ import StudentLayout from './components/student/StudentLayout';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import ScrollRevealInit from './components/motion/ScrollRevealInit';
 import { RouteSeo } from './components/Seo';
+import WhatsAppButton from './components/WhatsAppButton';
 import { supabase } from './services/supabase';
 
 /**
@@ -223,6 +224,7 @@ const App: React.FC = () => {
             <ScrollToTop />
             <RouteSeo />
             <PageViewTracker />
+            <WhatsAppButton />
             <ScrollRevealInit />
             <React.Suspense fallback={<LoadingFallback />}>
             <Routes>

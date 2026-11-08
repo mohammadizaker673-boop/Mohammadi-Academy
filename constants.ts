@@ -3,6 +3,8 @@ import { Language } from './types';
 
 export const ACADEMY_NAME = "Mohammadi Online Academy";
 export const PHONE_NUMBER = "+93 79 646 4640";
+// WhatsApp for student enquiries and free-trial bookings (given by the owner 2026-11-08).
+export const WHATSAPP_NUMBER = "923195807382";
 
 export const TRANSLATIONS: Record<Language, any> = {
   en: {
