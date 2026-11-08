@@ -111,6 +111,18 @@ CREATE TABLE IF NOT EXISTS public.announcements (
 );
 
 -- 6. MESSAGES
+-- Contact form messages from website visitors (public, may be anonymous).
+-- Run this in the Supabase SQL editor once to activate the contact form.
+CREATE TABLE IF NOT EXISTS public.contact_messages (
+  id         uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  name       text NOT NULL,
+  email      text NOT NULL,
+  phone      text DEFAULT '',
+  subject    text DEFAULT '',
+  message    text NOT NULL,
+  created_at timestamptz DEFAULT now()
+);
+
 CREATE TABLE IF NOT EXISTS public.messages (
   id          uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   sender_id   uuid REFERENCES auth.users(id),
@@ -213,6 +225,10 @@ ALTER TABLE public.teachers              ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.attendance            ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.fees                  ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.announcements         ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.contact_messages    ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "contact_insert" ON public.contact_messages FOR INSERT TO anon, authenticated WITH CHECK (true);
+CREATE POLICY "contact_read"   ON public.contact_messages FOR SELECT TO authenticated USING (true);
+
 ALTER TABLE public.messages              ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.admission_requests    ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.hifz_students         ENABLE ROW LEVEL SECURITY;

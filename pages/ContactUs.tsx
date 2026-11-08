@@ -2,6 +2,7 @@
 import { Link } from 'react-router-dom';
 import { Mail, Phone, MapPin, Send, Clock, MessageCircle } from 'lucide-react';
 import { PHONE_NUMBER } from '../constants';
+import { supabase } from '../services/supabase';
 import LanguageSelector from '../components/LanguageSelector';
 import LogoLink from '../components/LogoLink';
 import BackButton from '../components/BackButton';
@@ -24,6 +25,8 @@ const ContactUs: React.FC = () => {
     message: ''
   });
   const [submitted, setSubmitted] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState(false);
 
   useEffect(() => {
     if (t && t.dir) {
@@ -32,15 +35,32 @@ const ContactUs: React.FC = () => {
     }
   }, [language, t]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Here you would typically send the form data to your backend
-    console.log('Form submitted:', formData);
+    setSending(true);
+    setSendError(false);
+    // Store the message in Supabase (contact_messages). The table is
+    // created by supabase_schema.sql — run that SQL once in the Supabase
+    // SQL editor to activate it. If the insert fails (table not created
+    // yet, or no connection), say so honestly instead of faking success.
+    const { error } = await supabase.from('contact_messages').insert({
+      name: formData.name.trim(),
+      email: formData.email.trim(),
+      phone: formData.phone.trim(),
+      subject: formData.subject.trim(),
+      message: formData.message.trim(),
+    });
+    setSending(false);
+    if (error) {
+      console.error('Contact form failed:', error.message);
+      setSendError(true);
+      return;
+    }
     setSubmitted(true);
     setTimeout(() => {
       setSubmitted(false);
       setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
-    }, 3000);
+    }, 5000);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -246,12 +266,21 @@ const ContactUs: React.FC = () => {
                   />
                 </div>
 
+                {sendError && (
+                  <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 text-sm text-red-200">
+                    We could not send your message right now. Please reach us directly
+                    at <a href={`tel:${PHONE_NUMBER}`} className="font-bold underline">{PHONE_NUMBER}</a>{' '}
+                    or <a href="mailto:info@mohammadiacademy.org" className="font-bold underline">info@mohammadiacademy.org</a> — or try again in a moment.
+                  </div>
+                )}
+
                 <button
                   type="submit"
-                  className="w-full px-6 py-4 bg-gradient-to-r from-primary-500 to-accent-500 text-white rounded-lg font-black uppercase tracking-wider shadow-xl hover:from-primary-400 hover:to-accent-400 transition-all flex items-center justify-center gap-2"
+                  disabled={sending}
+                  className="w-full px-6 py-4 bg-gradient-to-r from-primary-500 to-accent-500 text-white rounded-lg font-black uppercase tracking-wider shadow-xl hover:from-primary-400 hover:to-accent-400 transition-all flex items-center justify-center gap-2 disabled:opacity-60"
                 >
                   <Send size={20} />
-                  Send Message
+                  {sending ? 'Sending…' : 'Send Message'}
                 </button>
               </form>
             )}
