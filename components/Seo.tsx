@@ -18,7 +18,7 @@ import { useLocation } from 'react-router-dom';
 
 const SITE_URL = 'https://www.mohammadiacademy.org';
 const SITE_NAME = 'Mohammadi Online Quran Academy';
-const DEFAULT_IMAGE = `${SITE_URL}/og-image.jpg`;
+const DEFAULT_IMAGE = 'https://raw.githubusercontent.com/mohammadizaker673-boop/Mohammadi-Academy/redesign/Photos/FullLogo.jpg';
 
 function upsertMeta(attr: 'name' | 'property', key: string, content: string) {
   const selector = `meta[${attr}="${key}"]`;
