@@ -23,4 +23,4 @@ Disallow: /learn/
 Disallow: /progress
 Disallow: /analytics
 
-Sitemap: https://www.mohammadiacademy.org/sitemap.xml
+Sitemap: https://mohammadiacademy.org/sitemap.xml
