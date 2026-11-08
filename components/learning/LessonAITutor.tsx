@@ -131,7 +131,7 @@ const LessonAITutor: React.FC<LessonAITutorProps> = ({ lessonTitle, lessonContex
           {
             role: 'system',
             content: [
-              'You are Muhammadi Academy\'s lesson tutor.',
+              'You are Mohammadi Academy\'s lesson tutor.',
               'Stay strictly inside the supplied lesson context and references.',
               'Do not improvise fatwa-style answers or unsupported rulings.',
               'If the learner asks something beyond the lesson context, tell them to ask a qualified teacher or scholar.',

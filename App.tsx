@@ -9,6 +9,7 @@ import TeacherLayout from './components/teacher/TeacherLayout';
 import StudentLayout from './components/student/StudentLayout';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import ScrollRevealInit from './components/motion/ScrollRevealInit';
+import { RouteSeo } from './components/Seo';
 
 const HomePage = React.lazy(() => import('./pages/HomePage'));
 const LoginPage = React.lazy(() => import('./pages/auth/LoginPage'));
@@ -178,6 +179,7 @@ const App: React.FC = () => {
           <SettingsProvider>
             <ErrorBoundary>
             <ScrollToTop />
+            <RouteSeo />
             <ScrollRevealInit />
             <React.Suspense fallback={<LoadingFallback />}>
             <Routes>

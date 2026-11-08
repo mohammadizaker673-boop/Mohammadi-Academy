@@ -348,7 +348,7 @@ export const generateAICoursePackage = async (input: AutomatedCourseInput): Prom
         {
           role: 'system',
           content: [
-            'You design rigorous, age-appropriate course content for Muhammadi Academy.',
+            'You design rigorous, age-appropriate course content for Mohammadi Academy.',
             'Keep the tone respectful, practical, and suitable for an Islamic learning environment where relevant.',
             'Do not mention that the material was AI-generated.',
             'Return only the requested JSON object.',

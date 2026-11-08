@@ -112,7 +112,7 @@ const LessonRecitationCoach: React.FC<LessonRecitationCoachProps> = ({
         {
           role: 'system',
           content: [
-            'You are Muhammadi Academy\'s recitation coach.',
+            'You are Mohammadi Academy\'s recitation coach.',
             'Only evaluate the provided transcript against the provided target text.',
             'Keep the response supportive, brief, and practical.',
             'Do not invent fiqh rulings or theology. Do not mention content outside the target and references.'

@@ -2025,7 +2025,7 @@ Sincerely,
 
 ---
 
-This complete Qur'an Memorization (Hifz) course is designed to be uploaded to your LMS platform, delivered through your Muhammadi Online Academy learning system, or distributed as a comprehensive guide to students beginning their memorization journey.
+This complete Qur'an Memorization (Hifz) course is designed to be uploaded to your LMS platform, delivered through your Mohammadi Online Academy learning system, or distributed as a comprehensive guide to students beginning their memorization journey.
 
 The course combines authentic Islamic principles with modern pedagogical science, creating a balanced, sustainable approach to one of Islam's most noble endeavors.
 

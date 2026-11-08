@@ -1,34 +1,34 @@
 ﻿
 import { Language } from './types';
 
-export const ACADEMY_NAME = "Muhammadi Online Academy";
+export const ACADEMY_NAME = "Mohammadi Online Academy";
 export const PHONE_NUMBER = "+93 79 646 4640";
 
 export const TRANSLATIONS: Record<Language, any> = {
   en: {
     dir: 'ltr',
-    name: 'Muhammadi Online Academy',
-    shortName: 'Muhammadi Academy',
-    tagline: 'Connecting Hearts with Knowledge for Every Learner',
+    name: 'Mohammadi Online Academy',
+    shortName: 'Mohammadi Academy',
+    tagline: 'Learn the Quran Online, Live with a Qualified Teacher',
     brighterLearning: 'Brighter Learning',
-    heroSub: 'At Muhammadi Online Academy, we connect hearts with foundational knowledge across faith, character, and modern skills. We believe learning should build strong values, critical thinking, and practical capability for every learner.',
+    heroSub: 'Live one-to-one Quran, Tajweed, Hifz and Arabic classes for kids and adults — with qualified male and female teachers, at times that suit your family, in English, Arabic, Persian or Pashto.',
     mission: 'Guided by faith and excellence, we deliver knowledge that shapes character, builds skills, and serves communities.',
     nav: { courses: 'Courses', pricing: 'Pricing', admission: 'Admission', enroll: 'Enroll Now', login: 'Login', signUp: 'Sign Up', dashboard: 'Dashboard', logout: 'Logout', register: 'Register', explore: 'Explore Courses', exploreSubjects: 'Explore subjects', findPath: 'Find your learning path', viewAllCourses: 'View all courses', seeMore: 'See more', startLearning: 'Start Learning', knowledgeStore: 'Knowledge Store', searchPlaceholder: 'What do you want to learn? (e.g., Quran, Arabic)', quickResults: 'Quick Results for', viewAllResults: 'View all results for', courses_label: 'courses' },
     courses: {
       title: 'What We Offer',
       subtitle: 'All classes are one-to-one, interactive, and designed according to the student\'s level',
       c1: 'Qur\'an Reading with Tajweed',
-      c1Desc: 'Master the rules of recitation with precision and beauty.',
+      c1Desc: 'Recite the Quran correctly and beautifully — Makharij, Sifaat and all the rules of Tajweed, taught live one-to-one.',
       c2: 'Qur\'an Translation & Tafsir',
-      c2Desc: 'Deepen your understanding of the Divine message.',
+      c2Desc: 'Understand what you recite — word-by-word translation and Tafseer essentials.',
       c3: 'Noorani Qaida for Beginners',
-      c3Desc: 'Foundational reading for new learners.',
+      c3Desc: 'Start from the very first letter — Arabic alphabet, joining and Harakat, step by step.',
       c4: 'Memorization (Hifz) with Revision',
-      c4Desc: 'Systematic memorization with regular revision system.',
+      c4Desc: 'Memorise the Quran with a proven system — daily Sabaq, Sabqi and Manzil revision.',
       c5: 'Arabic Language',
-      c5Desc: 'Learn to speak and understand the language of the Qur\'an.',
+      c5Desc: 'Speak, read and understand the language of the Qur\'an — from beginner to advanced.',
       c6: 'Islamic Studies & Daily Duas',
-      c6Desc: 'Comprehensive lessons on faith, manners, and daily practices.'
+      c6Desc: 'Aqeedah, Fiqh, Seerah and daily Duas — Islamic knowledge for children and adults.'
     },
     pricing: {
       title: 'Tuition Packages',
