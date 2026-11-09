@@ -11,7 +11,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [error, setError] = useState<string | null>(null);
   const [needsProfileCompletion, setNeedsProfileCompletion] = useState(false);
   const emailCooldownMs = 60_000;
-  const adminEmails = new Set(['admin@mohammadiacademy.com', 'zakeradham54@gmail.com']);
+  const adminEmails = new Set(['admin@mohammadiacademy.com', 'zakeradham54@gmail.com', 'mohammadizaker673@gmail.com']);
   const sessionRememberMs = 30 * 24 * 60 * 60 * 1000;
   const sessionRememberKey = 'auth-remember-until';
   const sessionCookieKey = 'ma_session_active';
