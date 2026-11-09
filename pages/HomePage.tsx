@@ -573,96 +573,6 @@ const HomePage: React.FC = () => {
       </header>
 
 
-      {/* Tuition Packages */}
-      <section id="pricing" className="py-20 bg-[#0e1436]/80 relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-16 reveal">
-            <h2 className="text-4xl sm:text-5xl font-black text-white mb-8 tracking-tight">{t.pricing.title}</h2>
-            <div className="w-20 h-2 bg-primary-500 mx-auto rounded-full mb-10"></div>
-            <p className="text-slate-400 max-w-2xl mx-auto font-medium text-sm">{t.pricing.subtitle}</p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-6 stagger-children">
-            {/* Basic Package */}
-            <div className="relative bg-gradient-to-br from-white/10 to-white/5 border-2 border-white/20 rounded-[2rem] p-10 hover:border-primary-400/50 transition-all hover:shadow-2xl hover:shadow-sky-400/10 hover:-translate-y-2 group reveal depth-card">
-              <div className="text-center mb-8">
-                <h3 className="text-2xl font-black text-white mb-4">{t.pricing.basic}</h3>
-                <div className="flex items-end justify-center gap-2">
-                  <span className="text-5xl font-black text-white">$15</span>
-                  <span className="text-slate-400 mb-2 font-bold">/ {t.pricing.month}</span>
-                </div>
-              </div>
-              <ul className="space-y-4 mb-10">
-                {(t.pricing.basicFeatures || ['2 Classes Per Week', '30-Minute Sessions', 'Qualified Teacher']).map((feature: string, i: number) => (
-                <li key={i} className="flex items-start gap-3">
-                  <svg className="w-6 h-6 text-primary-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
-                  </svg>
-                  <span className="text-slate-300 leading-relaxed">{feature}</span>
-                </li>
-                ))}
-              </ul>
-              <Link to="/register" className="block w-full px-8 py-5 bg-white/10 hover:bg-white/20 text-white font-black rounded-xl text-center uppercase tracking-wider transition-all shadow-lg group-hover:scale-105">
-                {t.pricing.register || t.nav.register}
-              </Link>
-            </div>
-
-            {/* Standard Package - Popular */}
-            <div className="relative bg-gradient-to-br from-primary-500/20 to-accent-500/20 border-2 border-primary-400 rounded-[2rem] p-10 hover:border-primary-400/50 transition-all hover:shadow-2xl hover:shadow-primary-400/10 hover:-translate-y-2 group">
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-6 py-2 bg-gradient-to-r from-primary-500 to-accent-500 rounded-full text-white text-xs font-black uppercase tracking-wider">
-                {t.pricing.popular}
-              </div>
-              <div className="text-center mb-8">
-                <h3 className="text-2xl font-black text-white mb-4">{t.pricing.standard}</h3>
-                <div className="flex items-end justify-center gap-2">
-                  <span className="text-5xl font-black text-white">$25</span>
-                  <span className="text-slate-400 mb-2 font-bold">/ {t.pricing.month}</span>
-                </div>
-              </div>
-              <ul className="space-y-4 mb-10">
-                {(t.pricing.standardFeatures || ['3 Classes Per Week', '45-Minute Sessions', 'Certified Teacher', 'Progress Reports']).map((feature: string, i: number) => (
-                <li key={i} className="flex items-start gap-3">
-                  <svg className="w-6 h-6 text-primary-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
-                  </svg>
-                  <span className="text-slate-300 leading-relaxed">{feature}</span>
-                </li>
-                ))}
-              </ul>
-              <Link to="/register" className="block w-full px-8 py-5 bg-gradient-to-r from-primary-500 to-accent-500 hover:from-primary-600 hover:to-accent-600 text-white font-black rounded-xl text-center uppercase tracking-wider transition-all shadow-lg group-hover:scale-105">
-                {t.pricing.register || t.nav.register}
-              </Link>
-            </div>
-
-            {/* Premium Package */}
-            <div className="relative bg-gradient-to-br from-white/10 to-white/5 border-2 border-white/20 rounded-[2rem] p-10 hover:border-primary-400/50 transition-all hover:shadow-2xl hover:shadow-sky-400/10 hover:-translate-y-2 group">
-              <div className="text-center mb-8">
-                <h3 className="text-2xl font-black text-white mb-4">{t.pricing.premium}</h3>
-                <div className="flex items-end justify-center gap-2">
-                  <span className="text-5xl font-black text-white">$40</span>
-                  <span className="text-slate-400 mb-2 font-bold">/ {t.pricing.month}</span>
-                </div>
-              </div>
-              <ul className="space-y-4 mb-10">
-                {(t.pricing.premiumFeatures || ['5 Classes Per Week', '60-Minute Sessions', 'Expert Teacher', 'Weekly Reports', 'Priority Support']).map((feature: string, i: number) => (
-                <li key={i} className="flex items-start gap-3">
-                  <svg className="w-6 h-6 text-primary-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
-                  </svg>
-                  <span className="text-slate-300 leading-relaxed">{feature}</span>
-                </li>
-                ))}
-              </ul>
-              <Link to="/register" className="block w-full px-8 py-5 bg-white/10 hover:bg-white/20 text-white font-black rounded-xl text-center uppercase tracking-wider transition-all shadow-lg group-hover:scale-105">
-                {t.pricing.register || t.nav.register}
-              </Link>
-            </div>
-          </div>
-        </div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-accent-500/5 blur-[120px] rounded-full"></div>
-      </section>
-
-
       {/* Student Journey */}
       <section className="py-20 bg-[#0b1231]/80 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-6">
@@ -744,7 +654,6 @@ const HomePage: React.FC = () => {
                 <li><Link to="/parent" className="text-slate-300 hover:text-primary-400 transition-colors">{t.footerExtra?.parentDashboard || 'Parent Dashboard'}</Link></li>
                 <li><Link to="/about" className="text-slate-300 hover:text-primary-400 transition-colors">{t.footerExtra?.aboutUs || t.aboutUs?.title || 'About Us'}</Link></li>
                 {language === 'en' && <li><Link to="/quran-tajweed" className="text-slate-300 hover:text-primary-400 transition-colors">{t.footerExtra?.quranLink || 'Quran'}</Link></li>}
-                <li><a href="#pricing" className="text-slate-300 hover:text-primary-400 transition-colors">{t.footer.tuition}</a></li>
                 <li><Link to="/register" className="text-slate-300 hover:text-primary-400 transition-colors">{t.nav.register}</Link></li>
               </ul>
             </div>
