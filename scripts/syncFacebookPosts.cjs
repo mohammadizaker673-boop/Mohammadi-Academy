@@ -66,6 +66,22 @@ function mediaKind(mediaType) {
   return 'post';
 }
 
+/**
+ * Verify a previously synced post still exists on Facebook.
+ * The list endpoint is inconsistent — it keeps returning posts that
+ * were removed — so a direct `post read` is the only reliable check.
+ * Returns the post detail when it still exists, null when the read
+ * fails (e.g. 404 POST_NOT_FOUND) or returns nothing.
+ */
+function verifyPost(id) {
+  try {
+    const d = runCli(['post', 'read', '--post-id', id]);
+    return (d.posts && d.posts[0]) || null;
+  } catch (e) {
+    return null;
+  }
+}
+
 async function main() {
   const list = runCli(['pages', 'posts', 'list', '--page-id', PAGE_ID, '--limit', '10']);
   const results = list.results || [];
@@ -102,15 +118,24 @@ async function main() {
   }
 
   // Keep any previously synced posts that are no longer in the latest 10
-  // (so the page never shrinks below what we already published), then
-  // dedupe and cap at MAX_POSTS, newest first.
+  // (so the page never shrinks below what we already published), but only
+  // if they still exist on Facebook. Previously this re-added old posts
+  // blindly, so posts removed from Facebook (e.g. 1111795538300935 and
+  // 1112198251593997, both 404 since 2026-11-10) kept coming back and
+  // their video pages on the site stayed dead.
   let previous = [];
   try {
     previous = JSON.parse(fs.readFileSync(OUT_PATH, 'utf-8')).posts || [];
   } catch (e) { /* first run */ }
   const seen = new Set(posts.map(p => p.id));
   for (const p of previous) {
-    if (!seen.has(p.id)) { posts.push(p); seen.add(p.id); }
+    if (seen.has(p.id)) continue;
+    seen.add(p.id);
+    if (verifyPost(p.id)) {
+      posts.push(p);
+    } else {
+      console.log(`Dropping removed post ${p.id} (${p.title || 'no title'}) — no longer on Facebook`);
+    }
   }
   posts.sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)));
   const trimmed = posts.slice(0, MAX_POSTS);
