@@ -12,6 +12,7 @@ import {
   formatPostDate,
   type FacebookPost,
 } from '../components/FacebookVideos';
+import { Seo } from '../components/Seo';
 
 const SITE_URL = 'https://mohammadiacademy.org';
 
@@ -82,6 +83,12 @@ const VideoDetailPage: React.FC = () => {
   if (!post) {
     return (
       <div className="min-h-screen bg-[#050a12] text-white">
+        <Seo
+          title="Video Not Found"
+          description="This video may have been removed from our Facebook page, Quran The Ultimate Truth. Watch our latest Islamic reminders and lessons."
+          path={videoId ? `/videos/${videoId}` : '/videos'}
+          noindex
+        />
         <header className="sticky top-0 z-40 bg-[#050a12]/90 backdrop-blur border-b border-white/10">
           <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">

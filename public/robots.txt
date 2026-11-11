@@ -22,5 +22,10 @@ Disallow: /hifz-debug/
 Disallow: /learn/
 Disallow: /progress
 Disallow: /analytics
+Disallow: /automated/
+Disallow: /create-course
+Disallow: /store/dashboard
+Disallow: /hifz/teacher
+Disallow: /hifz/admin
 
 Sitemap: https://mohammadiacademy.org/sitemap.xml

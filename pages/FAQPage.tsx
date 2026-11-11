@@ -49,9 +49,6 @@ const FAQPage: React.FC = () => {
             <Link to="/courses" className="text-slate-300 hover:text-primary-400 text-[11px] font-black uppercase tracking-wider transition-colors">
               Courses
             </Link>
-            <Link to="/ai-tutor" className="text-slate-300 hover:text-primary-400 text-[11px] font-black uppercase tracking-wider transition-colors">
-              AI Teachers
-            </Link>
             <Link 
               to="/login"
               className="px-5 py-2 bg-gradient-to-r from-primary-500 to-accent-500 text-white rounded-full text-[11px] font-black uppercase tracking-wider shadow-lg hover:from-primary-400 hover:to-accent-400 transition-all"

@@ -1,9 +1,16 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Seo } from '../components/Seo';
 
 const NotFoundPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#050a12] flex items-center justify-center px-6 relative overflow-hidden">
+      <Seo
+        title="Page Not Found"
+        description="The page you're looking for doesn't exist or has been moved. Visit Mohammadi Online Quran Academy to learn Quran, Tajweed, Arabic and Islamic Studies online."
+        path="/404"
+        noindex
+      />
       {/* Decorative background */}
       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary-500/5 blur-[150px] rounded-full" />
       <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent-500/5 blur-[150px] rounded-full" />
