@@ -275,7 +275,6 @@ const CoursesPage: React.FC = () => {
             <Link to="/create-course" className="px-4 py-2 text-primary-300 hover:text-primary-200 transition-colors flex items-center gap-1 font-semibold text-sm">
               <span>✨</span> Create Course
             </Link>
-            <Link to="/ai-tutor" className="px-4 py-2 text-slate-300 hover:text-white transition-colors">AI Teachers</Link>
             <Link to="/login" className="px-4 py-2 text-slate-300 hover:text-white transition-colors">{t.nav.login}</Link>
             <Link to="/register" className="px-4 py-2 bg-gradient-to-r from-primary-500 to-accent-500 rounded-lg hover:from-primary-400 hover:to-accent-400 transition-all">{t.nav.enroll}</Link>
           </div>

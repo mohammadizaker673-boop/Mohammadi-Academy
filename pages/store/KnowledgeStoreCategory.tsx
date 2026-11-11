@@ -4,6 +4,7 @@ import { STORE_CATEGORIES, STORE_PRODUCTS } from '../../data/knowledgeStore';
 import LogoLink from '../../components/LogoLink';
 import LanguageSelector from '../../components/LanguageSelector';
 import { StoreProduct } from '../../types/store.types';
+import { Seo } from '../../components/Seo';
 import { ArrowLeft, Star } from 'lucide-react';
 
 type ProductCardProps = {
@@ -45,6 +46,12 @@ const KnowledgeStoreCategory: React.FC = () => {
   if (!category) {
     return (
       <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center">
+        <Seo
+          title="Category Not Found"
+          description="This category does not exist in the Mohammadi Academy knowledge store. Browse Islamic books and learning resources."
+          path={categoryId ? `/store/category/${categoryId}` : '/store'}
+          noindex
+        />
         <p>Category not found.</p>
         <Link to="/store" className="text-primary-300 mt-4">Back to store</Link>
       </div>
@@ -53,6 +60,11 @@ const KnowledgeStoreCategory: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-[#0a0f2b] to-slate-950">
+      <Seo
+        title={category.name}
+        description={category.description}
+        path={`/store/category/${category.id}`}
+      />
       <nav className="fixed top-0 w-full z-50 bg-[#0a0f2b]/80 backdrop-blur-2xl border-b border-white/10">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <LogoLink />

@@ -5,6 +5,7 @@ import LanguageSelector from '../components/LanguageSelector';
 import { useLanguage } from '../contexts/LanguageContext';
 import { TRANSLATIONS } from '../constants';
 import LogoLink from '../components/LogoLink';
+import { Seo } from '../components/Seo';
 
 interface Article {
   id: string;
@@ -134,6 +135,13 @@ If you haven't yet experienced the true peace of prayer, we invite you to explor
   if (!article) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
+        <Seo
+          title="Article Not Found"
+          description="This article does not exist at Mohammadi Online Quran Academy. Read our articles on the Quran, Tajweed, Hifz and Islamic Studies."
+          path={id ? `/articles/${id}` : '/articles'}
+          type="article"
+          noindex
+        />
         <div className="text-center">
           <h2 className="text-3xl font-black text-white mb-4">Article Not Found</h2>
           <button
@@ -149,6 +157,12 @@ If you haven't yet experienced the true peace of prayer, we invite you to explor
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
+      <Seo
+        title={article.title}
+        description={article.excerpt}
+        path={`/articles/${article.id}`}
+        type="article"
+      />
       {/* Navigation */}
       <nav className="fixed top-0 w-full z-50 bg-[#0a0f2b]/80 backdrop-blur-2xl border-b border-white/10">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">

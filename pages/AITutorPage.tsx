@@ -399,9 +399,6 @@ const AITutorPage: React.FC = () => {
           >
             <Trash2 size={18} />
           </button>
-          <Link to="/ai-tutor" onClick={goBack} className="text-xs text-slate-400 hover:text-white font-bold uppercase tracking-wider transition-colors">
-            All Teachers
-          </Link>
         </div>
       </div>
 

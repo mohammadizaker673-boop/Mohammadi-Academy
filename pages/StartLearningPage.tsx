@@ -123,9 +123,6 @@ const StartLearningPage: React.FC = () => {
             <Link to="/courses" className="text-slate-300 hover:text-primary-400 transition-colors text-[11px] font-black uppercase tracking-[0.2em]">
               Explore
             </Link>
-            <Link to="/ai-tutor" className="text-slate-300 hover:text-primary-400 transition-colors text-[11px] font-black uppercase tracking-[0.2em]">
-              AI Teachers
-            </Link>
             <Link to="/store" className="text-slate-300 hover:text-primary-400 transition-colors text-[11px] font-black uppercase tracking-[0.2em]">
               Knowledge Store
             </Link>

@@ -178,12 +178,24 @@ export const RouteSeo: React.FC = () => {
     return <Seo title={meta.title} description={meta.description} path={pathname} />;
   }
 
-  if (pathname.startsWith('/courses/') || pathname.startsWith('/automated/')) {
+  if (pathname.startsWith('/courses/')) {
     return (
       <Seo
         title="Quran Course"
         description="Learn the Quran live one-to-one with a qualified teacher at Mohammadi Online Quran Academy — Tajweed, Hifz, Noorani Qaida, Arabic and Islamic Studies."
         path={pathname}
+      />
+    );
+  }
+  // /automated/* are generated player pages, not content — keep them out
+  // of search results (robots.txt also disallows them).
+  if (pathname.startsWith('/automated/')) {
+    return (
+      <Seo
+        title="Quran Course"
+        description="Learn the Quran live one-to-one with a qualified teacher at Mohammadi Online Quran Academy — Tajweed, Hifz, Noorani Qaida, Arabic and Islamic Studies."
+        path={pathname}
+        noindex
       />
     );
   }

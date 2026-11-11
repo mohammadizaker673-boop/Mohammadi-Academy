@@ -2,6 +2,7 @@
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { BookOpen, Clock, Users, GraduationCap, CheckCircle, Calendar, Video, Globe, ArrowLeft, Play, Sparkles, Shield, CreditCard } from 'lucide-react';
 import { courses } from '../data/courses';
+import { Seo } from '../components/Seo';
 import LanguageSelector from '../components/LanguageSelector';
 import LogoLink from '../components/LogoLink';
 import { DepthOrbs } from '../components/motion/MotionElements';
@@ -65,6 +66,12 @@ const CourseDetailPage: React.FC = () => {
   if (!course) {
     return (
       <div className="min-h-screen bg-[#050a12] flex items-center justify-center">
+        <Seo
+          title="Course Not Found"
+          description="This course does not exist at Mohammadi Online Quran Academy. Browse our live one-to-one Quran, Tajweed, Hifz, Arabic and Islamic Studies courses."
+          path={courseId ? `/courses/${courseId}` : '/courses'}
+          noindex
+        />
         <div className="text-center">
           <h1 className="text-3xl font-bold text-white mb-4">Course Not Found</h1>
           <Link to="/courses" className="text-primary-400 hover:text-primary-300">← Back to Courses</Link>
@@ -79,8 +86,26 @@ const CourseDetailPage: React.FC = () => {
 
   const isFree = course.priceType === 'free' || course.pricing[0].pricePerMonth === 0;
 
+  const courseJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Course',
+    name: course.title,
+    description: course.description,
+    provider: {
+      '@type': 'Organization',
+      name: 'Mohammadi Online Quran Academy',
+      url: 'https://mohammadiacademy.org',
+    },
+  };
+
   return (
     <div className="min-h-screen bg-[#050a12] relative overflow-hidden">
+      <Seo
+        title={course.title}
+        description={course.description.replace(/\s+/g, ' ').trim().slice(0, 160)}
+        path={`/courses/${course.id}`}
+      />
+      <script type="application/ld+json">{JSON.stringify(courseJsonLd)}</script>
       <DepthOrbs count={3} colors={['rgba(59,130,246,0.10)', 'rgba(245,158,11,0.07)', 'rgba(139,92,246,0.08)']} />
 
       {/* Enrollment success toast */}

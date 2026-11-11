@@ -4,6 +4,7 @@ import { STORE_CATEGORIES, STORE_PRODUCTS } from '../../data/knowledgeStore';
 import LogoLink from '../../components/LogoLink';
 import LanguageSelector from '../../components/LanguageSelector';
 import { ShieldCheck, Star, Tag } from 'lucide-react';
+import { Seo } from '../../components/Seo';
 
 const KnowledgeStoreProduct: React.FC = () => {
   const { productId } = useParams<{ productId: string }>();
@@ -14,6 +15,12 @@ const KnowledgeStoreProduct: React.FC = () => {
   if (!product) {
     return (
       <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center">
+        <Seo
+          title="Product Not Found"
+          description="This product does not exist in the Mohammadi Academy knowledge store. Browse Islamic books and learning resources."
+          path={productId ? `/store/product/${productId}` : '/store'}
+          noindex
+        />
         <p>Product not found.</p>
         <Link to="/store" className="text-primary-300 mt-4">Back to store</Link>
       </div>
@@ -22,6 +29,11 @@ const KnowledgeStoreProduct: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-[#0a0f2b] to-slate-950">
+      <Seo
+        title={product.title}
+        description={product.description.replace(/\s+/g, ' ').trim().slice(0, 160)}
+        path={`/store/product/${product.id}`}
+      />
       <nav className="fixed top-0 w-full z-50 bg-[#0a0f2b]/80 backdrop-blur-2xl border-b border-white/10">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <LogoLink />
