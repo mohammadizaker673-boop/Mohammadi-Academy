@@ -225,8 +225,41 @@ class HifzDataService {
     return { totalStudents, activeStudents, totalPagesMemoized, averageRetention };
   }
 
+  async getAllHifzStudents(): Promise<HifzTypes.StudentProfile[]> {
+    const { data, error } = await supabase
+      .from('hifz_students')
+      .select('*')
+      .order('last_active_date', { ascending: false });
+
+    if (error) throw error;
+
+    return (data ?? []).map((r: any) => ({
+      id: r.id,
+      userId: r.user_id,
+      name: r.name,
+      email: r.email,
+      phone: r.phone,
+      parentEmail: r.parent_email,
+      enrollmentDate: new Date(r.enrollment_date),
+      currentJuz: r.current_juz,
+      currentPage: r.current_page,
+      totalPagesMemoized: r.total_pages_memorized,
+      hifzStage: r.hifz_stage,
+      hifzPath: r.hifz_path,
+      retentionScore: r.retention_score,
+      streakDays: r.streak_days,
+      lastActiveDate: new Date(r.last_active_date),
+      assignedTeacher: r.assigned_teacher,
+      preferredReciter: r.preferred_reciter,
+      dailyNewPageTarget: r.daily_new_page_target,
+      notes: r.notes,
+      createdAt: new Date(r.created_at),
+      updatedAt: new Date(r.updated_at),
+    } as HifzTypes.StudentProfile));
+  }
+
   async getAtRiskStudents(): Promise<HifzTypes.StudentProfile[]> {
-    const students = await this.getTeacherStudents('');
+    const students = await this.getAllHifzStudents();
     return students.filter((student: any) => {
       const daysSinceActive = (Date.now() - new Date(student.lastActiveDate).getTime()) / (1000 * 60 * 60 * 24);
       return daysSinceActive > 7 || (student.streakDays || 0) < 2 || (student.retentionScore || 100) < 60;

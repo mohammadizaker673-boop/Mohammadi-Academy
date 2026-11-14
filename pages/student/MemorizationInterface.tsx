@@ -1,72 +1,206 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Play, Pause, Volume2, RotateCcw, Mic, Upload, AlertCircle, CheckCircle2, Eye, EyeOff } from 'lucide-react';
+import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { addDoc, collection } from 'firebase/firestore';
+import { db, storage } from '../../services/firebase';
+import { useAuth } from '../../contexts/AuthContext';
+
+// The text shown on this page is Surah Al-Baqarah, Ayahs 1–3
+// (Madani mushaf, Juz 1, page 2) — the labels now match the text.
+const PAGE = {
+  juzNumber: 1,
+  pageNumber: 2,
+  surahNumber: 2,
+  surahName: 'Surah Al-Baqarah',
+  ayahRange: '1-3',
+  ayahStart: 1,
+  ayahEnd: 3,
+  arabicText: `الم۔ ذٰلِكَ الْكِتٰبُ لَا رَیْبَ فِیۡہِ ہُدًی لِّلْمُتَّقِیْنَ۔ الَّذِیْنَ یُؤْمِنُوْنَ بِالْغَیْبِ وَیُقِیْمُوْنَ الصَّلٰوۃَ وَمِمَّا رَزَقْنٰہُمْ یُنْفِقُوْنَ۔`,
+  transliteration: `Alif Laam Meem. Dhaalika al-kitabu la rayba fee hi hudan lil-muttaqeen.`,
+  translation: `This is the Book; in it is guidance sure, without doubt, to those who fear Allah.`,
+};
+
+// Recitation audio: verse-by-verse MP3s from everyayah.com.
+// Only reciters whose folders were verified to return the files are listed.
+const RECITERS: Array<{ name: string; folder: string }> = [
+  { name: 'Mishary Rashid Alafasy', folder: 'Alafasy_128kbps' },
+  { name: 'Maher Al-Muaiqly', folder: 'Maher_AlMuaiqly_64kbps' },
+  { name: 'Mahmoud Khalil Al-Husary', folder: 'Husary_128kbps' },
+];
+
+const verseUrl = (folder: string, surah: number, ayah: number) =>
+  `https://everyayah.com/data/${folder}/${String(surah).padStart(3, '0')}${String(ayah).padStart(3, '0')}.mp3`;
 
 const MemorizationInterface: React.FC = () => {
+  const { user } = useAuth();
   const [recording, setRecording] = useState(false);
   const [audioPlaying, setAudioPlaying] = useState(false);
   const [textVisible, setTextVisible] = useState(true);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
+  const [volume, setVolume] = useState(70);
+  const [reciterIndex, setReciterIndex] = useState(0);
   const [recordingTime, setRecordingTime] = useState(0);
+  const [hasRecording, setHasRecording] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitState, setSubmitState] = useState<'idle' | 'done' | 'error'>('idle');
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const recordedChunksRef = useRef<Blob[]>([]);
+  const recordedBlobRef = useRef<Blob | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const verseIndexRef = useRef(0);
 
-  // Mock Quranic page data (Page 234)
-  const pageData = {
-    juzNumber: 12,
-    pageNumber: 234,
-    surahName: 'Surah At-Tawbah',
-    ayahRange: '45-67',
-    arabicText: `الم۔ ذٰلِكَ الْكِتٰبُ لَا رَیْبَ فِیۡہِ ہُدًی لِّلْمُتَّقِیْنَ۔ الَّذِیْنَ یُؤْمِنُوْنَ بِالْغَیْبِ وَیُقِیْمُوْنَ الصَّلٰوۃَ وَمِمَّا رَزَقْنٰہُمْ یُنْفِقُوْنَ۔`,
-    transliteration: `Alif Laam Meem. Dhaalika al-kitabu la rayba fee hi hudan lil-muttaqeen.`,
-    translation: `This is the Book; in it is guidance sure, without doubt, to those who fear Allah.`,
-    reciter: 'Mishary Rashid Alafasy',
-    audioUrl: 'https://example.com/audio.mp3',
+  const playVerse = (index: number) => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    verseIndexRef.current = index;
+    audio.src = verseUrl(RECITERS[reciterIndex].folder, PAGE.surahNumber, PAGE.ayahStart + index);
+    audio.playbackRate = playbackSpeed;
+    audio.volume = volume / 100;
+    audio.play().catch(() => setAudioPlaying(false));
+    setAudioPlaying(true);
   };
+
+  const handlePlayPause = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (audioPlaying) {
+      audio.pause();
+      setAudioPlaying(false);
+    } else {
+      if (!audio.src) {
+        playVerse(0);
+      } else {
+        audio.playbackRate = playbackSpeed;
+        audio.volume = volume / 100;
+        audio.play().catch(() => setAudioPlaying(false));
+        setAudioPlaying(true);
+      }
+    }
+  };
+
+  // When the reciter changes, restart the audio from the first verse.
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (audio) {
+      audio.pause();
+      audio.removeAttribute('src');
+      audio.load();
+    }
+    setAudioPlaying(false);
+    verseIndexRef.current = 0;
+  }, [reciterIndex]);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    const onEnded = () => {
+      const next = verseIndexRef.current + 1;
+      const total = PAGE.ayahEnd - PAGE.ayahStart + 1;
+      if (next < total) {
+        playVerse(next);
+      } else {
+        setAudioPlaying(false);
+      }
+    };
+    audio.addEventListener('ended', onEnded);
+    return () => audio.removeEventListener('ended', onEnded);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reciterIndex, playbackSpeed, volume]);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (audio) {
+      audio.playbackRate = playbackSpeed;
+      audio.volume = volume / 100;
+    }
+  }, [playbackSpeed, volume]);
+
+  // Stop the audio when the page unmounts.
+  useEffect(() => () => { audioRef.current?.pause(); }, []);
 
   const handleStartRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
+      recordedChunksRef.current = [];
       const mediaRecorder = new MediaRecorder(stream);
-
       mediaRecorder.ondataavailable = (event) => {
-        recordedChunksRef.current.push(event.data);
+        if (event.data.size > 0) recordedChunksRef.current.push(event.data);
       };
-
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(recordedChunksRef.current, { type: mediaRecorder.mimeType || 'audio/webm' });
+        recordedBlobRef.current = blob;
+        setHasRecording(true);
+        streamRef.current?.getTracks().forEach(t => t.stop());
+        streamRef.current = null;
+      };
       mediaRecorder.start();
       mediaRecorderRef.current = mediaRecorder;
       setRecording(true);
-
-      // Simulate recording time
-      let time = 0;
-      const timer = setInterval(() => {
-        time += 1;
-        setRecordingTime(time);
-        if (!recording && time > 0) clearInterval(timer);
-      }, 1000);
+      setRecordingTime(0);
+      setSubmitState('idle');
+      timerRef.current = setInterval(() => setRecordingTime(t => t + 1), 1000);
     } catch (error) {
       console.error('Error accessing microphone:', error);
     }
   };
 
   const handleStopRecording = () => {
-    if (mediaRecorderRef.current) {
-      mediaRecorderRef.current.stop();
-      setRecording(false);
-      mediaRecorderRef.current.onstop = () => {
-        const audioBlob = new Blob(recordedChunksRef.current, { type: 'audio/wav' });
-        console.log('Recording saved:', audioBlob);
-        recordedChunksRef.current = [];
-      };
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
     }
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      mediaRecorderRef.current.stop();
+    }
+    setRecording(false);
   };
 
-  const handleSubmitRecording = () => {
-    console.log('Submitting recording for teacher review...');
-    alert('Recording submitted for teacher review. You will receive feedback shortly.');
+  const handleSubmitRecording = async () => {
+    const blob = recordedBlobRef.current;
+    if (!blob || !user) return;
+    setSubmitting(true);
+    setSubmitState('idle');
+    try {
+      // Upload the real recording to Firebase Storage, then save a real
+      // review record to Firestore for the teacher.
+      const ext = blob.type.includes('mp4') ? 'mp4' : blob.type.includes('ogg') ? 'ogg' : 'webm';
+      const path = `memorization-recordings/${user.uid}/${Date.now()}.${ext}`;
+      const fileRef = storageRef(storage, path);
+      await uploadBytes(fileRef, blob);
+      const audioUrl = await getDownloadURL(fileRef);
+      await addDoc(collection(db, 'memorization_submissions'), {
+        studentId: user.uid,
+        studentEmail: user.email || '',
+        surahNumber: PAGE.surahNumber,
+        surahName: PAGE.surahName,
+        ayahStart: PAGE.ayahStart,
+        ayahEnd: PAGE.ayahEnd,
+        pageNumber: PAGE.pageNumber,
+        juzNumber: PAGE.juzNumber,
+        audioUrl,
+        durationSeconds: recordingTime,
+        status: 'pending',
+        submittedAt: new Date().toISOString(),
+      });
+      setSubmitState('done');
+      setHasRecording(false);
+      recordedBlobRef.current = null;
+      setRecordingTime(0);
+    } catch (error) {
+      console.error('Failed to submit recording:', error);
+      setSubmitState('error');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0a0f2b] via-[#0e1436] to-[#131b41] text-slate-100 p-6">
+      {/* Hidden audio element: plays the recitation verse by verse. */}
+      <audio ref={audioRef} preload="none" />
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
@@ -74,11 +208,11 @@ const MemorizationInterface: React.FC = () => {
             <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400">
               Memorization Session
             </h1>
-            <p className="text-slate-400 mt-2">Page {pageData.pageNumber} • {pageData.surahName} • Ayah {pageData.ayahRange}</p>
+            <p className="text-slate-400 mt-2">Page {PAGE.pageNumber} • {PAGE.surahName} • Ayah {PAGE.ayahRange}</p>
           </div>
           <div className="text-right">
-            <p className="text-sm text-slate-400">Juz {pageData.juzNumber}</p>
-            <p className="text-xs text-slate-500">Reciter: {pageData.reciter}</p>
+            <p className="text-sm text-slate-400">Juz {PAGE.juzNumber}</p>
+            <p className="text-xs text-slate-500">Reciter: {RECITERS[reciterIndex].name}</p>
           </div>
         </div>
       </div>
@@ -91,7 +225,7 @@ const MemorizationInterface: React.FC = () => {
             {/* Arabic Text */}
             <div className="mb-8 p-6 bg-blue-900/20 border border-blue-400/30 rounded-lg">
               <p className="text-right text-4xl font-arabic leading-relaxed text-blue-100">
-                {textVisible ? pageData.arabicText : '••••••••••••••••••••••••••••'}
+                {textVisible ? PAGE.arabicText : '••••••••••••••••••••••••••••'}
               </p>
               <div className="flex justify-between mt-4">
                 <button
@@ -108,13 +242,13 @@ const MemorizationInterface: React.FC = () => {
             {/* Transliteration */}
             <div className="mb-6 p-4 bg-slate-900/30 rounded">
               <p className="text-sm text-slate-400 mb-2">Transliteration:</p>
-              <p className="text-slate-200">{pageData.transliteration}</p>
+              <p className="text-slate-200">{PAGE.transliteration}</p>
             </div>
 
             {/* Translation */}
             <div className="p-4 bg-slate-900/30 rounded">
               <p className="text-sm text-slate-400 mb-2">Translation (English):</p>
-              <p className="text-slate-200">{pageData.translation}</p>
+              <p className="text-slate-200">{PAGE.translation}</p>
             </div>
           </div>
         </div>
@@ -128,11 +262,14 @@ const MemorizationInterface: React.FC = () => {
             {/* Reciter Selection */}
             <div className="mb-4">
               <label className="block text-sm text-slate-400 mb-2">Choose Reciter:</label>
-              <select className="w-full bg-slate-800 border border-slate-600 rounded px-3 py-2 text-slate-100">
-                <option>Mishary Rashid Alafasy</option>
-                <option>Maher Al-Muaiqly</option>
-                <option>Khalid Al-Jalil</option>
-                <option>Hani Al-Rifai</option>
+              <select
+                value={reciterIndex}
+                onChange={(e) => setReciterIndex(Number(e.target.value))}
+                className="w-full bg-slate-800 border border-slate-600 rounded px-3 py-2 text-slate-100"
+              >
+                {RECITERS.map((r, idx) => (
+                  <option key={r.folder} value={idx}>{r.name}</option>
+                ))}
               </select>
             </div>
 
@@ -140,13 +277,17 @@ const MemorizationInterface: React.FC = () => {
             <div className="space-y-3">
               <div className="flex gap-2">
                 <button
-                  onClick={() => setAudioPlaying(!audioPlaying)}
+                  onClick={handlePlayPause}
                   className="flex-1 bg-emerald-500 hover:bg-emerald-600 px-4 py-2 rounded-lg font-semibold flex items-center justify-center gap-2"
                 >
                   {audioPlaying ? <Pause size={20} /> : <Play size={20} />}
                   {audioPlaying ? 'Pause' : 'Play'}
                 </button>
-                <button className="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg">
+                <button
+                  onClick={() => { const a = audioRef.current; if (a) { a.pause(); a.removeAttribute('src'); a.load(); } setAudioPlaying(false); verseIndexRef.current = 0; }}
+                  className="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg"
+                  aria-label="Restart from the beginning"
+                >
                   <RotateCcw size={20} />
                 </button>
               </div>
@@ -176,7 +317,14 @@ const MemorizationInterface: React.FC = () => {
                 <label className="block text-xs text-slate-400 mb-2">Volume:</label>
                 <div className="flex items-center gap-2">
                   <Volume2 size={16} className="text-slate-400" />
-                  <input type="range" min="0" max="100" defaultValue="70" className="flex-1" />
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={volume}
+                    onChange={(e) => setVolume(Number(e.target.value))}
+                    className="flex-1"
+                  />
                 </div>
               </div>
             </div>
@@ -216,14 +364,29 @@ const MemorizationInterface: React.FC = () => {
                 {recording ? 'Stop Recording' : 'Start Recording'}
               </button>
 
-              {recordingTime > 0 && !recording && (
+              {hasRecording && !recording && (
                 <button
                   onClick={handleSubmitRecording}
-                  className="w-full bg-emerald-500 hover:bg-emerald-600 px-4 py-3 rounded-lg font-semibold flex items-center justify-center gap-2"
+                  disabled={submitting || !user}
+                  className="w-full bg-emerald-500 hover:bg-emerald-600 px-4 py-3 rounded-lg font-semibold flex items-center justify-center gap-2 disabled:opacity-60"
                 >
                   <Upload size={20} />
-                  Submit for Review
+                  {submitting ? 'Uploading…' : 'Submit for Review'}
                 </button>
+              )}
+
+              {submitState === 'done' && (
+                <p className="text-sm text-emerald-300 flex items-center gap-2">
+                  <CheckCircle2 size={16} /> Recording submitted — your teacher can review it and give feedback.
+                </p>
+              )}
+              {submitState === 'error' && (
+                <p className="text-sm text-red-300 flex items-center gap-2">
+                  <AlertCircle size={16} /> Could not submit your recording. Please try again.
+                </p>
+              )}
+              {!user && (
+                <p className="text-sm text-slate-400">Sign in to submit your recording for teacher review.</p>
               )}
             </div>
           </div>
@@ -267,7 +430,7 @@ const MemorizationInterface: React.FC = () => {
             <CheckCircle2 className="text-cyan-400 flex-shrink-0 mt-1" size={20} />
             <div>
               <p className="font-semibold mb-1">After Recording:</p>
-              <p className="text-sm text-slate-400">Your teacher will review within 24 hours and provide detailed feedback on Tajweed and accuracy.</p>
+              <p className="text-sm text-slate-400">Your recording is saved for your teacher, who can review your Tajweed and accuracy and give feedback.</p>
             </div>
           </div>
         </div>

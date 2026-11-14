@@ -3,7 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { STORE_CATEGORIES, STORE_PRODUCTS } from '../../data/knowledgeStore';
 import LogoLink from '../../components/LogoLink';
 import LanguageSelector from '../../components/LanguageSelector';
-import { ShieldCheck, Star, Tag } from 'lucide-react';
+import { ShieldCheck, Star } from 'lucide-react';
 import { Seo } from '../../components/Seo';
 
 const KnowledgeStoreProduct: React.FC = () => {
@@ -123,18 +123,10 @@ const KnowledgeStoreProduct: React.FC = () => {
               </div>
               <div className="mt-6 space-y-3">
                 <div className="flex items-center gap-2 text-sm text-slate-300">
-                  <ShieldCheck size={16} className="text-primary-400" /> Secure download link (expires)
-                </div>
-                <div className="flex items-center gap-2 text-sm text-slate-300">
-                  <Tag size={16} className="text-primary-400" /> Discount codes and bundle pricing supported
+                  <ShieldCheck size={16} className="text-primary-400" /> Digital download shared after your order is confirmed
                 </div>
               </div>
               <div className="mt-6 space-y-3">
-                <input
-                  type="text"
-                  placeholder="Discount code"
-                  className="w-full px-4 py-3 bg-slate-900/70 border border-white/10 rounded-xl text-white"
-                />
                 <Link
                   to={`/contact?product=${encodeURIComponent(product.title)}&price=${encodeURIComponent(String(product.price))}`}
                   className="block w-full px-4 py-3 bg-gradient-to-r from-primary-500 to-accent-500 text-white rounded-xl font-bold text-center"
@@ -149,7 +141,7 @@ const KnowledgeStoreProduct: React.FC = () => {
                 </Link>
               </div>
               <p className="text-xs text-slate-400 mt-4">
-                Purchase confirmations are emailed instantly. Download access requires verified purchase.
+                Send a purchase request — our team will confirm your order on WhatsApp and share payment and download details.
               </p>
             </div>
 

@@ -148,7 +148,6 @@ const HomePageCMS = React.lazy(() => import('./pages/admin/cms/HomePageCMS'));
 const CoursesPageCMS = React.lazy(() => import('./pages/admin/cms/CoursesPageCMS'));
 const MediaBannersCMS = React.lazy(() => import('./pages/admin/cms/MediaBannersCMS'));
 const AdminManagement = React.lazy(() => import('./pages/admin/settings/AdminManagement'));
-const SeedData = React.lazy(() => import('./pages/admin/settings/SeedData'));
 const PricingPackages = React.lazy(() => import('./pages/admin/packages/PackageManagement'));
 const AdminFeaturesPage = React.lazy(() => import('./pages/admin/AdminFeaturesPage'));
 const AdminStoreDashboard = React.lazy(() => import('./pages/admin/store/StoreDashboard'));
@@ -337,7 +336,6 @@ const App: React.FC = () => {
               {/* Settings Routes */}
               <Route path="settings" element={<SettingsDashboard />} />
               <Route path="settings/admins" element={<AdminManagement />} />
-              <Route path="settings/seed-data" element={<SeedData />} />
               {/* Packages Routes */}
               <Route path="packages" element={<PricingPackages />} />
               {/* Knowledge Store */}

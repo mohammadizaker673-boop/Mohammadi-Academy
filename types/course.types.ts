@@ -71,5 +71,4 @@ export interface Course {
   lowBandwidthFriendly?: boolean;
   lessonOutline?: LessonOutline[];
   thumbnail?: string;
-  demoVideo?: string;
 }

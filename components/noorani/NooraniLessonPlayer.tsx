@@ -4,8 +4,6 @@ import {
   BookOpen,
   Calendar,
   CheckCircle2,
-  Circle,
-  Clock3,
   ChevronLeft,
   ChevronRight,
   Headphones,
@@ -15,7 +13,6 @@ import {
   Radio,
   RotateCcw,
   Star,
-  Video,
   Volume2,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -27,13 +24,17 @@ import {
   CourseModuleProgress,
   DedicatedCourseModule,
 } from '../../types/dedicated-course.types';
-import VoiceRecordingWidget from './VoiceRecordingWidget';
-import AIPronunciationFeedback from './AIPronunciationFeedback';
-import { PronunciationAnalysisResult } from '../../services/aiPronunciationService';
+import LivePronunciationPractice from './LivePronunciationPractice';
+import { getStudentByUserId } from '../../services/db';
+import {
+  listStudentUpcomingLiveClasses,
+  canJoinLiveClass,
+  type LiveClassSession,
+} from '../../services/liveClassService';
 
 /* ─────────────────── types ─────────────────── */
 type LessonStep = 'intro' | 'learn' | 'practice' | 'quiz' | 'complete';
-type NooraniWorkspaceTab = 'lesson' | 'live-classes' | 'practice-room' | 'homework' | 'ai-tutor' | 'revision-center' | 'class-recordings' | 'tajweed-lab' | 'pronunciation-studio';
+type NooraniWorkspaceTab = 'lesson' | 'live-classes';
 
 interface LetterCardProps {
   letter: string;
@@ -72,22 +73,7 @@ const STEPS: LessonStep[] = ['intro', 'learn', 'practice', 'quiz', 'complete'];
 const WORKSPACE_TABS: Array<{ id: NooraniWorkspaceTab; label: string }> = [
   { id: 'lesson', label: 'Lesson' },
   { id: 'live-classes', label: 'Live Classes' },
-  { id: 'practice-room', label: 'Practice Room' },
-  { id: 'homework', label: 'Homework' },
-  { id: 'ai-tutor', label: 'AI Tutor' },
-  { id: 'revision-center', label: 'Revision Center' },
-  { id: 'class-recordings', label: 'Class Recordings' },
-  { id: 'tajweed-lab', label: 'Tajweed Lab' },
-  { id: 'pronunciation-studio', label: 'Pronunciation Studio' },
 ];
-
-const formatCountdown = (seconds: number) => {
-  const safe = Math.max(0, seconds);
-  const h = Math.floor(safe / 3600);
-  const m = Math.floor((safe % 3600) / 60);
-  const s = safe % 60;
-  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-};
 
 /* ─────────────────── LetterCard ─────────────────── */
 const LetterCard: React.FC<LetterCardProps> = ({
@@ -384,15 +370,8 @@ const NooraniLessonPlayer: React.FC<NooraniLessonPlayerProps> = ({ course }) => 
   const [celebrationLesson, setCelebrationLesson] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeWorkspaceTab, setActiveWorkspaceTab] = useState<NooraniWorkspaceTab>('lesson');
-  const [pronunciationResult, setPronunciationResult] = useState<PronunciationAnalysisResult | null>(null);
-  const [selectedLetterForRecording, setSelectedLetterForRecording] = useState<string | null>(null);
-  const [sessionCountdown, setSessionCountdown] = useState(32 * 60);
-
-  const sessionRecordings = [
-    { id: 'r1', title: 'Makharij: Letters from the Tongue', duration: '19 min' },
-    { id: 'r2', title: 'Noon Sakinah Rules Practice', duration: '14 min' },
-    { id: 'r3', title: 'Full Lesson Correction Replay', duration: '27 min' },
-  ];
+  const [liveClasses, setLiveClasses] = useState<LiveClassSession[]>([]);
+  const [liveClassesLoading, setLiveClassesLoading] = useState(true);
 
   const currentLesson = useMemo(() => lessons.find(l => l.id === currentLessonId), [lessons, currentLessonId]);
   const currentSection = useMemo(() => course.sections.find(s => s.lessons.some(l => l.id === currentLessonId)), [course, currentLessonId]);
@@ -460,17 +439,32 @@ const NooraniLessonPlayer: React.FC<NooraniLessonPlayerProps> = ({ course }) => 
   useEffect(() => {
     setStep('intro');
     setQuizPassed(false);
-    setPronunciationResult(null);
-    setSelectedLetterForRecording(null);
     setActiveWorkspaceTab('lesson');
   }, [currentLessonId]);
 
+  /* load the student's real upcoming live classes via their assigned teacher */
   useEffect(() => {
-    const timer = window.setInterval(() => {
-      setSessionCountdown(prev => Math.max(0, prev - 1));
-    }, 1000);
-    return () => window.clearInterval(timer);
-  }, []);
+    if (!user?.uid) {
+      setLiveClassesLoading(false);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const student = await getStudentByUserId(user.uid);
+        if (cancelled) return;
+        if (student?.assignedTeacherId) {
+          const sessions = await listStudentUpcomingLiveClasses(student.assignedTeacherId);
+          if (!cancelled) setLiveClasses(sessions);
+        }
+      } catch {
+        /* ignore — the empty state is shown instead */
+      } finally {
+        if (!cancelled) setLiveClassesLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [user?.uid]);
 
   const goToStep = (s: LessonStep) => setStep(s);
 
@@ -661,15 +655,25 @@ const NooraniLessonPlayer: React.FC<NooraniLessonPlayerProps> = ({ course }) => 
             <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="text-[11px] uppercase tracking-[0.2em] text-sky-300 font-black">Live Session Panel</p>
-                <p className="text-white font-semibold mt-1">Ustadh Kareem is online now</p>
-                <p className="text-xs text-slate-400 mt-1">Next class starts in {formatCountdown(sessionCountdown)}</p>
+                {liveClassesLoading ? (
+                  <p className="text-white font-semibold mt-1">Loading your live classes…</p>
+                ) : liveClasses.length > 0 ? (
+                  <>
+                    <p className="text-white font-semibold mt-1">{liveClasses[0].lessonTitle}</p>
+                    <p className="text-xs text-slate-400 mt-1">
+                      {new Date(liveClasses[0].startsAt).toLocaleString()}
+                    </p>
+                  </>
+                ) : (
+                  <p className="text-white font-semibold mt-1">No live class scheduled right now</p>
+                )}
               </div>
               <button
                 type="button"
                 onClick={() => setActiveWorkspaceTab('live-classes')}
                 className="px-4 py-2 rounded-xl bg-gradient-to-r from-sky-500 to-primary-500 text-white text-xs font-black hover:from-sky-400 hover:to-primary-400 transition"
               >
-                Join Live Class
+                View Live Classes
               </button>
             </div>
           </div>
@@ -681,80 +685,43 @@ const NooraniLessonPlayer: React.FC<NooraniLessonPlayerProps> = ({ course }) => 
                   <p className="text-xs uppercase tracking-[0.2em] text-primary-300 font-black">Noorani Smart Workspace</p>
                   <h3 className="text-2xl font-black text-white mt-1">{WORKSPACE_TABS.find(t => t.id === activeWorkspaceTab)?.label}</h3>
                 </div>
-                {activeWorkspaceTab === 'live-classes' && (
-                  <button
-                    type="button"
-                    className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-primary-500 text-white text-sm font-black hover:from-sky-400 hover:to-primary-400 transition flex items-center gap-2"
-                  >
-                    <Video size={16} /> Join Live Class
-                  </button>
-                )}
               </div>
 
               {activeWorkspaceTab === 'live-classes' && (
-                <div className="grid lg:grid-cols-3 gap-4">
-                  <div className="rounded-2xl bg-white/5 border border-white/10 p-4 lg:col-span-2">
-                    <p className="text-xs uppercase tracking-[0.2em] text-slate-400 font-black">Upcoming Scheduled Lesson</p>
-                    <p className="text-white font-black text-lg mt-2">Group Tajweed: Makharij Precision</p>
-                    <div className="grid sm:grid-cols-3 gap-3 mt-4">
-                      <div className="rounded-xl bg-slate-900/70 border border-white/10 p-3">
-                        <p className="text-slate-500 text-[11px] uppercase tracking-[0.18em]">Teacher Status</p>
-                        <p className="text-emerald-300 text-sm font-bold mt-1 flex items-center gap-2"><Circle size={10} fill="currentColor" /> Online</p>
+                <div className="space-y-4">
+                  {liveClassesLoading ? (
+                    <p className="text-slate-400">Loading your live classes…</p>
+                  ) : liveClasses.length > 0 ? (
+                    liveClasses.map(session => (
+                      <div key={session.id} className="rounded-2xl bg-white/5 border border-white/10 p-4">
+                        <div className="flex items-start justify-between gap-4 flex-wrap">
+                          <div>
+                            <p className="text-white font-black text-lg">{session.lessonTitle}</p>
+                            <p className="text-slate-400 text-sm mt-1">{session.courseName}</p>
+                            <p className="text-slate-400 text-sm mt-1">
+                              {new Date(session.startsAt).toLocaleString()} – {new Date(session.endsAt).toLocaleTimeString()}
+                            </p>
+                            <p className="text-xs text-slate-500 mt-1 capitalize">Status: {session.status}</p>
+                          </div>
+                          {canJoinLiveClass(session) ? (
+                            <button
+                              type="button"
+                              onClick={() => navigate(`/class/${session.id}`)}
+                              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-primary-500 text-white text-sm font-black hover:from-sky-400 hover:to-primary-400 transition"
+                            >
+                              Join Live Class
+                            </button>
+                          ) : (
+                            <span className="px-5 py-2.5 rounded-xl bg-white/5 text-slate-400 text-sm font-bold">
+                              Joining opens 15 minutes before start
+                            </span>
+                          )}
+                        </div>
                       </div>
-                      <div className="rounded-xl bg-slate-900/70 border border-white/10 p-3">
-                        <p className="text-slate-500 text-[11px] uppercase tracking-[0.18em]">Countdown</p>
-                        <p className="text-white text-sm font-bold mt-1 flex items-center gap-2"><Clock3 size={14} /> {formatCountdown(sessionCountdown)}</p>
-                      </div>
-                      <div className="rounded-xl bg-slate-900/70 border border-white/10 p-3">
-                        <p className="text-slate-500 text-[11px] uppercase tracking-[0.18em]">Class Mode</p>
-                        <p className="text-sky-200 text-sm font-bold mt-1">Live + Screen Share</p>
-                      </div>
-                    </div>
-                    <div className="mt-4 grid sm:grid-cols-2 gap-3 text-sm text-slate-200">
-                      <p className="rounded-xl bg-slate-900/60 p-3 border border-white/10">Teacher highlighting and drawing tools enabled.</p>
-                      <p className="rounded-xl bg-slate-900/60 p-3 border border-white/10">Student microphone monitoring and instant correction ready.</p>
-                    </div>
-                  </div>
-                  <div className="rounded-2xl bg-white/5 border border-white/10 p-4">
-                    <p className="text-xs uppercase tracking-[0.2em] text-slate-400 font-black mb-3">Session Recordings</p>
-                    <div className="space-y-2">
-                      {sessionRecordings.map(recording => (
-                        <button
-                          key={recording.id}
-                          type="button"
-                          className="w-full text-left rounded-xl bg-slate-900/70 border border-white/10 p-3 hover:bg-slate-800/80 transition"
-                        >
-                          <p className="text-sm text-white font-semibold leading-snug">{recording.title}</p>
-                          <p className="text-xs text-slate-400 mt-1">{recording.duration}</p>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {activeWorkspaceTab === 'practice-room' && (
-                <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
-                  {['10-minute guided revision', 'Voice repetition drills', 'Interactive flashcards', 'Listening tests', 'Speed challenge', 'Makharij focus cycle'].map(item => (
-                    <div key={item} className="rounded-2xl bg-slate-900/70 border border-white/10 p-4 text-slate-200 text-sm">{item}</div>
-                  ))}
-                </div>
-              )}
-
-              {activeWorkspaceTab === 'homework' && (
-                <div className="grid md:grid-cols-3 gap-4">
-                  <div className="rounded-2xl bg-slate-900/70 border border-white/10 p-4 text-sm text-slate-200">Upload voice recording for teacher review.</div>
-                  <div className="rounded-2xl bg-slate-900/70 border border-white/10 p-4 text-sm text-slate-200">Submit reading video and written Arabic practice.</div>
-                  <div className="rounded-2xl bg-slate-900/70 border border-white/10 p-4 text-sm text-slate-200">Receive approve/reject and voice feedback.</div>
-                </div>
-              )}
-
-              {['ai-tutor', 'revision-center', 'class-recordings', 'tajweed-lab', 'pronunciation-studio'].includes(activeWorkspaceTab) && (
-                <div className="rounded-2xl bg-slate-900/70 border border-white/10 p-5">
-                  <p className="text-slate-300 text-sm leading-relaxed">
-                    This module is now wired into the Noorani workspace shell. Next step is connecting the real backend flow
-                    for AI responses, teacher actions, recordings, and analytics in this tab.
-                  </p>
+                    ))
+                  ) : (
+                    <p className="text-slate-400">No live class scheduled right now.</p>
+                  )}
                 </div>
               )}
             </div>
@@ -864,68 +831,9 @@ const NooraniLessonPlayer: React.FC<NooraniLessonPlayerProps> = ({ course }) => 
                 </div>
               )}
               
-              {/* ── Voice Recording Section ── */}
+              {/* ── Voice Practice ── */}
               {currentLesson.blocks.some(b => b.type === 'audio-letter' || b.type === 'letter-practice' || b.type === 'join-animation') && user?.uid && (
-                <div className="rounded-3xl bg-slate-800/60 border border-white/10 p-6">
-                  <h4 className="text-lg font-black text-white mb-2 flex items-center gap-2">
-                    <Mic size={20} className="text-accent-400" />
-                    Voice Practice
-                  </h4>
-                  <p className="text-slate-300 text-sm mb-6">
-                    Record yourself reciting the letters to get instant AI-powered pronunciation feedback.
-                  </p>
-                  
-                  {/* Letter Selection */}
-                  {!selectedLetterForRecording && !pronunciationResult && (
-                    <div className="space-y-3">
-                      <p className="text-xs uppercase tracking-[0.2em] text-slate-400 font-bold mb-3">Select a letter to practice</p>
-                      <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2">
-                        {['ا', 'ب', 'ت', 'ث', 'ج', 'ح', 'خ', 'د', 'ذ', 'ر', 'ز', 'س', 'ش', 'ص', 'ض', 'ط', 'ظ', 'ع', 'غ', 'ف', 'ق', 'ك', 'ل', 'م', 'ن', 'ه', 'و', 'ي'].map(letter => (
-                          <button
-                            key={letter}
-                            type="button"
-                            onClick={() => setSelectedLetterForRecording(letter)}
-                            className="px-3 py-2 rounded-lg bg-white/10 text-white text-lg font-arabic font-bold hover:bg-primary-500/30 transition border border-white/10 hover:border-primary-500/40"
-                          >
-                            {letter}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  
-                  {/* Recording Widget */}
-                  {selectedLetterForRecording && (
-                    <div className="space-y-4">
-                      <VoiceRecordingWidget
-                        letter={selectedLetterForRecording}
-                        studentId={user.uid}
-                        lessonId={currentLesson.id}
-                        onAnalysisComplete={(result) => {
-                          setPronunciationResult(result);
-                        }}
-                      />
-                      
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setSelectedLetterForRecording(null);
-                          setPronunciationResult(null);
-                        }}
-                        className="text-xs text-slate-400 hover:text-slate-300 transition"
-                      >
-                        ← Choose another letter
-                      </button>
-                    </div>
-                  )}
-                  
-                  {/* Feedback Display */}
-                  {pronunciationResult && (
-                    <div className="mt-6 pt-6 border-t border-white/10">
-                      <AIPronunciationFeedback result={pronunciationResult} />
-                    </div>
-                  )}
-                </div>
+                <LivePronunciationPractice studentId={user.uid} lessonId={currentLesson.id} />
               )}
               
               <div className="flex gap-3">
@@ -1076,16 +984,26 @@ const NooraniLessonPlayer: React.FC<NooraniLessonPlayerProps> = ({ course }) => 
               <Radio size={14} /> Live Session Panel
             </p>
             <div className="rounded-2xl bg-slate-900/70 border border-white/10 p-4">
-              <p className="text-slate-500 text-[11px] uppercase tracking-[0.18em]">Teacher Online Status</p>
-              <p className="text-emerald-300 text-sm font-bold mt-1 flex items-center gap-2"><Circle size={10} fill="currentColor" /> Ustadh Kareem Online</p>
-              <p className="text-xs text-slate-400 mt-3">Upcoming scheduled lesson in {formatCountdown(sessionCountdown)}</p>
-              <button
-                type="button"
-                onClick={() => setActiveWorkspaceTab('live-classes')}
-                className="mt-3 w-full py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-primary-500 text-white text-xs font-black hover:from-sky-400 hover:to-primary-400 transition"
-              >
-                Join Live Class
-              </button>
+              <p className="text-slate-500 text-[11px] uppercase tracking-[0.18em]">Next Live Class</p>
+              {liveClassesLoading ? (
+                <p className="text-slate-400 text-sm mt-2">Loading…</p>
+              ) : liveClasses.length > 0 ? (
+                <>
+                  <p className="text-white text-sm font-bold mt-1">{liveClasses[0].lessonTitle}</p>
+                  <p className="text-xs text-slate-400 mt-1">
+                    {new Date(liveClasses[0].startsAt).toLocaleString()}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setActiveWorkspaceTab('live-classes')}
+                    className="mt-3 w-full py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-primary-500 text-white text-xs font-black hover:from-sky-400 hover:to-primary-400 transition"
+                  >
+                    View Live Classes
+                  </button>
+                </>
+              ) : (
+                <p className="text-slate-400 text-sm mt-2">No live class scheduled right now.</p>
+              )}
             </div>
             <div className="rounded-2xl bg-slate-900/70 border border-white/10 p-4">
               <p className="text-slate-500 text-[11px] uppercase tracking-[0.18em] mb-2">Classroom Tools</p>
@@ -1094,22 +1012,6 @@ const NooraniLessonPlayer: React.FC<NooraniLessonPlayerProps> = ({ course }) => 
                 <p className="flex items-center gap-2"><Headphones size={14} /> Slow audio playback</p>
                 <p className="flex items-center gap-2"><Mic size={14} /> Live microphone correction</p>
                 <p className="flex items-center gap-2"><Calendar size={14} /> Scheduled class reminders</p>
-              </div>
-            </div>
-            <div className="rounded-2xl bg-slate-900/70 border border-white/10 p-4">
-              <p className="text-slate-500 text-[11px] uppercase tracking-[0.18em] mb-2">Session Recording Archive</p>
-              <div className="space-y-2">
-                {sessionRecordings.map(recording => (
-                  <button
-                    key={`desktop-${recording.id}`}
-                    type="button"
-                    onClick={() => setActiveWorkspaceTab('class-recordings')}
-                    className="w-full text-left rounded-xl bg-white/5 border border-white/10 p-2.5 hover:bg-white/10 transition"
-                  >
-                    <p className="text-xs text-white font-semibold">{recording.title}</p>
-                    <p className="text-[11px] text-slate-400 mt-1">{recording.duration}</p>
-                  </button>
-                ))}
               </div>
             </div>
           </div>

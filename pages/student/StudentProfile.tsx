@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { doc, getDoc, updateDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { doc, updateDoc, setDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../services/firebase';
 import { useAuth } from '../../contexts/AuthContext';
-import { User, Mail, Phone, Calendar, MapPin, BookOpen, Edit2, Save, X } from 'lucide-react';
+import { User, Mail, Phone, Calendar, MapPin, BookOpen, Edit2, Save, X, AlertCircle } from 'lucide-react';
 import BackButton from '../../components/BackButton';
 
 interface StudentProfile {
@@ -28,6 +28,10 @@ const StudentProfile = () => {
   const [editing, setEditing] = useState(false);
   const [profile, setProfile] = useState<StudentProfile | null>(null);
   const [formData, setFormData] = useState<Partial<StudentProfile>>({});
+  // True when no student record exists yet: the student completes their
+  // profile for real instead of being shown invented personal details.
+  const [needsSetup, setNeedsSetup] = useState(false);
+  const [loadError, setLoadError] = useState(false);
 
   useEffect(() => {
     if (user?.email) {
@@ -50,74 +54,78 @@ const StudentProfile = () => {
         } as StudentProfile;
         setProfile(studentData);
         setFormData(studentData);
+        setNeedsSetup(false);
       } else {
-        // Create mock profile if not found
-        const mockProfile: StudentProfile = {
-          id: user?.uid || 'student-001',
-          fullName: user?.email?.split('@')[0] || 'Student Name',
+        // No record exists: do NOT invent personal details. Show an empty
+        // profile the student completes themselves (saved as a real record).
+        setProfile(null);
+        setNeedsSetup(true);
+        setEditing(true);
+        setFormData({
+          id: user?.uid || '',
+          fullName: user?.displayName || user?.email?.split('@')[0] || '',
           email: user?.email || '',
-          phone: '+1-XXX-XXX-XXXX',
-          dateOfBirth: '2000-01-01',
-          gender: 'Male',
-          address: '123 Main Street, City, Country',
-          guardianName: 'Parent/Guardian Name',
-          guardianPhone: '+1-XXX-XXX-XXXX',
-          guardianEmail: 'guardian@example.com',
-          currentCourse: 'Tajweed',
+          phone: '',
+          dateOfBirth: '',
+          gender: '',
+          address: '',
+          guardianName: '',
+          guardianPhone: '',
+          guardianEmail: '',
+          currentCourse: '',
           enrollmentDate: new Date().toISOString().split('T')[0],
-          status: 'active'
-        };
-        setProfile(mockProfile);
-        setFormData(mockProfile);
+          status: 'active',
+        });
       }
     } catch (error) {
       console.error('Error fetching profile:', error);
-      // Create mock profile as fallback
-      const mockProfile: StudentProfile = {
-        id: user?.uid || 'student-001',
-        fullName: user?.email?.split('@')[0] || 'Student Name',
-        email: user?.email || '',
-        phone: '+1-XXX-XXX-XXXX',
-        dateOfBirth: '2000-01-01',
-        gender: 'Male',
-        address: '123 Main Street, City, Country',
-        guardianName: 'Parent/Guardian Name',
-        guardianPhone: '+1-XXX-XXX-XXXX',
-        guardianEmail: 'guardian@example.com',
-        currentCourse: 'Tajweed',
-        enrollmentDate: new Date().toISOString().split('T')[0],
-        status: 'active'
-      };
-      setProfile(mockProfile);
-      setFormData(mockProfile);
+      setLoadError(true);
     } finally {
       setLoading(false);
     }
   };
 
   const handleSave = async () => {
-    if (!profile?.id) return;
+    if (!user?.uid) return;
 
     try {
-      await updateDoc(doc(db, 'students', profile.id), {
-        phone: formData.phone,
-        address: formData.address,
-        guardianName: formData.guardianName,
-        guardianPhone: formData.guardianPhone,
-        guardianEmail: formData.guardianEmail,
+      const data = {
+        fullName: formData.fullName || user.displayName || '',
+        email: user.email || formData.email || '',
+        phone: formData.phone || '',
+        dateOfBirth: formData.dateOfBirth || '',
+        gender: formData.gender || '',
+        address: formData.address || '',
+        guardianName: formData.guardianName || '',
+        guardianPhone: formData.guardianPhone || '',
+        guardianEmail: formData.guardianEmail || '',
+        currentCourse: formData.currentCourse || '',
         updatedAt: new Date().toISOString(),
-      });
+      };
+      if (profile?.id) {
+        // Existing record: update it.
+        await updateDoc(doc(db, 'students', profile.id), data);
+      } else {
+        // No record yet: create a real one (doc id = auth uid).
+        await setDoc(doc(db, 'students', user.uid), {
+          ...data,
+          enrollmentDate: new Date().toISOString().split('T')[0],
+          status: 'active',
+          createdAt: new Date().toISOString(),
+        }, { merge: true });
+      }
       
       await fetchProfile();
       setEditing(false);
-      alert('Profile updated successfully!');
+      alert('Profile saved successfully!');
     } catch (error) {
-      console.error('Error updating profile:', error);
-      alert('Error updating profile. Please try again.');
+      console.error('Error saving profile:', error);
+      alert('Error saving profile. Please try again.');
     }
   };
 
   const handleCancel = () => {
+    if (needsSetup) return; // nothing real to go back to yet
     setFormData(profile || {});
     setEditing(false);
   };
@@ -130,7 +138,21 @@ const StudentProfile = () => {
     );
   }
 
-  if (!profile) {
+  if (loadError) {
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-8rem)]">
+        <div className="text-center">
+          <p className="text-white text-xl">Could not load your profile</p>
+          <p className="text-white/60 mt-2">Please try again, or contact administration.</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Display profile: the saved record, or the in-progress setup form.
+  const display: StudentProfile | null = profile ?? (needsSetup ? (formData as StudentProfile) : null);
+
+  if (!display) {
     return (
       <div className="flex items-center justify-center h-[calc(100vh-8rem)]">
         <div className="text-center">
@@ -141,6 +163,16 @@ const StudentProfile = () => {
     );
   }
 
+  const dobText = display.dateOfBirth && !isNaN(new Date(display.dateOfBirth).getTime())
+    ? new Date(display.dateOfBirth).toLocaleDateString()
+    : 'Not provided';
+  const genderText = display.gender
+    ? display.gender.charAt(0).toUpperCase() + display.gender.slice(1)
+    : 'Not provided';
+  const enrollmentText = display.enrollmentDate && !isNaN(new Date(display.enrollmentDate).getTime())
+    ? new Date(display.enrollmentDate).toLocaleDateString()
+    : 'Not provided';
+
   return (
     <div className="space-y-6">
       {/* Back Button */}
@@ -149,8 +181,12 @@ const StudentProfile = () => {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-4xl font-black text-white mb-2">My Profile</h1>
-          <p className="text-white">View and manage your personal information</p>
+          <h1 className="text-4xl font-black text-white mb-2">{needsSetup ? 'Complete Your Profile' : 'My Profile'}</h1>
+          <p className="text-white">
+            {needsSetup
+              ? 'We have no student record for you yet. Fill in your details below — they are saved as your real student profile.'
+              : 'View and manage your personal information'}
+          </p>
         </div>
         {!editing ? (
           <button
@@ -162,19 +198,21 @@ const StudentProfile = () => {
           </button>
         ) : (
           <div className="flex gap-2">
-            <button
-              onClick={handleCancel}
-              className="flex items-center gap-2 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-bold transition-colors"
-            >
-              <X size={20} />
-              Cancel
-            </button>
+            {!needsSetup && (
+              <button
+                onClick={handleCancel}
+                className="flex items-center gap-2 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-bold transition-colors"
+              >
+                <X size={20} />
+                Cancel
+              </button>
+            )}
             <button
               onClick={handleSave}
               className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl font-bold hover:from-green-400 hover:to-emerald-400 transition-all shadow-lg"
             >
               <Save size={20} />
-              Save Changes
+              {needsSetup ? 'Save Profile' : 'Save Changes'}
             </button>
           </div>
         )}
@@ -187,12 +225,12 @@ const StudentProfile = () => {
             <User className="text-white" size={48} />
           </div>
           <div>
-            <h2 className="text-3xl font-black text-white">{profile.fullName}</h2>
-            <p className="text-white/60">Student ID: {profile.id.slice(0, 8).toUpperCase()}</p>
+            <h2 className="text-3xl font-black text-white">{display.fullName}</h2>
+            <p className="text-white/60">Student ID: {display.id.slice(0, 8).toUpperCase()}</p>
             <span className={`inline-block mt-2 px-3 py-1 rounded-full text-sm font-bold ${
-              profile.status === 'active' ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'
+              display.status === 'active' ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'
             }`}>
-              {profile.status === 'active' ? 'Active Student' : 'Inactive'}
+              {display.status === 'active' ? 'Active Student' : 'Inactive'}
             </span>
           </div>
         </div>
@@ -207,15 +245,24 @@ const StudentProfile = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-bold text-white mb-2">Full Name</label>
-                <div className="w-full px-4 py-3 bg-slate-900/50 border border-white/10 rounded-xl text-white">
-                  {profile.fullName}
-                </div>
+                {editing ? (
+                  <input
+                    type="text"
+                    value={formData.fullName || ''}
+                    onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                    className="w-full px-4 py-3 bg-slate-900/50 border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary-500/50"
+                  />
+                ) : (
+                  <div className="w-full px-4 py-3 bg-slate-900/50 border border-white/10 rounded-xl text-white">
+                    {display.fullName}
+                  </div>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-bold text-white mb-2">Email</label>
                 <div className="w-full px-4 py-3 bg-slate-900/50 border border-white/10 rounded-xl text-white flex items-center gap-2">
                   <Mail size={16} className="text-primary-400" />
-                  {profile.email}
+                  {display.email}
                 </div>
               </div>
               <div>
@@ -230,22 +277,43 @@ const StudentProfile = () => {
                 ) : (
                   <div className="w-full px-4 py-3 bg-slate-900/50 border border-white/10 rounded-xl text-white flex items-center gap-2">
                     <Phone size={16} className="text-primary-400" />
-                    {profile.phone}
+                    {display.phone}
                   </div>
                 )}
               </div>
               <div>
                 <label className="block text-sm font-bold text-white mb-2">Date of Birth</label>
-                <div className="w-full px-4 py-3 bg-slate-900/50 border border-white/10 rounded-xl text-white flex items-center gap-2">
-                  <Calendar size={16} className="text-primary-400" />
-                  {new Date(profile.dateOfBirth).toLocaleDateString()}
-                </div>
+                {editing ? (
+                  <input
+                    type="date"
+                    value={formData.dateOfBirth || ''}
+                    onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
+                    className="w-full px-4 py-3 bg-slate-900/50 border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary-500/50"
+                  />
+                ) : (
+                  <div className="w-full px-4 py-3 bg-slate-900/50 border border-white/10 rounded-xl text-white flex items-center gap-2">
+                    <Calendar size={16} className="text-primary-400" />
+                    {dobText}
+                  </div>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-bold text-white mb-2">Gender</label>
-                <div className="w-full px-4 py-3 bg-slate-900/50 border border-white/10 rounded-xl text-white">
-                  {profile.gender.charAt(0).toUpperCase() + profile.gender.slice(1)}
-                </div>
+                {editing ? (
+                  <select
+                    value={formData.gender || ''}
+                    onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
+                    className="w-full px-4 py-3 bg-slate-900/50 border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary-500/50"
+                  >
+                    <option value="">Select</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                  </select>
+                ) : (
+                  <div className="w-full px-4 py-3 bg-slate-900/50 border border-white/10 rounded-xl text-white">
+                    {genderText}
+                  </div>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-bold text-white mb-2">Address</label>
@@ -259,7 +327,7 @@ const StudentProfile = () => {
                 ) : (
                   <div className="w-full px-4 py-3 bg-slate-900/50 border border-white/10 rounded-xl text-white flex items-center gap-2">
                     <MapPin size={16} className="text-primary-400" />
-                    {profile.address || 'Not provided'}
+                    {display.address || 'Not provided'}
                   </div>
                 )}
               </div>
@@ -284,7 +352,7 @@ const StudentProfile = () => {
                   />
                 ) : (
                   <div className="w-full px-4 py-3 bg-slate-900/50 border border-white/10 rounded-xl text-white">
-                    {profile.guardianName || 'Not provided'}
+                    {display.guardianName || 'Not provided'}
                   </div>
                 )}
               </div>
@@ -300,7 +368,7 @@ const StudentProfile = () => {
                 ) : (
                   <div className="w-full px-4 py-3 bg-slate-900/50 border border-white/10 rounded-xl text-white flex items-center gap-2">
                     <Phone size={16} className="text-accent-400" />
-                    {profile.guardianPhone || 'Not provided'}
+                    {display.guardianPhone || 'Not provided'}
                   </div>
                 )}
               </div>
@@ -316,7 +384,7 @@ const StudentProfile = () => {
                 ) : (
                   <div className="w-full px-4 py-3 bg-slate-900/50 border border-white/10 rounded-xl text-white flex items-center gap-2">
                     <Mail size={16} className="text-accent-400" />
-                    {profile.guardianEmail || 'Not provided'}
+                    {display.guardianEmail || 'Not provided'}
                   </div>
                 )}
               </div>
@@ -333,14 +401,14 @@ const StudentProfile = () => {
               <div>
                 <label className="block text-sm font-bold text-white mb-2">Current Course</label>
                 <div className="w-full px-4 py-3 bg-slate-900/50 border border-white/10 rounded-xl text-white">
-                  {profile.currentCourse || 'Not assigned'}
+                  {display.currentCourse || 'Not assigned'}
                 </div>
               </div>
               <div>
                 <label className="block text-sm font-bold text-white mb-2">Enrollment Date</label>
                 <div className="w-full px-4 py-3 bg-slate-900/50 border border-white/10 rounded-xl text-white flex items-center gap-2">
                   <Calendar size={16} className="text-green-400" />
-                  {new Date(profile.enrollmentDate).toLocaleDateString()}
+                  {enrollmentText}
                 </div>
               </div>
             </div>
