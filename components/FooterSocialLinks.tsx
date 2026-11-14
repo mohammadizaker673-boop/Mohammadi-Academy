@@ -1,14 +1,7 @@
 import React from 'react';
-import { 
-  Facebook, 
-  Twitter, 
-  Instagram, 
-  Linkedin, 
-  Youtube, 
-  MessageCircle, 
-  Send, 
-  Music,
-  Phone
+import {
+  Facebook,
+  MessageCircle,
 } from 'lucide-react';
 import { TRANSLATIONS, WHATSAPP_NUMBER } from '../constants';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -26,6 +19,9 @@ export const FooterSocialLinks: React.FC = () => {
   const { language } = useLanguage();
   const t = TRANSLATIONS[language];
 
+  // Only links verified to be real: Facebook (Quranultimatetruth) and
+  // WhatsApp (+923195807382). The other handles were guesses and are
+  // removed rather than shown as if they were the academy's accounts.
   const socialLinks: SocialLink[] = [
     {
       id: 'facebook',
@@ -36,60 +32,12 @@ export const FooterSocialLinks: React.FC = () => {
       bgColor: 'hover:bg-blue-400/20'
     },
     {
-      id: 'twitter',
-      name: t.socialMedia.twitter,
-      icon: <Twitter className="w-4 h-4" />,
-      url: 'https://twitter.com/mohammadiacademy',
-      color: 'hover:text-sky-400',
-      bgColor: 'hover:bg-sky-400/20'
-    },
-    {
-      id: 'instagram',
-      name: t.socialMedia.instagram,
-      icon: <Instagram className="w-4 h-4" />,
-      url: 'https://instagram.com/mohammadiacademy',
-      color: 'hover:text-pink-400',
-      bgColor: 'hover:bg-pink-400/20'
-    },
-    {
-      id: 'linkedin',
-      name: t.socialMedia.linkedin,
-      icon: <Linkedin className="w-4 h-4" />,
-      url: 'https://linkedin.com/company/mohammadi-academy',
-      color: 'hover:text-blue-500',
-      bgColor: 'hover:bg-blue-500/20'
-    },
-    {
-      id: 'youtube',
-      name: t.socialMedia.youtube,
-      icon: <Youtube className="w-4 h-4" />,
-      url: 'https://youtube.com/@mohammadiacademy',
-      color: 'hover:text-red-400',
-      bgColor: 'hover:bg-red-400/20'
-    },
-    {
       id: 'whatsapp',
       name: t.socialMedia.whatsapp,
       icon: <MessageCircle className="w-4 h-4" />,
       url: `https://wa.me/${WHATSAPP_NUMBER}`,
       color: 'hover:text-green-400',
       bgColor: 'hover:bg-green-400/20'
-    },
-    {
-      id: 'telegram',
-      name: t.socialMedia.telegram,
-      icon: <Send className="w-4 h-4" />,
-      url: 'https://telegram.me/mohammadiacademy',
-      color: 'hover:text-sky-300',
-      bgColor: 'hover:bg-sky-300/20'
-    },
-    {
-      id: 'tiktok',
-      name: t.socialMedia.tiktok,
-      icon: <Music className="w-4 h-4" />,
-      url: 'https://tiktok.com/@mohammadiacademy',
-      color: 'hover:text-black dark:hover:text-white',
-      bgColor: 'hover:bg-black/20 dark:hover:bg-white/20'
     }
   ];
 

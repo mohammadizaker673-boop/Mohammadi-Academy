@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { collection, getDocs, query, where } from 'firebase/firestore';
-import { db } from '../../services/firebase';
 import { Calendar, CheckCircle, XCircle, Clock, FileCheck, TrendingUp, AlertCircle, Download } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
+import { getStudentByUserId, getAttendanceByStudentId } from '../../services/db';
 
 interface AttendanceRecord {
   id: string;
@@ -13,39 +13,37 @@ interface AttendanceRecord {
 }
 
 export default function MyAttendance() {
+  const { user } = useAuth();
   const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>([]);
   const [loading, setLoading] = useState(true);
+  const [noStudentRecord, setNoStudentRecord] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-  
-  // Mock student ID - should come from auth context
-  const studentId = 'current-student-id';
 
   useEffect(() => {
-    fetchAttendance();
-  }, []);
+    if (user?.uid) fetchAttendance();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.uid]);
 
   const fetchAttendance = async () => {
     try {
-      const attendanceSnap = await getDocs(collection(db, 'attendance'));
-      
-      const records: AttendanceRecord[] = [];
-      attendanceSnap.docs.forEach(doc => {
-        const data = doc.data();
-        const studentRecord = data.students?.find((s: any) => s.studentId === studentId);
-        
-        if (studentRecord) {
-          records.push({
-            id: doc.id,
-            date: data.date,
-            courseName: data.courseName,
-            subject: data.subject,
-            status: studentRecord.status,
-            markedAt: studentRecord.markedAt,
-          });
-        }
-      });
-
+      // Real identity: the logged-in student's Supabase record, whose id is
+      // the student_id the teacher's attendance marking stores.
+      const student = await getStudentByUserId(user!.uid);
+      if (!student) {
+        setNoStudentRecord(true);
+        setAttendanceRecords([]);
+        return;
+      }
+      const rows = await getAttendanceByStudentId(student.id);
+      const records: AttendanceRecord[] = rows.map((r: any) => ({
+        id: r.id,
+        date: r.date,
+        courseName: r.courseName || r.course_name || '',
+        subject: r.lessonTopic || r.lesson_topic || '',
+        status: (r.status === 'excused' ? 'leave' : r.status) as AttendanceRecord['status'],
+        markedAt: r.createdAt || r.created_at,
+      }));
       records.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
       setAttendanceRecords(records);
     } catch (error) {
@@ -125,6 +123,19 @@ export default function MyAttendance() {
         </h1>
         <p className="text-gray-600 mt-2">Track your class attendance and performance</p>
       </div>
+
+      {noStudentRecord && (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 flex items-start gap-4">
+          <AlertCircle className="text-amber-600 mt-1" size={24} />
+          <div>
+            <h3 className="font-bold text-amber-900">No student record found</h3>
+            <p className="text-amber-800 text-sm mt-1">
+              Your account is not linked to a student record yet, so there is no attendance to show.
+              Once you are enrolled, your teacher-marked attendance will appear here.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Today's Status */}
       {todayStatus ? (

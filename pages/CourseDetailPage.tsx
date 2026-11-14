@@ -1,35 +1,27 @@
 ﻿import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { BookOpen, Clock, Users, GraduationCap, CheckCircle, Calendar, Video, Globe, ArrowLeft, Play, Sparkles, Shield, CreditCard } from 'lucide-react';
+import { BookOpen, Clock, Users, GraduationCap, CheckCircle, Calendar, Video, Globe, ArrowLeft, Play, Sparkles, Shield, CreditCard, MessageCircle, AlertCircle } from 'lucide-react';
 import { courses } from '../data/courses';
 import { Seo } from '../components/Seo';
 import LanguageSelector from '../components/LanguageSelector';
 import LogoLink from '../components/LogoLink';
 import { DepthOrbs } from '../components/motion/MotionElements';
+import { supabase } from '../services/supabase';
+import { useAuth } from '../contexts/AuthContext';
+import { WHATSAPP_NUMBER } from '../constants';
 
-// ─── Enrollment helpers ──────────────────────────────────
-const ENROLLMENT_KEY = 'ma_enrollments';
-
-const getEnrollments = (): Record<string, { plan: number; enrolledAt: string }> => {
-  try {
-    const raw = localStorage.getItem(ENROLLMENT_KEY);
-    return raw ? JSON.parse(raw) : {};
-  } catch { return {}; }
-};
-
-const enrollInCourse = (courseId: string, planIndex: number) => {
-  const enrollments = getEnrollments();
-  enrollments[courseId] = { plan: planIndex, enrolledAt: new Date().toISOString() };
-  localStorage.setItem(ENROLLMENT_KEY, JSON.stringify(enrollments));
-};
-
-const isEnrolled = (courseId: string): boolean => {
-  return !!getEnrollments()[courseId];
-};
+// ─── Enrolment ─────────────────────────────────────────
+// There is no payment gateway on the site. Enrolling creates a REAL
+// enrolment request the academy can see (admission_requests for logged-in
+// students, contact_messages for guests) and hands the student to WhatsApp
+// to book the free trial and confirm the plan. Nothing is claimed as
+// "enrolled" until that record exists.
+const ENROLMENT_PREFIX = 'enrolment:';
 
 const CourseDetailPage: React.FC = () => {
   const { courseId } = useParams<{ courseId: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const course = courses.find(c => c.id === courseId);
 
   const isHifzCourse = courseId === 'hifz-quran';
@@ -38,18 +30,76 @@ const CourseDetailPage: React.FC = () => {
 
   const [enrolled, setEnrolled] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(0);
-  const [showEnrollSuccess, setShowEnrollSuccess] = useState(false);
+  const [enrolling, setEnrolling] = useState(false);
+  const [enrollError, setEnrollError] = useState(false);
 
+  // Has this student already requested enrolment for this course?
   useEffect(() => {
-    if (courseId) setEnrolled(isEnrolled(courseId));
-  }, [courseId]);
+    if (!courseId || !user?.email) return;
+    let cancelled = false;
+    (async () => {
+      const { data, error } = await supabase
+        .from('admission_requests')
+        .select('id')
+        .eq('email', user.email!.trim().toLowerCase())
+        .eq('course_interest', `${ENROLMENT_PREFIX}${courseId}`)
+        .limit(1);
+      if (!cancelled && !error && data && data.length > 0) setEnrolled(true);
+    })();
+    return () => { cancelled = true; };
+  }, [courseId, user?.email]);
 
-  const handleEnroll = () => {
-    if (!courseId) return;
-    enrollInCourse(courseId, selectedPlan);
-    setEnrolled(true);
-    setShowEnrollSuccess(true);
-    setTimeout(() => setShowEnrollSuccess(false), 3000);
+  const whatsappEnrolUrl = () => {
+    if (!course) return `https://wa.me/${WHATSAPP_NUMBER}`;
+    const plan = course.pricing[selectedPlan];
+    const planText = plan.pricePerMonth === 0
+      ? `${plan.label} (Free)`
+      : `${plan.label} — $${plan.pricePerMonth}/month`;
+    const text = `Assalamu alaikum, I want to enrol in ${course.title} (${planText}). Please confirm my free trial.`;
+    return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
+  };
+
+  const handleEnroll = async () => {
+    if (!courseId || !course || enrolling) return;
+    setEnrolling(true);
+    setEnrollError(false);
+    const plan = course.pricing[selectedPlan];
+    const planText = plan.pricePerMonth === 0
+      ? `${plan.label} (Free)`
+      : `${plan.label} — $${plan.pricePerMonth}/month`;
+    const requestMessage = `Enrolment request for ${course.title} (${courseId}). Plan: ${planText}. Student to complete enrolment on WhatsApp.`;
+    try {
+      if (user?.email) {
+        // Logged-in student: real record in admission_requests (admin sees it).
+        const { error } = await supabase.from('admission_requests').insert({
+          full_name: user.displayName || user.email.split('@')[0],
+          email: user.email.trim().toLowerCase(),
+          phone: user.phone || '',
+          status: 'pending',
+          student_type: 'online',
+          course_interest: `${ENROLMENT_PREFIX}${courseId}`,
+          message: requestMessage,
+        });
+        if (error) throw error;
+      } else {
+        // Guest: admission_requests is authenticated-only, so the request
+        // goes to contact_messages (visitors can write there) instead.
+        const { error } = await supabase.from('contact_messages').insert({
+          name: 'Guest enrolment request',
+          email: '',
+          phone: '',
+          subject: `Enrolment Request: ${course.title}`,
+          message: requestMessage,
+        });
+        if (error) throw error;
+      }
+      setEnrolled(true);
+    } catch (err) {
+      console.error('Enrolment request failed:', err);
+      setEnrollError(true);
+    } finally {
+      setEnrolling(false);
+    }
   };
 
   const handleLaunchCourse = () => {
@@ -107,14 +157,6 @@ const CourseDetailPage: React.FC = () => {
       />
       <script type="application/ld+json">{JSON.stringify(courseJsonLd)}</script>
       <DepthOrbs count={3} colors={['rgba(59,130,246,0.10)', 'rgba(245,158,11,0.07)', 'rgba(139,92,246,0.08)']} />
-
-      {/* Enrollment success toast */}
-      {showEnrollSuccess && (
-        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[100] px-6 py-3 bg-emerald-500 text-white font-bold rounded-xl shadow-2xl shadow-emerald-500/30 flex items-center gap-2 animate-bounce">
-          <CheckCircle className="w-5 h-5" />
-          Enrolled successfully! You can now start learning.
-        </div>
-      )}
 
       <header className="bg-[#050a12]/80 backdrop-blur-2xl border-b border-white/10 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
@@ -325,11 +367,11 @@ const CourseDetailPage: React.FC = () => {
               <div className="text-center mb-8">
                 <Shield className="w-10 h-10 text-primary-400 mx-auto mb-3" />
                 <h2 className="text-3xl font-black text-white mb-2">
-                  {enrolled ? 'You\'re Enrolled!' : (isFree ? 'Enroll for Free' : 'Choose Your Plan & Enroll')}
+                  {enrolled ? 'Enrolment Requested!' : (isFree ? 'Enroll for Free' : 'Choose Your Plan & Enroll')}
                 </h2>
                 <p className="text-slate-300 max-w-lg mx-auto">
                   {enrolled
-                    ? 'You have access to this course. Start learning anytime.'
+                    ? 'Your request is with the academy. Complete it on WhatsApp to book your free trial and confirm your plan — and you can start your trial lesson below.'
                     : 'Select a plan that fits your schedule and begin your learning journey today.'}
                 </p>
               </div>
@@ -338,15 +380,24 @@ const CourseDetailPage: React.FC = () => {
                 <div className="text-center">
                   <div className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-500/20 border border-emerald-500/40 rounded-xl text-emerald-400 font-bold mb-6">
                     <CheckCircle className="w-5 h-5" />
-                    Enrolled
+                    Enrolment requested
                   </div>
-                  <div>
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                    <a
+                      href={whatsappEnrolUrl()}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl text-white font-black text-lg hover:from-green-400 hover:to-emerald-400 transition-all shadow-lg shadow-emerald-500/20 flex items-center gap-3"
+                    >
+                      <MessageCircle className="w-6 h-6" />
+                      Complete on WhatsApp
+                    </a>
                     <button
                       onClick={handleLaunchCourse}
-                      className="px-10 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-2xl text-white font-black text-lg hover:from-emerald-400 hover:to-teal-400 transition-all shadow-lg shadow-emerald-500/20 flex items-center gap-3 mx-auto"
+                      className="px-8 py-4 bg-white/10 border border-white/20 rounded-2xl text-white font-black text-lg hover:bg-white/20 transition-all flex items-center gap-3"
                     >
                       <Play className="w-6 h-6" />
-                      Start Learning Now
+                      Start Free Trial Lesson
                     </button>
                   </div>
                 </div>
@@ -389,14 +440,21 @@ const CourseDetailPage: React.FC = () => {
                   <div className="text-center">
                     <button
                       onClick={handleEnroll}
-                      className="px-10 py-4 bg-gradient-to-r from-primary-500 to-accent-500 rounded-2xl text-white font-black text-lg hover:from-primary-400 hover:to-accent-400 transition-all shadow-lg shadow-primary-500/20 flex items-center gap-3 mx-auto"
+                      disabled={enrolling}
+                      className="px-10 py-4 bg-gradient-to-r from-primary-500 to-accent-500 rounded-2xl text-white font-black text-lg hover:from-primary-400 hover:to-accent-400 transition-all shadow-lg shadow-primary-500/20 flex items-center gap-3 mx-auto disabled:opacity-60"
                     >
                       <CreditCard className="w-6 h-6" />
-                      {isFree ? 'Enroll for Free' : `Enroll — $${course.pricing[selectedPlan].pricePerMonth}/month`}
+                      {enrolling ? 'Sending request…' : (isFree ? 'Enroll for Free' : `Enroll — $${course.pricing[selectedPlan].pricePerMonth}/month`)}
                     </button>
                     <p className="text-xs text-slate-500 mt-3">
-                      {isFree ? 'No payment required. Start learning immediately.' : 'Payment will be processed securely. Cancel anytime.'}
+                      No payment now — your request goes to the academy, then you book your free trial and confirm your plan on WhatsApp.
                     </p>
+                    {enrollError && (
+                      <p className="text-sm text-red-300 mt-3 flex items-center justify-center gap-2">
+                        <AlertCircle className="w-4 h-4" />
+                        We could not send your request. Please try again, or message us directly on WhatsApp.
+                      </p>
+                    )}
                   </div>
                 </>
               )}

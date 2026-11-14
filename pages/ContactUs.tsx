@@ -1,5 +1,5 @@
 ﻿import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Mail, Phone, MapPin, Send, Clock, MessageCircle } from 'lucide-react';
 import { PHONE_NUMBER } from '../constants';
 import { supabase } from '../services/supabase';
@@ -27,6 +27,23 @@ const ContactUs: React.FC = () => {
   const [submitted, setSubmitted] = useState(false);
   const [sending, setSending] = useState(false);
   const [sendError, setSendError] = useState(false);
+  const [searchParams] = useSearchParams();
+
+  // Pre-fill a purchase request when arriving from a store product page
+  // (?product=...&price=...), so the request names the product.
+  useEffect(() => {
+    const product = searchParams.get('product');
+    const price = searchParams.get('price');
+    if (product) {
+      setFormData((prev) => ({
+        ...prev,
+        subject: 'purchase',
+        message: prev.message || `I would like to purchase '${product}'${price ? ` ($${price})` : ''}. Please share payment and download details.`,
+      }));
+    }
+    // Only on mount — the store links are the only source of these params.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (t && t.dir) {
@@ -244,6 +261,7 @@ const ContactUs: React.FC = () => {
                     <option value="admission">Admission Inquiry</option>
                     <option value="courses">Course Information</option>
                     <option value="pricing">Pricing & Fees</option>
+                    <option value="purchase">Purchase Request</option>
                     <option value="technical">Technical Support</option>
                     <option value="feedback">Feedback</option>
                     <option value="other">Other</option>

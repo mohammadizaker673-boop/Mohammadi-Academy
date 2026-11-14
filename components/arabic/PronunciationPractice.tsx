@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Volume2, Mic, MicOff, Check, AlertCircle, Zap, Repeat2 } from 'lucide-react';
 import { arabicAlphabet } from '../../data/arabicCurriculum';
+import { arabicSimilarity } from '../../utils/arabicSimilarity';
 
 interface PronunciationWord {
   word: string;
@@ -45,6 +46,16 @@ const PronunciationPractice: React.FC = () => {
   const [currentLetter, setCurrentLetter] = useState(0);
   const recognitionRef = useRef<any>(null);
   const synthRef = useRef<SpeechSynthesisUtterance | null>(null);
+  // Latest recognised text + current target, kept in refs so the
+  // recognition `onend` handler always scores the right word/letter.
+  const transcriptRef = useRef('');
+  const targetRef = useRef(pronunciationWords[0].word);
+
+  useEffect(() => {
+    targetRef.current = selectedTab === 'words'
+      ? pronunciationWords[state.currentIndex].word
+      : arabicAlphabet[currentLetter].letter;
+  }, [selectedTab, state.currentIndex, currentLetter]);
 
   // Initialize Web Speech API
   useEffect(() => {
@@ -75,29 +86,31 @@ const PronunciationPractice: React.FC = () => {
     }
 
     setState(prev => ({ ...prev, isListening: true, transcript: '' }));
+    transcriptRef.current = '';
 
     recognitionRef.current.onResult = (event: any) => {
       let interim_transcript = '';
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const transcript = event.results[i][0].transcript;
         if (event.results[i].isFinal) {
+          transcriptRef.current = transcript;
           setState(prev => ({ ...prev, transcript: transcript }));
         } else {
           interim_transcript += transcript;
         }
       }
       if (interim_transcript) {
+        transcriptRef.current = interim_transcript;
         setState(prev => ({ ...prev, transcript: interim_transcript }));
       }
     };
 
     recognitionRef.current.onend = () => {
       setState(prev => ({ ...prev, isListening: false, hasRecorded: true }));
-      // Calculate accuracy (simplified - in production use better speech recognition)
-      setTimeout(() => {
-        const accuracy = Math.random() * 40 + 60; // 60-100% random for demo
-        setState(prev => ({ ...prev, accuracy: Math.round(accuracy) }));
-      }, 500);
+      // Real score: compare what the recogniser actually heard against the
+      // target word/letter. No score is shown when nothing was recognised.
+      const score = arabicSimilarity(transcriptRef.current, targetRef.current);
+      setState(prev => ({ ...prev, accuracy: score }));
     };
 
     recognitionRef.current.start();
@@ -236,6 +249,15 @@ const PronunciationPractice: React.FC = () => {
                         </p>
                       </div>
                     </div>
+                  </div>
+                )}
+
+                {state.hasRecorded && !state.isListening && state.accuracy === null && (
+                  <div className="mt-4 p-4 bg-orange-500/10 rounded-lg border border-orange-500/40 flex items-start gap-3">
+                    <AlertCircle className="text-orange-400 shrink-0 mt-0.5" size={20} />
+                    <p className="text-orange-200 text-sm">
+                      We could not hear you clearly. Check your microphone and try again — no score is shown when nothing was recognised.
+                    </p>
                   </div>
                 )}
               </div>
@@ -395,6 +417,15 @@ const PronunciationPractice: React.FC = () => {
                       </p>
                     </div>
                   </div>
+                </div>
+              )}
+
+              {state.hasRecorded && !state.isListening && state.accuracy === null && (
+                <div className="p-4 bg-orange-500/10 rounded-lg border border-orange-500/40 flex items-start gap-3 text-left">
+                  <AlertCircle className="text-orange-400 shrink-0 mt-0.5" size={20} />
+                  <p className="text-orange-200 text-sm">
+                    We could not hear you clearly. Check your microphone and try again — no score is shown when nothing was recognised.
+                  </p>
                 </div>
               )}
             </div>

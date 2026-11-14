@@ -177,6 +177,26 @@ export const TajweedLessonsModule: React.FC<TajweedLessonsModuleProps> = ({
   const { isDark } = useTheme();
   const [selectedLesson, setSelectedLesson] = useState<string | null>(null);
   const [completedLessons, setCompletedLessons] = useState<string[]>([]);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+
+  // Reads the example text aloud with the browser's Arabic speech
+  // synthesis (the examples are word lists/fragments, not single-ayah
+  // references, so a verse-recording URL cannot be identified for them).
+  const speakExample = (text: string) => {
+    if (!('speechSynthesis' in window)) return;
+    if (isSpeaking) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+      return;
+    }
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'ar-SA';
+    utterance.rate = 0.7;
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
+    setIsSpeaking(true);
+    window.speechSynthesis.speak(utterance);
+  };
 
   const lessons = LESSONS_DATA[level];
   const selectedLessonData = selectedLesson ? lessons.find(l => l.id === selectedLesson) : null;
@@ -346,9 +366,13 @@ export const TajweedLessonsModule: React.FC<TajweedLessonsModuleProps> = ({
                   <p className="text-right text-lg font-arabic leading-relaxed mb-2">
                     {selectedLessonData.ayahExample}
                   </p>
-                  <button className="flex items-center gap-2 text-blue-500 hover:text-blue-600 font-semibold text-sm">
+                  <button
+                    type="button"
+                    onClick={() => speakExample(selectedLessonData.ayahExample)}
+                    className="flex items-center gap-2 text-blue-500 hover:text-blue-600 font-semibold text-sm"
+                  >
                     <Volume2 className="w-4 h-4" />
-                    Listen to Audio
+                    {isSpeaking ? 'Stop Audio' : 'Listen to Audio'}
                   </button>
                 </div>
               </div>
