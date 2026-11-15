@@ -150,6 +150,11 @@ export const ROUTE_SEO: Record<string, { title: string; description: string }> =
     description:
       'Answers to common questions about Mohammadi Online Quran Academy — fees, class timings, teachers, trial lessons, Hifz, and how online Quran classes work.',
   },
+  '/admissions': {
+    title: 'Admissions — How to Enrol | Mohammadi Online Quran Academy',
+    description:
+      'How to join Mohammadi Online Quran Academy — choose a Quran course, pick a morning or evening schedule, see tuition ($35–$75/month), and book a free trial lesson.',
+  },
   '/contact': {
     title: 'Contact Us',
     description:

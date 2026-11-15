@@ -58,6 +58,7 @@ const STATIC_ROUTES = [
   ['/store', 'monthly', '0.6'],
   ['/about', 'monthly', '0.7'],
   ['/faq', 'monthly', '0.7'],
+  ['/admissions', 'monthly', '0.8'],
   ['/contact', 'monthly', '0.7'],
   ['/start', 'monthly', '0.8'],
 ];
