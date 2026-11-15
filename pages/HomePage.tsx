@@ -404,6 +404,7 @@ const HomePage: React.FC = () => {
                 <Link to="/about" onClick={() => setMobileMenuOpen(false)} className="px-4 py-3 text-slate-200 hover:bg-white/5 rounded-lg text-sm font-semibold transition-colors">{t.footerExtra?.aboutUs || 'About Us'}</Link>
                 <Link to="/videos" onClick={() => setMobileMenuOpen(false)} className="px-4 py-3 text-slate-200 hover:bg-white/5 rounded-lg text-sm font-semibold transition-colors">Videos</Link>
                 <Link to="/faq" onClick={() => setMobileMenuOpen(false)} className="px-4 py-3 text-slate-200 hover:bg-white/5 rounded-lg text-sm font-semibold transition-colors">FAQ</Link>
+                <Link to="/admissions" onClick={() => setMobileMenuOpen(false)} className="px-4 py-3 text-slate-200 hover:bg-white/5 rounded-lg text-sm font-semibold transition-colors">Admissions</Link>
                 <Link to="/contact" onClick={() => setMobileMenuOpen(false)} className="px-4 py-3 text-slate-200 hover:bg-white/5 rounded-lg text-sm font-semibold transition-colors">{t.footerExtra?.contactUs || 'Contact Us'}</Link>
               </div>
               {/* Mobile auth buttons */}
@@ -655,6 +656,7 @@ const HomePage: React.FC = () => {
                 <li><Link to="/about" className="text-slate-300 hover:text-primary-400 transition-colors">{t.footerExtra?.aboutUs || t.aboutUs?.title || 'About Us'}</Link></li>
                 {language === 'en' && <li><Link to="/quran-tajweed" className="text-slate-300 hover:text-primary-400 transition-colors">{t.footerExtra?.quranLink || 'Quran'}</Link></li>}
                 <li><Link to="/register" className="text-slate-300 hover:text-primary-400 transition-colors">{t.nav.register}</Link></li>
+                <li><Link to="/admissions" className="text-slate-300 hover:text-primary-400 transition-colors">Admissions</Link></li>
               </ul>
             </div>
             <div>

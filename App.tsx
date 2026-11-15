@@ -79,6 +79,7 @@ const VideosPage = React.lazy(() => import('./pages/VideosPage'));
 const VideoDetailPage = React.lazy(() => import('./pages/VideoDetailPage'));
 const ArticleDetailPage = React.lazy(() => import('./pages/ArticleDetailPage'));
 const FAQPage = React.lazy(() => import('./pages/FAQPage'));
+const AdmissionsPage = React.lazy(() => import('./pages/AdmissionsPage'));
 const StudentProgressPage = React.lazy(() => import('./pages/StudentProgressPage'));
 const AdminAnalyticsPage = React.lazy(() => import('./pages/AdminAnalyticsPage'));
 const StartLearningPage = React.lazy(() => import('./pages/StartLearningPage'));
@@ -251,6 +252,7 @@ const App: React.FC = () => {
             <Route path="/learn/:courseId" element={<CourseLearningPage />} />
             <Route path="/create-course" element={<CreateCoursePage />} />
             <Route path="/faq" element={<FAQPage />} />
+            <Route path="/admissions" element={<AdmissionsPage />} />
             <Route path="/articles" element={<ArticlesPage />} />
             <Route path="/videos" element={<VideosPage />} />
             <Route path="/videos/:videoId" element={<VideoDetailPage />} />

@@ -12,6 +12,7 @@
   <url><loc>https://mohammadiacademy.org/store</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://mohammadiacademy.org/about</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://mohammadiacademy.org/faq</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://mohammadiacademy.org/admissions</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://mohammadiacademy.org/contact</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://mohammadiacademy.org/start</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://mohammadiacademy.org/courses/noorani-qaida</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
@@ -49,16 +50,18 @@
   <url><loc>https://mohammadiacademy.org/courses/fiqh-worship</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://mohammadiacademy.org/courses/kids-islamic-foundations</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://mohammadiacademy.org/courses/tafsir-quran</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://mohammadiacademy.org/videos/1118411574305998</loc><lastmod>2026-11-15</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://mohammadiacademy.org/videos/1118060464341109</loc><lastmod>2026-11-15</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://mohammadiacademy.org/videos/1117175761096246</loc><lastmod>2026-11-14</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://mohammadiacademy.org/videos/1116924251121397</loc><lastmod>2026-11-14</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://mohammadiacademy.org/videos/1115168944630261</loc><lastmod>2026-11-12</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://mohammadiacademy.org/videos/1114289591384863</loc><lastmod>2026-11-11</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://mohammadiacademy.org/videos/1114066541407168</loc><lastmod>2026-11-11</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://mohammadiacademy.org/videos/1110725868407902</loc><lastmod>2026-11-08</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://mohammadiacademy.org/videos/1109627125184443</loc><lastmod>2026-11-07</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://mohammadiacademy.org/videos/1108894625257693</loc><lastmod>2026-11-06</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://mohammadiacademy.org/videos/1107078458772643</loc><lastmod>2026-11-04</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://mohammadiacademy.org/videos/1106598055487350</loc><lastmod>2026-11-04</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://mohammadiacademy.org/videos/1104858265661329</loc><lastmod>2026-11-02</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://mohammadiacademy.org/videos/1104074355739720</loc><lastmod>2026-11-01</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://mohammadiacademy.org/videos/1103790752434747</loc><lastmod>2026-11-01</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://mohammadiacademy.org/videos/1101916685955487</loc><lastmod>2026-10-30</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://mohammadiacademy.org/videos/1100924926054663</loc><lastmod>2026-10-29</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://mohammadiacademy.org/articles/light-of-knowledge</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://mohammadiacademy.org/articles/raising-children-with-values</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://mohammadiacademy.org/articles/finding-peace-in-prayer</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
