@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Play, ExternalLink, Calendar, Facebook } from 'lucide-react';
 import facebookData from '../data/facebookPosts.json';
@@ -11,6 +11,7 @@ export interface FacebookPost {
   media_type: string;
   url: string;
   embed_url: string;
+  thumbnail_url?: string;
 }
 
 export const FACEBOOK_PAGE_URL = facebookData.page_url as string;
@@ -26,21 +27,54 @@ export function formatPostDate(iso: string): string {
 /**
  * One synced Facebook video/post. Plays inline via Facebook's video plugin
  * (no Facebook login needed to watch), with a link out to the original post.
+ *
+ * The posts are Reels — tall vertical 9:16 videos. The player box is
+ * therefore 9:16 too: in a wide 16:9 box Facebook's plugin cropped the top
+ * and bottom off, and the dark first frame made it look like a black box
+ * with only audio. The player shows the video's thumbnail with a play
+ * button first (click-to-play), so it never looks black, and the plugin
+ * iframe only loads after the tap.
  */
-export const FacebookVideoCard: React.FC<{ post: FacebookPost }> = ({ post }) => (
+export const FacebookVideoCard: React.FC<{ post: FacebookPost }> = ({ post }) => {
+  const [playing, setPlaying] = useState(false);
+  return (
   <article className="rounded-2xl border border-white/10 bg-white/5 overflow-hidden flex flex-col">
-    <div className="relative aspect-video bg-black">
-      <iframe
-        src={post.embed_url}
-        title={post.title}
-        className="absolute inset-0 w-full h-full"
-        style={{ border: 'none', overflow: 'hidden' }}
-        scrolling="no"
-        frameBorder="0"
-        allowFullScreen
-        allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-        loading="lazy"
-      />
+    <div className="relative aspect-[9/16] bg-black">
+      {playing ? (
+        <iframe
+          src={post.embed_url}
+          title={post.title}
+          className="absolute inset-0 w-full h-full"
+          style={{ border: 'none', overflow: 'hidden' }}
+          scrolling="no"
+          frameBorder="0"
+          allowFullScreen
+          allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+        />
+      ) : (
+        <button
+          type="button"
+          onClick={() => setPlaying(true)}
+          className="absolute inset-0 w-full h-full group cursor-pointer"
+          aria-label={`Play ${post.title}`}
+        >
+          {post.thumbnail_url ? (
+            <img
+              src={post.thumbnail_url}
+              alt={post.title}
+              className="absolute inset-0 w-full h-full object-cover"
+              loading="lazy"
+            />
+          ) : (
+            <span className="absolute inset-0 bg-slate-800" />
+          )}
+          <span className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/10 transition-colors">
+            <span className="w-16 h-16 rounded-full bg-[#1877F2] flex items-center justify-center shadow-lg">
+              <Play size={28} className="text-white ml-1" />
+            </span>
+          </span>
+        </button>
+      )}
     </div>
     <div className="p-5 flex flex-col flex-1">
       <h3 className="text-white font-bold leading-snug line-clamp-2">
@@ -67,7 +101,8 @@ export const FacebookVideoCard: React.FC<{ post: FacebookPost }> = ({ post }) =>
       </div>
     </div>
   </article>
-);
+  );
+};
 
 /** Grid of synced Facebook posts. `limit` caps how many are shown. */
 export const FacebookVideoGrid: React.FC<{ limit?: number }> = ({ limit }) => {
