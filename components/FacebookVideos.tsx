@@ -37,12 +37,18 @@ export function formatPostDate(iso: string): string {
  */
 export const FacebookVideoCard: React.FC<{ post: FacebookPost }> = ({ post }) => {
   const [playing, setPlaying] = useState(false);
+  // autoplay=true so the video starts by itself on hover (desktop) or tap.
+  // Browsers only allow autoplay muted; the viewer can unmute in the player.
+  const embedSrc = post.embed_url + '&autoplay=true';
   return (
   <article className="rounded-2xl border border-white/10 bg-white/5 overflow-hidden flex flex-col">
-    <div className="relative aspect-[9/16] bg-black">
+    <div
+      className="relative aspect-[9/16] bg-black"
+      onMouseEnter={() => setPlaying(true)}
+    >
       {playing ? (
         <iframe
-          src={post.embed_url}
+          src={embedSrc}
           title={post.title}
           className="absolute inset-0 w-full h-full"
           style={{ border: 'none', overflow: 'hidden' }}
@@ -62,7 +68,7 @@ export const FacebookVideoCard: React.FC<{ post: FacebookPost }> = ({ post }) =>
             <img
               src={post.thumbnail_url}
               alt={post.title}
-              className="absolute inset-0 w-full h-full object-cover"
+              className="absolute inset-0 w-full h-full object-contain"
               loading="lazy"
             />
           ) : (
