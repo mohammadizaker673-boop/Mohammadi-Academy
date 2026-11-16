@@ -171,11 +171,17 @@ const VideoDetailPage: React.FC = () => {
             and bottom off, and the dark first frame made it look like a
             black box with only audio. It shows the video's thumbnail with
             a play button first (click-to-play), and the plugin iframe
-            only loads after the tap. */}
-        <div className="relative aspect-[9/16] max-w-[420px] w-full mx-auto bg-black rounded-2xl overflow-hidden mt-8 border border-white/10">
+            only loads after the tap. The thumbnail uses object-contain so
+            the complete frame shows with no cropping (black bars are
+            fine). Hovering the player (desktop) starts it automatically;
+            on mobile a tap starts it. */}
+        <div
+          className="relative aspect-[9/16] max-w-[420px] w-full mx-auto bg-black rounded-2xl overflow-hidden mt-8 border border-white/10"
+          onMouseEnter={() => setPlaying(true)}
+        >
           {playing ? (
             <iframe
-              src={post.embed_url}
+              src={post.embed_url + '&autoplay=true'}
               title={post.title}
               className="absolute inset-0 w-full h-full"
               style={{ border: 'none', overflow: 'hidden' }}
@@ -195,7 +201,7 @@ const VideoDetailPage: React.FC = () => {
                 <img
                   src={post.thumbnail_url}
                   alt={post.title}
-                  className="absolute inset-0 w-full h-full object-cover"
+                  className="absolute inset-0 w-full h-full object-contain"
                 />
               ) : (
                 <span className="absolute inset-0 bg-slate-800" />
