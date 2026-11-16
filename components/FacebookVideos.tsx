@@ -39,12 +39,19 @@ export const FacebookVideoCard: React.FC<{ post: FacebookPost }> = ({ post }) =>
   const [playing, setPlaying] = useState(false);
   // autoplay=true so the video starts by itself on hover (desktop) or tap.
   // Browsers only allow autoplay muted; the viewer can unmute in the player.
+  // Hover uses several event types (mouse + pointer + move) because a
+  // single mouseenter can be missed when the pointer is already over the
+  // player when the page loads.
   const embedSrc = post.embed_url + '&autoplay=true';
+  const startPlaying = () => setPlaying(true);
   return (
   <article className="rounded-2xl border border-white/10 bg-white/5 overflow-hidden flex flex-col">
     <div
       className="relative aspect-[9/16] bg-black"
-      onMouseEnter={() => setPlaying(true)}
+      onMouseEnter={startPlaying}
+      onMouseMove={startPlaying}
+      onPointerEnter={startPlaying}
+      onPointerMove={startPlaying}
     >
       {playing ? (
         <iframe

@@ -174,10 +174,16 @@ const VideoDetailPage: React.FC = () => {
             only loads after the tap. The thumbnail uses object-contain so
             the complete frame shows with no cropping (black bars are
             fine). Hovering the player (desktop) starts it automatically;
-            on mobile a tap starts it. */}
+            on mobile a tap starts it. Hover uses several event types
+            (mouse + pointer + move) because a single mouseenter can be
+            missed when the pointer is already over the player when the
+            page loads. */}
         <div
           className="relative aspect-[9/16] max-w-[420px] w-full mx-auto bg-black rounded-2xl overflow-hidden mt-8 border border-white/10"
           onMouseEnter={() => setPlaying(true)}
+          onMouseMove={() => setPlaying(true)}
+          onPointerEnter={() => setPlaying(true)}
+          onPointerMove={() => setPlaying(true)}
         >
           {playing ? (
             <iframe
