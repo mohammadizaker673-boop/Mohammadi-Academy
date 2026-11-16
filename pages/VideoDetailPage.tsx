@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Facebook, ExternalLink, Calendar, ArrowLeft, Play } from 'lucide-react';
 import LanguageSelector from '../components/LanguageSelector';
@@ -25,6 +25,7 @@ const SITE_URL = 'https://mohammadiacademy.org';
 const VideoDetailPage: React.FC = () => {
   const { videoId } = useParams<{ videoId: string }>();
   const { language } = useLanguage();
+  const [playing, setPlaying] = useState(false);
   let t = TRANSLATIONS[language];
   if (!t) {
     t = TRANSLATIONS['en'];
@@ -165,17 +166,47 @@ const VideoDetailPage: React.FC = () => {
           Quran The Ultimate Truth
         </p>
 
-        <div className="relative aspect-video bg-black rounded-2xl overflow-hidden mt-8 border border-white/10">
-          <iframe
-            src={post.embed_url}
-            title={post.title}
-            className="absolute inset-0 w-full h-full"
-            style={{ border: 'none', overflow: 'hidden' }}
-            scrolling="no"
-            frameBorder="0"
-            allowFullScreen
-            allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-          />
+        {/* The posts are Reels — tall vertical 9:16 videos. The player is
+            9:16 too: in a wide 16:9 box Facebook's plugin cropped the top
+            and bottom off, and the dark first frame made it look like a
+            black box with only audio. It shows the video's thumbnail with
+            a play button first (click-to-play), and the plugin iframe
+            only loads after the tap. */}
+        <div className="relative aspect-[9/16] max-w-[420px] w-full mx-auto bg-black rounded-2xl overflow-hidden mt-8 border border-white/10">
+          {playing ? (
+            <iframe
+              src={post.embed_url}
+              title={post.title}
+              className="absolute inset-0 w-full h-full"
+              style={{ border: 'none', overflow: 'hidden' }}
+              scrolling="no"
+              frameBorder="0"
+              allowFullScreen
+              allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+            />
+          ) : (
+            <button
+              type="button"
+              onClick={() => setPlaying(true)}
+              className="absolute inset-0 w-full h-full group cursor-pointer"
+              aria-label={`Play ${post.title}`}
+            >
+              {post.thumbnail_url ? (
+                <img
+                  src={post.thumbnail_url}
+                  alt={post.title}
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+              ) : (
+                <span className="absolute inset-0 bg-slate-800" />
+              )}
+              <span className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/10 transition-colors">
+                <span className="w-20 h-20 rounded-full bg-[#1877F2] flex items-center justify-center shadow-lg">
+                  <Play size={34} className="text-white ml-1" />
+                </span>
+              </span>
+            </button>
+          )}
         </div>
 
         <div className="mt-8 rounded-2xl border border-white/10 bg-white/5 p-6">
