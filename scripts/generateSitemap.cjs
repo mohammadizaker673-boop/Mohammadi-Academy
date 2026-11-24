@@ -90,9 +90,22 @@ function extractSectionIds(file, sectionStart, regex) {
   return ids;
 }
 
+/** XML-escape text for sitemap values (captions contain & and quotes). */
+function escapeXml(s) {
+  return String(s || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
 function main() {
   const urls = [...STATIC_ROUTES];
   const staticPaths = new Set(STATIC_ROUTES.map(r => r[0]));
+  // Video sitemap data keyed by page path, for <video:video> blocks.
+  // Google discovers videos (and their thumbnails) from these entries,
+  // which the plain <url> list alone does not give it.
+  const videoMeta = {};
 
   // Courses -> /courses/<id>.
   // Top-level course objects in data/courses.ts use exactly 4 spaces of
@@ -114,7 +127,19 @@ function main() {
     for (const p of fb.posts || []) {
       if (DEAD_FACEBOOK_IDS.includes(p.id)) continue;
       const lastmod = p.created_at ? String(p.created_at).slice(0, 10) : undefined;
-      urls.push([`/videos/${p.id}`, 'weekly', '0.7', lastmod]);
+      const loc = `/videos/${p.id}`;
+      urls.push([loc, 'weekly', '0.7', lastmod]);
+      // thumbnail_loc: the permanent Drive URL (see the sync script —
+      // Facebook CDN links expire within days, which is what made most
+      // videos ineligible). Only include it when it is a Drive link.
+      videoMeta[loc] = {
+        title: (p.title || '').slice(0, 100),
+        description: (p.caption || '').replace(/\s+/g, ' ').trim().slice(0, 200),
+        thumbnail_loc: (p.thumbnail_url || '').startsWith('https://drive.google.com/thumbnail?id=')
+          ? p.thumbnail_url : '',
+        content_loc: p.url || '',
+        publication_date: lastmod || '',
+      };
     }
   } catch (e) { /* no synced posts yet */ }
 
@@ -146,12 +171,22 @@ function main() {
 
   const lines = [
     '<?xml version="1.0" encoding="UTF-8"?>',
-    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">',
   ];
   for (const [loc, freq, pri, lastmod] of urls) {
     const lastmodTag = lastmod ? `<lastmod>${lastmod}</lastmod>` : '';
+    const v = videoMeta[loc];
+    const videoTag = v
+      ? `<video:video>`
+        + (v.thumbnail_loc ? `<video:thumbnail_loc>${escapeXml(v.thumbnail_loc)}</video:thumbnail_loc>` : '')
+        + `<video:title>${escapeXml(v.title)}</video:title>`
+        + (v.description ? `<video:description>${escapeXml(v.description)}</video:description>` : '')
+        + (v.content_loc ? `<video:content_loc>${escapeXml(v.content_loc)}</video:content_loc>` : '')
+        + (v.publication_date ? `<video:publication_date>${v.publication_date}</video:publication_date>` : '')
+        + `</video:video>`
+      : '';
     lines.push(
-      `  <url><loc>${SITE_URL}${loc}</loc>${lastmodTag}<changefreq>${freq}</changefreq><priority>${pri}</priority></url>`
+      `  <url><loc>${SITE_URL}${loc}</loc>${lastmodTag}<changefreq>${freq}</changefreq><priority>${pri}</priority>${videoTag}</url>`
     );
   }
   lines.push('</urlset>');
