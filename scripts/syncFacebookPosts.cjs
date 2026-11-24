@@ -59,6 +59,74 @@ function fetchThumbnail(pageUrl) {
   }
 }
 
+const DRIVE_CLI = '/opt/hatch/bin/hatch_gws_cli';
+const DRIVE_THUMB_FOLDER = '1ZaFmG9MPNcNbLLqWymQsE0XmVNQn-yVU'; // "Academy Video Thumbnails"
+
+/** Permanent public thumbnail URL for a Drive file id. */
+function driveThumbUrl(driveId) {
+  return `https://drive.google.com/thumbnail?id=${driveId}&sz=w1000`;
+}
+
+/**
+ * Save a video's thumbnail where Google can always fetch it: upload it to
+ * the "Academy Video Thumbnails" Drive folder, make it public, and return
+ * its Drive file id. Facebook CDN links (scontent.xx.fbcdn.net) expire
+ * within days (the oe= param) and change on every sync, so Google can
+ * never rely on them — that is why most videos show no thumbnail in
+ * search and are not eligible for video results. A public Drive file
+ * never expires. Returns '' when the download or upload fails.
+ *
+ * NOTE: the site's GitHub push cannot carry binary files (UTF-8 only),
+ * which is why thumbnails live on Drive instead of in the repo. The
+ * automated sync only uploads when a genuinely new video appears; when
+ * the Drive call cannot run unattended it falls back to the Facebook
+ * link and retries on the next run.
+ */
+function uploadThumbnailToDrive(id, fbUrl) {
+  if (!fbUrl) return '';
+  const tmp = `/tmp/thumb_${id}.jpg`;
+  try {
+    execFileSync('curl', ['-s', '-L', '--max-time', '30',
+      '-A', 'Mozilla/5.0', '-o', tmp, fbUrl],
+      { encoding: 'utf-8', timeout: 60000 });
+    const buf = fs.readFileSync(tmp);
+    if (buf.length < 1000 || buf[0] !== 0xFF || buf[1] !== 0xD8 || buf[2] !== 0xFF) return '';
+    const out = execFileSync(DRIVE_CLI, ['drive', '+upload', tmp,
+      '--parent', DRIVE_THUMB_FOLDER], { encoding: 'utf-8', timeout: 120000 });
+    const driveId = JSON.parse(out).id;
+    if (!driveId) return '';
+    execFileSync(DRIVE_CLI, ['drive', 'permissions', 'create',
+      '--params', JSON.stringify({ fileId: driveId }),
+      '--json', JSON.stringify({ type: 'anyone', role: 'reader' })],
+      { encoding: 'utf-8', timeout: 60000 });
+    return driveId;
+  } catch (e) {
+    return '';
+  } finally {
+    try { fs.unlinkSync(tmp); } catch (e) { /* already gone */ }
+  }
+}
+
+/**
+ * Make sure a post's thumbnail_url is the permanent Drive URL, reusing
+ * the stored Drive file id when it exists (no re-upload on every sync).
+ * Returns the post (mutated).
+ */
+function ensureDriveThumbnail(p) {
+  if (p.thumbnail_drive_id) {
+    p.thumbnail_url = driveThumbUrl(p.thumbnail_drive_id);
+    return p;
+  }
+  const fb = p.thumbnail_facebook || fetchThumbnail(p.url);
+  const driveId = uploadThumbnailToDrive(p.id, fb);
+  if (driveId) {
+    p.thumbnail_drive_id = driveId;
+    p.thumbnail_url = driveThumbUrl(driveId);
+    p.thumbnail_facebook = fb;
+  }
+  return p;
+}
+
 function mediaKind(mediaType) {
   if (!mediaType) return 'post';
   if (mediaType.includes('video') || mediaType.includes('reel')) return 'video';
@@ -87,6 +155,14 @@ async function main() {
   const results = list.results || [];
   const posts = [];
 
+  // Previously synced posts, by id — so a re-sync reuses the stored
+  // Drive thumbnail id instead of uploading a duplicate every run.
+  let previous = [];
+  try {
+    previous = JSON.parse(fs.readFileSync(OUT_PATH, 'utf-8')).posts || [];
+  } catch (e) { /* first run */ }
+  const prevById = new Map(previous.map(p => [p.id, p]));
+
   for (const r of results) {
     const id = String(r.object_id || '');
     if (!id) continue;
@@ -103,7 +179,12 @@ async function main() {
     const url = detail.url || `https://www.facebook.com/${PAGE_ID}/posts/${id}`;
     const created = (detail.post_created_at && detail.post_created_at.utc)
       || (detail.created_at) || '';
-    const thumbnail_url = fetchThumbnail(url);
+    const prev = prevById.get(id);
+    const fbThumb = prev && prev.thumbnail_facebook ? prev.thumbnail_facebook : fetchThumbnail(url);
+    // Reuse the stored Drive thumbnail when this post was synced before.
+    const driveId = (prev && prev.thumbnail_drive_id)
+      ? prev.thumbnail_drive_id
+      : uploadThumbnailToDrive(id, fbThumb);
     posts.push({
       id,
       title: firstLine(caption),
@@ -111,7 +192,9 @@ async function main() {
       created_at: created,
       media_type: mediaKind(detail.media_type),
       url,
-      thumbnail_url,
+      thumbnail_url: driveId ? driveThumbUrl(driveId) : fbThumb,
+      thumbnail_drive_id: driveId || '',
+      thumbnail_facebook: fbThumb || '',
       embed_url: 'https://www.facebook.com/plugins/video.php?href='
         + encodeURIComponent(url) + '&show_text=false&width=560',
     });
@@ -123,15 +206,13 @@ async function main() {
   // blindly, so posts removed from Facebook (e.g. 1111795538300935 and
   // 1112198251593997, both 404 since 2026-11-10) kept coming back and
   // their video pages on the site stayed dead.
-  let previous = [];
-  try {
-    previous = JSON.parse(fs.readFileSync(OUT_PATH, 'utf-8')).posts || [];
-  } catch (e) { /* first run */ }
+  // (`previous` was already loaded at the top of main, for thumbnail reuse.)
   const seen = new Set(posts.map(p => p.id));
   for (const p of previous) {
     if (seen.has(p.id)) continue;
     seen.add(p.id);
     if (verifyPost(p.id)) {
+      ensureDriveThumbnail(p);
       posts.push(p);
     } else {
       console.log(`Dropping removed post ${p.id} (${p.title || 'no title'}) — no longer on Facebook`);
